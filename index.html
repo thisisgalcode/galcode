@@ -322,6 +322,8 @@
   .lt-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .lt-head .photo{width:48px;height:48px;flex:none;margin:0;border-radius:50%;aspect-ratio:auto;background:#FFE3EE;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line)}
   .lt-head .photo span{display:none}
+  .lt-head .photo{position:relative;display:block}
+  .lt-head .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .lt-head p{font-size:12.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
   .lt-body{font-family:var(--serif);font-size:clamp(19px,5.2vw,23px);line-height:1.42;color:var(--ink);white-space:pre-line}
   .lt-sign{font-family:'Caveat',cursive;font-weight:600;font-size:40px;line-height:1;color:var(--pink);margin-top:16px;transform:rotate(-3deg);transform-origin:left;display:inline-block}
@@ -582,7 +584,7 @@ let curEvent = null;
 /* ---------- Home ---------- */
 function setPhoto(el, url, label){
   if (!el) return;
-  el.innerHTML = url ? '<img src="' + esc(url) + '" alt="" loading="lazy">' : "<span>" + esc(label || "Photo") + "</span>";
+  el.innerHTML = url ? '<img src="' + esc(url) + '" alt="">' : "<span>" + esc(label || "Photo") + "</span>";
 }
 function renderHome(){
   const c = CONTENT;
