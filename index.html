@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FF1F72">
 <title>galcode — women's community</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --pink:#E8175D; --pink-soft:#FCE8EF; --gold:#E9C46A;
@@ -317,6 +317,15 @@
   .sign b{font-size:clamp(17px,4.6vw,22px)}
   .sign span{font-size:10.5px;letter-spacing:.1em}
   @media(min-width:640px){.note-card{grid-template-columns:220px 1fr;gap:28px;padding:22px}}
+  /* Founder card: letter with signature */
+  .note-card.letter{display:block;max-width:560px;margin:24px auto 0;background:#FFFBF5;border-radius:22px;padding:22px 20px 24px;text-align:left;box-shadow:0 10px 30px rgba(58,10,28,.12)}
+  .lt-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .lt-head .photo{width:48px;height:48px;flex:none;margin:0;border-radius:50%;aspect-ratio:auto;background:#FFE3EE;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line)}
+  .lt-head .photo span{display:none}
+  .lt-head p{font-size:12.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+  .lt-body{font-family:var(--serif);font-size:clamp(19px,5.2vw,23px);line-height:1.42;color:var(--ink);white-space:pre-line}
+  .lt-sign{font-family:'Caveat',cursive;font-weight:600;font-size:40px;line-height:1;color:var(--pink);margin-top:16px;transform:rotate(-3deg);transform-origin:left;display:inline-block}
+  .lt-role{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
   /* Sticky bar: dark so it stands apart from the white cards */
   .bar{background:rgba(58,10,28,.96);color:#fff;box-shadow:0 -8px 24px rgba(58,10,28,.25)}
   .bar b{color:#fff}
@@ -345,12 +354,11 @@
 
   <section class="sec">
     <div class="sec-label">Founder's note</div>
-    <div class="note-card">
-      <div class="photo tall" id="founderPhoto">Photo</div>
-      <div>
-        <blockquote id="fdQuote">"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is."</blockquote>
-        <div class="sign"><div><b id="fdName">Raksha</b><br><span id="fdRole">Founder, galcode</span></div></div>
-      </div>
+    <div class="note-card letter">
+      <div class="lt-head"><div class="photo" id="founderPhoto"></div><p>A note from our founder</p></div>
+      <p class="lt-body" id="fdQuote">I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is.</p>
+      <p class="lt-sign" id="fdName">Raksha</p>
+      <p class="lt-role" id="fdRole">Founder, galcode</p>
     </div>
   </section>
 
@@ -582,7 +590,7 @@ function renderHome(){
   $("hDesc").textContent = c.hero_desc;
   $("aBody").textContent = c.about_body;
   setPhoto($("aboutPhoto"), c.about_photo);
-  $("fdQuote").textContent = "“" + c.founder_quote + "”";
+  $("fdQuote").textContent = c.founder_quote;
   $("fdName").textContent = c.founder_name;
   $("fdRole").textContent = c.founder_role;
   setPhoto($("founderPhoto"), c.founder_photo);
