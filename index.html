@@ -362,6 +362,8 @@
     #formOv{padding:0;align-items:stretch}
     .qf{max-width:none;max-height:none;min-height:100%;height:100%;border-radius:0;padding-top:calc(16px + env(safe-area-inset-top));transform:translateY(100%)}
   }
+  .qf-ok[disabled]{opacity:.6;pointer-events:none}
+  .ev .pill.soon{background:rgba(58,10,28,.08);color:var(--ink)}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -372,15 +374,15 @@
 <!-- ============ HOME ============ -->
 <div class="view on" id="v-home">
   <section class="home-hero">
-    <h1>galcode<br><em>women's community</em></h1>
-    <p>A circle of women in Chennai who meet, make things and lift each other up.</p>
+    <h1 id="hTitle">galcode<br><em>women's community</em></h1>
+    <p id="hDesc">A circle of women in Chennai who meet, make things and lift each other up.</p>
   </section>
 
   <section class="sec" id="about">
     <div class="sec-label">About galcode</div>
-    <h2>A room full of women <em>rooting for you.</em></h2>
+    <h2 id="aHead">A room full of women <em>rooting for you.</em></h2>
     <div class="photo wide" id="aboutPhoto">Photo</div>
-    <p class="body">galcode started with a simple idea: women grow faster when they have each other. We host small, thoughtful events across Chennai, from founder meetups to slow Sunday evenings, where you can walk in alone and leave with friends.</p>
+    <p class="body" id="aBody">galcode started with a simple idea: women grow faster when they have each other. We host small, thoughtful events across Chennai, from founder meetups to slow Sunday evenings, where you can walk in alone and leave with friends.</p>
   </section>
 
   <section class="sec">
@@ -388,18 +390,18 @@
     <div class="note-card">
       <div class="photo tall" id="founderPhoto">Photo</div>
       <div>
-        <blockquote>"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is."</blockquote>
-        <div class="sign"><div><b>Raksha</b><br><span>Founder, galcode</span></div></div>
+        <blockquote id="fdQuote">"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is."</blockquote>
+        <div class="sign"><div><b id="fdName">Raksha</b><br><span id="fdRole">Founder, galcode</span></div></div>
       </div>
     </div>
   </section>
 
   <section class="sec" id="dates" style="padding-bottom:0">
     <div class="sec-label">Upcoming</div>
-    <h2>Dates worth <em>joining</em></h2>
+    <h2 id="dHead">Dates worth <em>joining</em></h2>
   </section>
   <div class="rail-wrap">
-    <div class="rail">
+    <div class="rail" id="rail">
       <div class="ev">
         <div class="ev-photo p1"><span>Photo</span></div>
         <h3>Women Entrepreneurs <em>Meet</em></h3>
@@ -435,16 +437,16 @@
   <div class="topback"><a class="back" href="#">← Back</a></div>
 <main class="poster">
   <!-- 1. Photo header -->
-  <div class="poster-photo"><span>Event photo</span></div>
+  <div class="poster-photo" id="pPhoto"><span>Event photo</span></div>
 
   <!-- 2. Text header -->
-  <h1 class="poster-title">Women Entrepreneurs <em>Meet</em></h1>
-  <p class="poster-about">An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.</p>
+  <h1 class="poster-title" id="pTitle">Women Entrepreneurs <em>Meet</em></h1>
+  <p class="poster-about" id="pAbout">An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.</p>
 
   <!-- 3. Event details -->
   <section class="ev-sec">
     <p class="ev-label">Event details</p>
-    <div class="ev-box">
+    <div class="ev-box" id="pDetails">
       <div class="d-row"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><div><small>Date</small><b>Sunday, 29 November</b></div></div>
       <div class="d-row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><small>Time</small><b>5:00 – 7:00 PM</b></div></div>
       <div class="d-row"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><div><small>Venue</small><b>Tower Park, Anna Nagar</b><a href="https://maps.google.com/?q=Tower+Park+Anna+Nagar+Chennai" target="_blank" rel="noopener">Open in Maps</a></div></div>
@@ -453,9 +455,9 @@
   </section>
 
   <!-- 4. What's included -->
-  <section class="ev-sec">
+  <section class="ev-sec" id="secInc">
     <p class="ev-label">What's included</p>
-    <ul class="ev-box inc">
+    <ul class="ev-box inc" id="pInc">
       <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Curated networking circles</span></li>
       <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Founder spotlight talk</span></li>
       <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Chai and light snacks</span></li>
@@ -464,9 +466,9 @@
   </section>
 
   <!-- 5. Agenda -->
-  <section class="ev-sec">
+  <section class="ev-sec" id="secAgenda">
     <p class="ev-label">Event agenda</p>
-    <ol class="ev-box agenda">
+    <ol class="ev-box agenda" id="pAgenda">
       <li><span class="num">01</span><div><b>Arrive and settle in</b><time>5:00 PM</time><small>Grab a chai, find your people</small></div></li>
       <li><span class="num">02</span><div><b>Welcome and intros</b><time>5:20 PM</time><small>Quick hellos in a circle</small></div></li>
       <li><span class="num">03</span><div><b>Founder spotlight</b><time>5:40 PM</time><small>A local founder shares her story</small></div></li>
@@ -477,7 +479,7 @@
   </section>
 
   <!-- 6. Event diary -->
-  <section class="ev-sec diary">
+  <section class="ev-sec diary" id="secDiary">
     <p class="ev-label">Event diary</p>
     <div class="diary-track" id="diary">
       <figure class="diary-slide" style="background:#FFE500"><span>Photo 1</span><figcaption>Past event</figcaption></figure>
@@ -519,7 +521,7 @@
 </div>
 
 <div class="bar" id="bar">
-  <div><b>Women Entrepreneurs Meet</b><span>Sun, 29 Nov · 5–7 PM</span></div>
+  <div><b id="barT">Women Entrepreneurs Meet</b><span id="barS">Sun, 29 Nov · 5–7 PM</span></div>
   <button class="btn" id="barBtn">Confirm my spot</button>
 </div>
 
@@ -537,10 +539,10 @@
       <div class="r-row"><span>Issued</span><span id="issued">—</span></div>
       <div class="r-row"><span>Name</span><span id="rName">—</span></div>
       <div class="dash"></div>
-      <div class="r-row"><span>Event</span><span>Women Entrepreneurs Meet</span></div>
-      <div class="r-row"><span>Date</span><span>Sun, 29 Nov</span></div>
-      <div class="r-row"><span>Time</span><span>5:00 – 7:00 PM</span></div>
-      <div class="r-row"><span>Venue</span><span>Tower Park, Anna Nagar</span></div>
+      <div class="r-row"><span>Event</span><span id="rEv">Women Entrepreneurs Meet</span></div>
+      <div class="r-row"><span>Date</span><span id="rDate">Sun, 29 Nov</span></div>
+      <div class="r-row"><span>Time</span><span id="rTime">5:00 – 7:00 PM</span></div>
+      <div class="r-row"><span>Venue</span><span id="rVenue">Tower Park, Anna Nagar</span></div>
       <div class="dash"></div>
       <div class="r-row"><span>1 × Good conversation</span><span>✓</span></div>
       <div class="r-row"><span>1 × New friends</span><span>✓</span></div>
@@ -568,7 +570,7 @@
     <!-- Screen: event -->
     <section class="qs" data-s="event">
       <h3>First, the <em>details</em></h3>
-      <div class="qf-sum">
+      <div class="qf-sum" id="qfEvSum">
         <div><small>Event</small><b>Women Entrepreneurs Meet</b></div>
         <div><small>Date</small><b>Sun, 29 November</b></div>
         <div><small>Time</small><b>5:00 – 7:00 PM</b></div>
@@ -614,11 +616,12 @@
     <section class="qs" data-s="pay">
       <h3>Almost <em>there,</em> <span id="payHi"></span></h3>
       <div class="qf-sum">
-        <div><small>Event</small><b>Women Entrepreneurs Meet</b></div>
+        <div><small>Event</small><b id="payEv">Women Entrepreneurs Meet</b></div>
         <div><small>Ticket</small><b>1 × Entry</b></div>
         <div class="tot"><small>Total</small><b id="sumPrice">To be announced</b></div>
       </div>
       <p class="qf-hint" id="payNote"></p>
+      <p class="qf-err"></p>
       <button class="qf-ok" id="payBtn">Pay and confirm</button>
       <button class="qf-prev center" data-prev>Back</button>
     </section>
@@ -629,46 +632,182 @@
 <div class="overlay" id="chatOv">
   <div class="chat" role="dialog" aria-label="Ask a question">
     <button class="x" data-close="chatOv" aria-label="Close">×</button>
-    <div class="chat-top"><b>Quick answers</b><small>Women Entrepreneurs Meet</small></div>
+    <div class="chat-top"><b>Quick answers</b><small id="chatSub">Women Entrepreneurs Meet</small></div>
     <div class="msgs" id="msgs"></div>
     <div class="dm-bar">
       <span>Still have a doubt?</span>
-      <a href="https://instagram.com/thisisgalcode" target="_blank" rel="noopener">DM us on Instagram</a>
+      <a href="https://instagram.com/thisisgalcode" target="_blank" rel="noopener" id="dmLink">DM us on Instagram</a>
     </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ===== EDIT HERE ===== */
-const BOOKING_URL = ""; // paste the event platform link here when ready
-const EVENT_INFO = `
-Community: galcode — a girls-only community in Chennai that hosts events just for women.
-Event: Women Entrepreneurs Meet
-Date: Sunday, 29 November 2026
-Time: 5:00 PM to 7:00 PM
-Venue: Tower Park, Anna Nagar, Chennai
-Who can come: girls/women only.
-Booking: tap "Confirm my spot" on the website, then "Complete booking" to finish on the event platform.
-Price, dress code, parking, food: not announced yet.
-`;
-/* ===================== */
+/* ===== galcode website: content comes from the admin panel (Supabase) ===== */
+const SUPABASE_URL = "https://hbhhtmxabsjxwiirancm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_3pvwaKstZSHy0fN8P6nR6A_7bP6mEY8";
+const db = (window.supabase && SUPABASE_KEY.indexOf("__") !== 0) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const titleHTML = (t, em) => esc(t) + (em ? " <em>" + esc(em) + "</em>" : "");
+const plainTitle = ev => [ev.title, ev.title_em].filter(Boolean).join(" ");
+function richText(txt){
+  const blocks = String(txt || "").split(/\n\s*\n/);
+  return blocks.map(b => {
+    const lines = b.split("\n").filter(l => l.trim());
+    const bullets = lines.filter(l => /^\s*[-•]\s+/.test(l));
+    if (bullets.length && bullets.length === lines.length) return "<ul>" + lines.map(l => "<li>" + linkify(esc(l.replace(/^\s*[-•]\s+/, ""))) + "</li>").join("") + "</ul>";
+    return lines.map(l => /^\s*[-•]\s+/.test(l) ? "<ul><li>" + linkify(esc(l.replace(/^\s*[-•]\s+/, ""))) + "</li></ul>" : "<p>" + linkify(esc(l)) + "</p>").join("");
+  }).join("");
+}
+function linkify(h){
+  return h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--pink)">$1</a>')
+          .replace(/(^|\s)@([a-z0-9._]{2,30})/gi, '$1<a href="https://instagram.com/$2" target="_blank" rel="noopener" style="color:var(--pink)">@$2</a>');
+}
+const TONES = ["p1","p2","p3","p4","p5"];
+const shortDate = ev => ev.event_date ? new Date(ev.event_date + "T00:00:00").toLocaleDateString("en-IN", {weekday:"short", day:"numeric", month:"short"}) : (ev.date_label || "");
 
+/* ---------- Starting content (used until the database answers) ---------- */
+let CONTENT = {
+  hero_title:"galcode", hero_subtitle:"women's community",
+  hero_desc:"A circle of women in Chennai who meet, make things and lift each other up.",
+  about_heading:"A room full of women", about_heading_em:"rooting for you.",
+  about_body:"galcode started with a simple idea: women grow faster when they have each other. We host small, thoughtful events across Chennai, from founder meetups to slow Sunday evenings, where you can walk in alone and leave with friends.",
+  about_photo:"", founder_quote:"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is.",
+  founder_name:"Raksha", founder_role:"Founder, galcode", founder_photo:"",
+  dates_heading:"Dates worth", dates_heading_em:"joining", instagram:"thisisgalcode",
+  policy_about:"galcode is a girls-only community in Chennai. We host small, thoughtful events where women can meet, learn and build things together.\n\nEvery event is designed to feel safe, warm and easy to walk into, even if you're coming alone.",
+  policy_contact:"The fastest way to reach us is a DM on Instagram: @thisisgalcode",
+  policy_privacy:"We only collect what we need to run our events, like your name and phone number.\n\nWe use it to send you event updates. We never sell or share your details with anyone else. Ask us anytime and we'll delete your data.",
+  policy_terms:"Our events are for women only. By booking, you agree to keep the space safe for everyone:\n- Be kind and respectful. No harassment of any kind.\n- Ask before taking photos of others.\n- What's shared in the room stays in the room.\n- No selling or pitching unless the event is meant for it.\n\nWe may ask anyone who breaks these to leave.",
+  policy_refund:"Tickets are booked through our event partner's platform.\n- Full refund if you cancel at least 48 hours before the event.\n- No refunds within 48 hours of the event, but you can transfer your spot to a friend.\n- If we cancel or reschedule, you get a full refund.\n\nTo request a refund, DM us on Instagram with your booking details."
+};
+let EVENTS = [
+  {id:null, slug:"women-entrepreneurs-meet", title:"Women Entrepreneurs", title_em:"Meet", status:"live", event_date:"2026-11-29",
+   date_label:"Sunday, 29 November", time_label:"5:00 – 7:00 PM", venue:"Tower Park, Anna Nagar",
+   maps_url:"https://maps.google.com/?q=Tower+Park+Anna+Nagar+Chennai", price:"", booking_url:"",
+   about:"An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.",
+   photo_url:"", included:["Curated networking circles","Founder spotlight talk","Chai and light snacks","A little galcode goodie to take home"],
+   agenda:[{time:"5:00 PM",title:"Arrive and settle in",note:"Grab a chai, find your people"},{time:"5:20 PM",title:"Welcome and intros",note:"Quick hellos in a circle"},{time:"5:40 PM",title:"Founder spotlight",note:"A local founder shares her story"},{time:"6:10 PM",title:"Small-group circles",note:"Talk ideas, challenges and wins"},{time:"6:45 PM",title:"Open networking",note:"Swap numbers, make plans"},{time:"7:00 PM",title:"Wrap up",note:""}],
+   diary:[], faqs:[{q:"Who can attend?",a:"It's a girls-only event. Whether you already run a business, have a side hustle or are just curious, you're welcome."},{q:"Can I come alone?",a:"Absolutely. Most people do, and you'll leave with new friends."}]},
+  {slug:"sunday-book-club", title:"Sunday", title_em:"Book Club", status:"soon"},
+  {slug:"pottery-and-chai", title:"Pottery &", title_em:"Chai", status:"soon"},
+  {slug:"sunset-run-club", title:"Sunset", title_em:"Run Club", status:"soon"},
+  {slug:"founders-brunch", title:"Founders'", title_em:"Brunch", status:"soon"}
+];
+let curEvent = null;
+
+/* ---------- Home ---------- */
+function setPhoto(el, url, label){
+  if (!el) return;
+  el.innerHTML = url ? '<img src="' + esc(url) + '" alt="" loading="lazy">' : "<span>" + esc(label || "Photo") + "</span>";
+}
+function renderHome(){
+  const c = CONTENT;
+  $("hTitle").innerHTML = esc(c.hero_title) + (c.hero_subtitle ? "<br><em>" + esc(c.hero_subtitle) + "</em>" : "");
+  $("hDesc").textContent = c.hero_desc;
+  $("aHead").innerHTML = titleHTML(c.about_heading, c.about_heading_em);
+  $("aBody").textContent = c.about_body;
+  setPhoto($("aboutPhoto"), c.about_photo);
+  $("fdQuote").textContent = "“" + c.founder_quote + "”";
+  $("fdName").textContent = c.founder_name;
+  $("fdRole").textContent = c.founder_role;
+  setPhoto($("founderPhoto"), c.founder_photo);
+  $("dHead").innerHTML = titleHTML(c.dates_heading, c.dates_heading_em);
+  const ig = "https://instagram.com/" + (c.instagram || "thisisgalcode").replace(/^@/, "");
+  $("dmLink").href = ig;
+
+  const list = EVENTS.filter(e => e.status === "live" || e.status === "soon");
+  $("rail").innerHTML = list.map((e, i) =>
+    '<div class="ev"><div class="ev-photo ' + TONES[i % 5] + '">' + (e.photo_url ? '<img src="' + esc(e.photo_url) + '" alt="" loading="lazy">' : "<span>Photo</span>") + "</div>" +
+    "<h3>" + titleHTML(e.title, e.title_em) + "</h3>" +
+    (e.status === "live" ? '<a class="pill" href="#' + esc(e.slug) + '">View details</a>' : '<button class="pill soon" type="button">Details soon</button>') + "</div>"
+  ).join("");
+  document.querySelector(".rail-hint").style.display = list.length > 1 ? "" : "none";
+}
+
+/* ---------- Event page ---------- */
+const ICON = {
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+  clk:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  tag:'<svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-6-4.4-8.5-8A5 5 0 0 1 12 6.5 5 5 0 0 1 20.5 13C18 16.6 12 21 12 21z"/></svg>',
+  tick:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+};
+function renderEvent(ev){
+  curEvent = ev;
+  setPhoto($("pPhoto"), ev.photo_url, "Event photo");
+  $("pTitle").innerHTML = titleHTML(ev.title, ev.title_em);
+  $("pAbout").textContent = ev.about || "";
+  const rows = [];
+  if (ev.date_label || ev.event_date) rows.push([ICON.cal, "Date", ev.date_label || shortDate(ev), ""]);
+  if (ev.time_label) rows.push([ICON.clk, "Time", ev.time_label, ""]);
+  if (ev.venue) rows.push([ICON.pin, "Venue", ev.venue, ev.maps_url ? '<a href="' + esc(ev.maps_url) + '" target="_blank" rel="noopener">Open in Maps</a>' : ""]);
+  rows.push([ICON.tag, "Price", ev.price || "To be announced", ""]);
+  rows.push([ICON.heart, "Who it's for", "Girls only", ""]);
+  $("pDetails").innerHTML = rows.map(r => '<div class="d-row">' + r[0] + "<div><small>" + r[1] + "</small><b>" + esc(r[2]) + "</b>" + r[3] + "</div></div>").join("");
+
+  const inc = ev.included || [];
+  $("secInc").hidden = !inc.length;
+  $("pInc").innerHTML = inc.map(t => "<li>" + ICON.tick + "<span>" + esc(t) + "</span></li>").join("");
+
+  const ag = ev.agenda || [];
+  $("secAgenda").hidden = !ag.length;
+  $("pAgenda").innerHTML = ag.map((a, i) => '<li><span class="num">' + String(i + 1).padStart(2, "0") + "</span><div><b>" + esc(a.title) + "</b>" + (a.time ? "<time>" + esc(a.time) + "</time>" : "") + (a.note ? "<small>" + esc(a.note) + "</small>" : "") + "</div></li>").join("");
+
+  const di = ev.diary || [];
+  $("secDiary").hidden = !di.length;
+  $("diary").innerHTML = di.map((d, i) => '<figure class="diary-slide" style="background:' + ["#FFE500","#FFD3E2","#FFF3B0","#FFB8D0","#FFEFC7","#FFC6D9"][i % 6] + '">' + (d.url ? '<img src="' + esc(d.url) + '" alt="" loading="lazy">' : "<span>Photo</span>") + (d.caption ? "<figcaption>" + esc(d.caption) + "</figcaption>" : "") + "</figure>").join("");
+  initDiary();
+
+  const sd = shortDate(ev);
+  $("barT").textContent = plainTitle(ev);
+  $("barS").textContent = [sd, ev.time_label].filter(Boolean).join(" · ");
+  $("chatSub").textContent = plainTitle(ev);
+  $("msgs").innerHTML = ""; asked.clear();
+
+  $("qfEvSum").innerHTML = [["Event", plainTitle(ev)], ["Date", sd], ["Time", ev.time_label], ["Venue", ev.venue], ["Price", ev.price || "To be announced"]]
+    .filter(r => r[1]).map(r => "<div><small>" + r[0] + "</small><b" + (r[0] === "Price" ? ' id="evPrice"' : "") + ">" + esc(r[1]) + "</b></div>").join("");
+  $("payEv").textContent = plainTitle(ev);
+  $("rEv").textContent = plainTitle(ev);
+  $("rDate").textContent = sd || "—";
+  $("rTime").textContent = ev.time_label || "—";
+  $("rVenue").textContent = ev.venue || "—";
+  document.title = plainTitle(ev) + " · galcode";
+}
+
+/* ---------- Routing ---------- */
+function route(){
+  const slug = decodeURIComponent(location.hash.slice(1));
+  const ev = EVENTS.find(e => e.slug === slug && e.status === "live");
+  if (ev && ev !== curEvent) renderEvent(ev);
+  $("v-home").classList.toggle("on", !ev);
+  $("v-event").classList.toggle("on", !!ev);
+  document.body.classList.toggle("ev-view", !!ev);
+  if (!ev) document.title = (CONTENT.hero_title || "galcode") + " — " + (CONTENT.hero_subtitle || "");
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- Receipt ---------- */
 function openReceipt(){
-  $("orderNo").textContent = "GC-" + Math.floor(1000 + Math.random()*9000);
+  $("orderNo").textContent = "GC-" + Math.floor(1000 + Math.random() * 9000);
   const d = new Date();
-  $("issued").textContent = d.toLocaleDateString("en-IN",{day:"2-digit",month:"short"}) + ", " + d.toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"});
-  if (BOOKING_URL) $("goBtn").href = BOOKING_URL;
-  else { $("goBtn").classList.add("pending"); $("goBtn").textContent = "Booking opens soon"; $("goNote").textContent = "We'll share the link shortly."; }
+  $("issued").textContent = d.toLocaleDateString("en-IN", {day:"2-digit", month:"short"}) + ", " + d.toLocaleTimeString("en-IN", {hour:"numeric", minute:"2-digit"});
+  const url = curEvent && curEvent.booking_url;
+  const go = $("goBtn");
+  if (url){ go.href = url; go.classList.remove("pending"); go.textContent = "Complete booking"; $("goNote").textContent = "You'll finish booking on our event partner's page."; }
+  else { go.removeAttribute("href"); go.classList.add("pending"); go.textContent = "Booking opens soon"; $("goNote").textContent = "We'll share the link shortly."; }
   const ov = $("receiptOv"); ov.classList.remove("show"); void ov.offsetWidth; ov.classList.add("show");
 }
-// ===== Booking form: one question at a time =====
-const PRICE = ""; // e.g. "₹499" — leave empty until decided
+
+/* ---------- Booking form: one question at a time ---------- */
 const booking = {};
 const SCREENS = ["event","name","phone","age","email","pay"];
 let cur = 0;
-const scr = n => document.querySelector(`#formOv .qs[data-s="${SCREENS[n]}"]`);
+const scr = n => document.querySelector('#formOv .qs[data-s="' + SCREENS[n] + '"]');
 function show(n){
   cur = n;
   document.querySelectorAll("#formOv .qs").forEach(q => q.classList.remove("on"));
@@ -676,16 +815,18 @@ function show(n){
   $("bar1").style.width = n >= 1 ? "100%" : "50%";
   $("bar2").style.width = n <= 0 ? "0" : n >= 5 ? "100%" : ((n - 1) / 4 * 100 + 12) + "%";
   $("bar3").style.width = n >= 5 ? "60%" : "0";
-  $("qfCount").textContent = n === 0 ? "Step 1 of 3 · Event" : n === 5 ? "Step 3 of 3 · Payment" : `Step 2 of 3 · Question ${n} of 4`;
-    const inp = el.querySelector("input.qf-in");
+  $("qfCount").textContent = n === 0 ? "Step 1 of 3 · Event" : n === 5 ? "Step 3 of 3 · Payment" : "Step 2 of 3 · Question " + n + " of 4";
+  const inp = el.querySelector("input.qf-in");
   if (inp && window.matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 250);
 }
 function openForm(){
+  if (!curEvent) return;
   document.querySelectorAll("#formOv .qf-err").forEach(e => e.textContent = "");
-  $("sumPrice").textContent = PRICE || "To be announced";
-  $("evPrice").textContent = PRICE || "To be announced";
-  $("payBtn").textContent = BOOKING_URL ? "Pay and confirm" : "Confirm my spot";
-  $("payNote").textContent = BOOKING_URL ? "You'll pay securely on our event partner's page." : "Payments open soon. We'll send you the link once booking opens.";
+  $("sumPrice").textContent = curEvent.price || "To be announced";
+  const url = curEvent.booking_url;
+  $("payBtn").textContent = url ? "Pay and confirm" : "Confirm my spot";
+  $("payBtn").disabled = false;
+  $("payNote").textContent = url ? "You'll pay securely on our event partner's page." : "Payments open soon. We'll send you the link once booking opens.";
   show(0);
   $("formOv").classList.add("show");
 }
@@ -694,10 +835,10 @@ $("barBtn").onclick = openForm;
 document.querySelectorAll("#formOv [data-prev]").forEach(b => b.onclick = () => cur > 0 && show(cur - 1));
 
 const RULES = {
-  name:  [() => $("fName").value.trim().length >= 2, "Enter your full name.", v => booking.name = $("fName").value.trim()],
-  phone: [() => /^[6-9]\d{9}$/.test($("fPhone").value), "Enter a valid 10-digit mobile number.", v => booking.phone = "+91" + $("fPhone").value],
-  age:   [() => { const a = +$("fAge").value; return a >= 13 && a <= 99; }, "Enter your age.", v => booking.age = +$("fAge").value],
-  email: [() => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("fEmail").value.trim()), "Enter a valid email address.", v => booking.email = $("fEmail").value.trim()]
+  name:  [() => $("fName").value.trim().length >= 2, "Enter your full name.", () => booking.name = $("fName").value.trim()],
+  phone: [() => /^[6-9]\d{9}$/.test($("fPhone").value), "Enter a valid 10-digit mobile number.", () => booking.phone = "+91" + $("fPhone").value],
+  age:   [() => { const a = +$("fAge").value; return a >= 13 && a <= 99; }, "Enter your age.", () => booking.age = +$("fAge").value],
+  email: [() => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("fEmail").value.trim()), "Enter a valid email address.", () => booking.email = $("fEmail").value.trim()]
 };
 function next(){
   const key = SCREENS[cur], el = scr(cur), err = el.querySelector(".qf-err");
@@ -716,20 +857,36 @@ document.querySelectorAll("#formOv input.qf-in").forEach(i => {
   i.addEventListener("input", () => i.closest(".qs").querySelector(".qf-err").textContent = "");
 });
 $("agree").onchange = () => scr(0).querySelector(".qf-err").textContent = "";
-$("fPhone").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g,"").slice(0,10));
-$("fAge").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g,"").slice(0,2));
-$("payBtn").onclick = () => {
-  if (BOOKING_URL) window.open(BOOKING_URL, "_blank", "noopener");
+$("fPhone").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10));
+$("fAge").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, "").slice(0, 2));
+
+$("payBtn").onclick = async () => {
+  const btn = $("payBtn"), err = scr(5).querySelector(".qf-err");
+  err.textContent = "";
+  const url = curEvent.booking_url;
+  const payWin = url ? window.open("about:blank", "_blank") : null;   // opened now so phones don't block it
+  if (db && curEvent.id){
+    btn.disabled = true; const label = btn.textContent; btn.textContent = "Saving…";
+    const { error } = await db.from("bookings").insert({ event_id: curEvent.id, name: booking.name, phone: booking.phone, age: booking.age, email: booking.email });
+    btn.disabled = false; btn.textContent = label;
+    if (error){
+      if (payWin) payWin.close();
+      err.textContent = "Couldn't save your spot. Check your connection and try again, or DM us on Instagram.";
+      return;
+    }
+  }
+  if (payWin) payWin.location.href = url;
   $("formOv").classList.remove("show");
   $("rName").textContent = booking.name || "—";
+  ["fName","fPhone","fAge","fEmail"].forEach(id => $(id).value = ""); $("agree").checked = false;
   openReceipt();
 };
 
+/* ---------- Overlays ---------- */
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $(b.dataset.close).classList.remove("show"));
 document.querySelectorAll(".overlay").forEach(o => o.addEventListener("click", e => { if (e.target === o) o.classList.remove("show"); }));
 document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelectorAll(".overlay.show").forEach(o => o.classList.remove("show")); });
 
-// Sticky bar appears once the main button scrolls out of view
 if ("IntersectionObserver" in window){
   let ctaVisible = false;
   const upd = () => $("bar").classList.toggle("show", !ctaVisible && window.scrollY > 380);
@@ -737,75 +894,54 @@ if ("IntersectionObserver" in window){
   window.addEventListener("scroll", upd, {passive:true});
 }
 
-
-// Footer info pages — edit the text here
-const INFO = {
-  about:{title:"About us", body:`<p>galcode is a girls-only community in Chennai. We host small, thoughtful events where women can meet, learn and build things together.</p><p>Every event is designed to feel safe, warm and easy to walk into, even if you're coming alone.</p>`},
-  terms:{title:"Terms & conditions", body:`<p>Our events are for women only. By booking, you agree to keep the space safe for everyone:</p><ul><li>Be kind and respectful. No harassment of any kind.</li><li>Ask before taking photos of others.</li><li>What's shared in the room stays in the room.</li><li>No selling or pitching unless the event is meant for it.</li></ul><p>We may ask anyone who breaks these to leave.</p>`},
-  refund:{title:"Refund policy", body:`<p>Tickets are booked through our event partner's platform.</p><ul><li>Full refund if you cancel at least 48 hours before the event.</li><li>No refunds within 48 hours of the event, but you can transfer your spot to a friend.</li><li>If we cancel or reschedule, you get a full refund.</li></ul><p>To request a refund, DM us on Instagram with your booking details.</p>`},
-  privacy:{title:"Privacy", body:`<p>We only collect what we need to run our events, like your name and phone number.</p><p>We use it to send you event updates. We never sell or share your details with anyone else. Ask us anytime and we'll delete your data.</p>`},
-  contact:{title:"Contact", body:`<p>The fastest way to reach us is a DM on Instagram.</p><p><b>Instagram:</b> <a href="https://instagram.com/thisisgalcode" target="_blank" rel="noopener" style="color:var(--pink)">@thisisgalcode</a></p>`}
-};
+/* ---------- Footer pages ---------- */
+const INFO_TITLES = {about:"About us", contact:"Contact", privacy:"Privacy policy", terms:"Terms & conditions", refund:"Refund policy"};
 document.querySelectorAll("[data-info]").forEach(b => b.onclick = () => {
-  const i = INFO[b.dataset.info];
-  $("infoTitle").textContent = i.title; $("infoBody").innerHTML = i.body;
+  const k = b.dataset.info;
+  $("infoTitle").textContent = INFO_TITLES[k];
+  $("infoBody").innerHTML = richText(CONTENT["policy_" + k]);
   $("infoOv").classList.add("show");
 });
-
-// Sample event cards: no page yet
-document.querySelectorAll('a.pill[href="#"]').forEach(a => a.onclick = e => {
-  e.preventDefault(); const t = a.textContent; a.textContent = "Details soon";
-  setTimeout(() => a.textContent = t, 1400);
+document.addEventListener("click", e => {
+  const p = e.target.closest(".pill.soon");
+  if (p){ const t = p.textContent; p.textContent = "Coming soon"; setTimeout(() => p.textContent = t, 1400); }
 });
 
-// Routing: home <-> event
-function route(){
-  const ev = location.hash === "#women-entrepreneurs-meet";
-  $("v-home").classList.toggle("on", !ev);
-  $("v-event").classList.toggle("on", ev);
-  document.body.classList.toggle("ev-view", ev);
-  if (ev) window.scrollTo(0,0);
-  else if (location.hash === "#dates" || location.hash === "#about") document.getElementById(location.hash.slice(1)).scrollIntoView({behavior:"smooth"});
-  else window.scrollTo(0,0);
-}
-window.addEventListener("hashchange", route); route();
-
-
-// Event diary: auto-scroll every 3 seconds, pauses while touched
-(function(){
+/* ---------- Event diary: auto-scroll every 3 seconds ---------- */
+let diaryIdx = 0, diaryPaused = false, diaryResume;
+function initDiary(){
   const track = $("diary"), dots = $("diaryDots");
-  if (!track) return;
   const slides = [...track.children];
-  slides.forEach(() => dots.appendChild(document.createElement("i")));
-  let idx = 0, paused = false, resumeT;
-  const step = () => slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : track.clientWidth;
-  const setDot = i => [...dots.children].forEach((d,j) => d.classList.toggle("on", j === i));
-  track.addEventListener("scroll", () => { idx = Math.round(track.scrollLeft / step()); setDot(Math.min(idx, slides.length-1)); }, {passive:true});
-  const pause = () => { paused = true; clearTimeout(resumeT); };
-  const resume = () => { clearTimeout(resumeT); resumeT = setTimeout(() => paused = false, 4000); };
+  dots.innerHTML = slides.length > 1 ? slides.map(() => "<i></i>").join("") : "";
+  diaryIdx = 0; track.scrollLeft = 0; setDot(0);
+}
+const diaryStep = () => { const s = $("diary").children; return s.length > 1 ? s[1].offsetLeft - s[0].offsetLeft : $("diary").clientWidth; };
+function setDot(i){ [...$("diaryDots").children].forEach((d, j) => d.classList.toggle("on", j === i)); }
+(function(){
+  const track = $("diary");
+  track.addEventListener("scroll", () => { diaryIdx = Math.round(track.scrollLeft / diaryStep()); setDot(Math.min(diaryIdx, track.children.length - 1)); }, {passive:true});
+  const pause = () => { diaryPaused = true; clearTimeout(diaryResume); };
+  const resume = () => { clearTimeout(diaryResume); diaryResume = setTimeout(() => diaryPaused = false, 4000); };
   ["touchstart","pointerdown","mouseenter"].forEach(e => track.addEventListener(e, pause, {passive:true}));
   ["touchend","pointerup","mouseleave"].forEach(e => track.addEventListener(e, resume, {passive:true}));
-  setDot(0);
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) setInterval(() => {
-    if (paused || document.hidden || !track.offsetParent) return;
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => {
+    if (diaryPaused || document.hidden || !track.offsetParent || track.children.length < 2) return;
     const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
-    idx = atEnd ? 0 : idx + 1;
-    track.scrollTo({left: idx * step(), behavior: "smooth"});
+    diaryIdx = atEnd ? 0 : diaryIdx + 1;
+    track.scrollTo({left: diaryIdx * diaryStep(), behavior: "smooth"});
   }, 3000);
 })();
 
-// FAQ bot — edit questions & answers here
-const FAQ = [
-  {q:"Who can attend?", a:"It's a girls-only event. Whether you already run a business, have a side hustle or are just curious, you're welcome."},
-  {q:"Is it paid?", a:"Ticket details will be shared soon, along with the booking link. Keep an eye on our Instagram."},
-  {q:"Where exactly is it?", a:'Tower Park, Anna Nagar, Chennai. <a href="https://maps.google.com/?q=Tower+Park+Anna+Nagar+Chennai" target="_blank" rel="noopener">Open in Maps</a>'},
-  {q:"What time should I come?", a:"We start at 5:00 PM and wrap up by 7:00 PM. Come 10 minutes early to settle in."},
-  {q:"Can I come alone?", a:"Absolutely. Most people do, and you'll leave with new friends."},
-  {q:"What should I bring?", a:"Just yourself, your ideas and a water bottle. Business cards are a bonus if you have them."},
-  {q:"How do I book?", a:'Tap "Confirm my spot" on the event page, then "Complete booking" to finish on our event partner\'s page.'}
-];
+/* ---------- FAQ bot (each event has its own FAQs) ---------- */
 const asked = new Set();
+function eventFaqs(){
+  const list = (curEvent && curEvent.faqs || []).filter(f => f.q && f.a).map(f => ({q: f.q, a: esc(f.a)}));
+  if (curEvent && curEvent.venue && !list.some(f => /where/i.test(f.q)))
+    list.push({q:"Where exactly is it?", a: esc(curEvent.venue) + (curEvent.maps_url ? ' <a href="' + esc(curEvent.maps_url) + '" target="_blank" rel="noopener">Open in Maps</a>' : "")});
+  if (!list.some(f => /book/i.test(f.q)))
+    list.push({q:"How do I book?", a:'Tap "Confirm my spot" on this page and follow the three quick steps.'});
+  return list;
+}
 function bubble(html, who){
   const m = document.createElement("div");
   m.className = "m " + who;
@@ -814,7 +950,7 @@ function bubble(html, who){
   return m;
 }
 function chips(){
-  const left = FAQ.filter(f => !asked.has(f.q));
+  const left = eventFaqs().filter(f => !asked.has(f.q));
   if (!left.length) return;
   const c = document.createElement("div"); c.className = "chips";
   left.forEach(f => {
@@ -833,11 +969,23 @@ function answer(f){
 }
 $("doubtBtn").onclick = () => {
   $("chatOv").classList.add("show");
-  if (!$("msgs").children.length){
-    bubble("Hi! Tap a question below and I'll answer right away.", "bot");
-    chips();
-  }
+  if (!$("msgs").children.length){ bubble("Hi! Tap a question below and I'll answer right away.", "bot"); chips(); }
 };
+
+/* ---------- Start ---------- */
+renderHome(); route();
+(async function load(){
+  if (!db) return;
+  try {
+    const [c, e] = await Promise.all([
+      db.from("site_content").select("key,value"),
+      db.from("events").select("*").in("status", ["live","soon"]).order("sort").order("event_date")
+    ]);
+    if (!c.error && c.data) c.data.forEach(r => CONTENT[r.key] = r.value);
+    if (!e.error && e.data) EVENTS = e.data;
+    curEvent = null; renderHome(); route();
+  } catch (err) { console.warn("galcode: using built-in content", err); }
+})();
 </script>
 </body>
 </html>
