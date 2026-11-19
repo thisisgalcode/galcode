@@ -309,6 +309,23 @@
   .home-hero{padding-bottom:20px}
   #about{padding-top:12px}
   #about .photo{margin-top:18px}
+  /* Founder card: photo beside quote on every screen */
+  .note-card{display:grid;grid-template-columns:minmax(0,38%) 1fr;gap:18px;align-items:center;padding:16px}
+  .note-card .photo{margin-top:0;aspect-ratio:4/5;border-radius:16px}
+  .note-card blockquote{margin-top:0;font-size:clamp(15.5px,4.3vw,24px);line-height:1.32}
+  .sign{margin-top:12px}
+  .sign b{font-size:clamp(17px,4.6vw,22px)}
+  .sign span{font-size:10.5px;letter-spacing:.1em}
+  @media(min-width:640px){.note-card{grid-template-columns:220px 1fr;gap:28px;padding:22px}}
+  /* Sticky bar: dark so it stands apart from the white cards */
+  .bar{background:rgba(58,10,28,.96);color:#fff;box-shadow:0 -8px 24px rgba(58,10,28,.25)}
+  .bar b{color:#fff}
+  .bar span{color:#FFD0E0}
+  .bar .btn{background:var(--yellow);color:var(--ink);font-weight:600}
+  .bar .btn:hover{background:#fff}
+  /* Centre "I have a doubt" under the button */
+  .poster-cta{text-align:center}
+  .doubt-w{display:block;margin:12px auto 0}
   .ev .pill.soon{background:rgba(58,10,28,.08);color:var(--ink)}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
