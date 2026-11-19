@@ -495,7 +495,7 @@ let draft = null;
 const slugify = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "event";
 function openEvent(id){
   const src = id ? EVENTS.find(e => e.id === id) : null;
-  draft = src ? JSON.parse(JSON.stringify(src)) : {id:null, slug:"", title:"", title_em:"", status:"draft", event_date:null, date_label:"", time_label:"", venue:"", maps_url:"", price:"", booking_url:"", about:"", photo_url:"", included:[], agenda:[], diary:[], faqs:[], sort:(EVENTS.length + 1)};
+  draft = src ? JSON.parse(JSON.stringify(src)) : {id:null, audience:"Girls only", slug:"", title:"", title_em:"", status:"draft", event_date:null, date_label:"", time_label:"", venue:"", maps_url:"", price:"", booking_url:"", about:"", photo_url:"", included:[], agenda:[], diary:[], faqs:[], sort:(EVENTS.length + 1)};
   $("evSheetTitle").textContent = src ? "Edit event" : "New event";
   renderEventForm();
   $("evSheet").classList.add("show"); $("evSheet").scrollTop = 0;
@@ -514,8 +514,8 @@ function renderEventForm(){
     '<p class="gl">Title</p><div class="grp">' + f("Title", "title", "Women Entrepreneurs") + f("Italic word", "title_em", "Meet") + "</div>" +
     '<p class="gf">The italic word shows in a different colour, like <i>Meet</i> in Women Entrepreneurs <i>Meet</i>.</p>' +
 
-    '<p class="gl">When and where</p><div class="grp">' + f("Date", "event_date", "", "date") + f("Date text", "date_label", "Sunday, 29 November") + f("Time", "time_label", "5:00 – 7:00 PM") + f("Venue", "venue", "Tower Park, Anna Nagar") + f("Maps link", "maps_url", "Paste Google Maps link", "url") + "</div>" +
-    '<p class="gf">Leave "Date text" empty and it\'s filled in from the date.</p>' +
+    '<p class="gl">When and where</p><div class="grp">' + f("Date", "event_date", "", "date") + f("Date text", "date_label", "Sunday, 29 November") + f("Time", "time_label", "5:00 – 7:00 PM") + f("Venue", "venue", "Tower Park, Anna Nagar") + f("Maps link", "maps_url", "Paste Google Maps link", "url") + f("Who it's for", "audience", "Girls only") + "</div>" +
+    '<p class="gf">Leave "Date text" empty and it\'s filled in from the date. "Who it\'s for" shows on the event page only; leave it empty to hide it.</p>' +
 
     '<p class="gl">Tickets</p><div class="grp">' + f("Price", "price", "₹499") + f("Payment link", "booking_url", "https://…", "url") + "</div>" +
     '<p class="gf">After someone fills the form, they\'re sent to this link to pay. Leave empty while payments aren\'t open.</p>' +
@@ -601,7 +601,7 @@ $("evSave").onclick = async () => {
   d.included = d.included.map(s => s.trim()).filter(Boolean);
   d.agenda = d.agenda.filter(a => a.title.trim());
   d.faqs = d.faqs.filter(q => q.q.trim() && q.a.trim());
-  const row = {slug:d.slug, title:d.title.trim(), title_em:d.title_em.trim(), status:d.status, event_date:d.event_date || null, date_label:d.date_label, time_label:d.time_label, venue:d.venue, maps_url:d.maps_url, price:d.price, booking_url:d.booking_url, about:d.about, photo_url:d.photo_url, included:d.included, agenda:d.agenda, diary:d.diary, faqs:d.faqs, sort:d.sort};
+  const row = {slug:d.slug, title:d.title.trim(), title_em:d.title_em.trim(), status:d.status, event_date:d.event_date || null, date_label:d.date_label, time_label:d.time_label, venue:d.venue, maps_url:d.maps_url, audience:(d.audience ?? "").trim(), price:d.price, booking_url:d.booking_url, about:d.about, photo_url:d.photo_url, included:d.included, agenda:d.agenda, diary:d.diary, faqs:d.faqs, sort:d.sort};
   $("evSave").disabled = true;
   const res = d.id ? await db.from("events").update(row).eq("id", d.id) : await db.from("events").insert(row);
   $("evSave").disabled = false;

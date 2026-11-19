@@ -643,7 +643,7 @@ function renderEvent(ev){
   if (ev.time_label) rows.push([ICON.clk, "Time", ev.time_label, ""]);
   if (ev.venue) rows.push([ICON.pin, "Venue", ev.venue, ev.maps_url ? '<a href="' + esc(ev.maps_url) + '" target="_blank" rel="noopener">Open in Maps</a>' : ""]);
   rows.push([ICON.tag, "Price", ev.price || "To be announced", ""]);
-  rows.push([ICON.heart, "Who it's for", "Girls only", ""]);
+  if ((ev.audience ?? "Girls only").trim()) rows.push([ICON.heart, "Who it's for", ev.audience ?? "Girls only", ""]);
   $("pDetails").innerHTML = rows.map(r => '<div class="d-row">' + r[0] + "<div><small>" + r[1] + "</small><b>" + esc(r[2]) + "</b>" + r[3] + "</div></div>").join("");
 
   const inc = ev.included || [];
