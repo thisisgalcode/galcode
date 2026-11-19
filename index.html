@@ -18,43 +18,10 @@
   body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
   button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 
-  /* Header */
-  header{position:sticky;top:0;z-index:5;background:rgba(251,247,244,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
-  .nav{max-width:720px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 20px}
-  .nav img{width:40px;height:40px;border-radius:10px;display:block}
-  .nav a.link{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);text-decoration:none;font-weight:500}
-
-  /* Hero */
-  .hero{max-width:720px;margin:auto;padding:44px 24px 28px}
   .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);font-weight:600}
-  .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(36px,10vw,56px);line-height:1.04;letter-spacing:-.02em;margin-top:14px}
-  .hero h1 em{font-style:italic;color:var(--pink)}
-  .hero p{margin-top:14px;color:var(--ink-2);font-size:16px;line-height:1.55;max-width:420px}
 
-  main{max-width:720px;margin:0 auto;padding:0 16px 120px}
-
-  /* Event card */
-  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
-  .card-top{display:flex;gap:18px;align-items:center;padding:24px 22px 20px}
-  .datebox{flex:none;width:68px;text-align:center;border:1px solid var(--line);border-radius:14px;padding:10px 0 8px;background:var(--bg)}
-  .datebox b{display:block;font-family:var(--serif);font-weight:500;font-size:32px;line-height:1;color:var(--pink)}
-  .datebox span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
-  .card-top small{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .card-top h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,6.4vw,30px);line-height:1.12;letter-spacing:-.01em;margin-top:4px}
-  .card-top h2 em{font-style:italic;color:var(--pink)}
-
-  .details{margin:0 22px;border-top:1px solid var(--line)}
-  .row{display:flex;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
-  .row svg{flex:none;width:20px;height:20px;stroke:var(--pink);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .row small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .row b{display:block;font-weight:500;font-size:16px;margin-top:2px}
-  .about{padding:20px 22px 4px;color:var(--ink-2);line-height:1.65;font-size:15px}
-
-  .cta{padding:22px 22px 24px;text-align:center}
   .btn{width:100%;min-height:56px;background:var(--ink);color:#fff;font-weight:500;font-size:16px;letter-spacing:.02em;border-radius:14px;transition:transform .12s,background .2s}
   .btn:hover{background:var(--pink)}
-  .btn:active{transform:scale(.98)}
-  .doubt{margin-top:14px;padding:10px 14px;color:#B4AAAE;font-size:14px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#DDD3D6}
 
   /* Sticky mobile bar */
   .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(251,247,244,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;transform:translateY(110%);transition:transform .3s}
@@ -65,8 +32,6 @@
   .bar span{font-size:12px;color:var(--ink-2)}
   .bar .btn{width:auto;min-height:48px;padding:0 20px;font-size:15px}
   @media(min-width:760px){.bar{display:none}}
-
-  footer{text-align:center;color:var(--muted);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:36px 20px 0}
 
   /* Overlays */
   .overlay{position:fixed;inset:0;background:rgba(31,20,24,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20;opacity:0;pointer-events:none;transition:opacity .25s}
@@ -114,13 +79,6 @@
   .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
   @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
   .m.bot a{color:var(--pink)}
-  .composer{display:flex;gap:8px;padding:12px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
-  .composer input{flex:1;min-width:0;border:1px solid var(--line);border-radius:99px;padding:12px 16px;font:inherit;font-size:16px;outline:none;background:var(--bg)}
-  .composer input:focus{border-color:var(--pink)}
-  .composer button{background:var(--pink);color:#fff;border-radius:99px;width:48px;height:48px;flex:none;display:grid;place-items:center}
-  .composer button svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .composer button:disabled{opacity:.45}
-
 
   /* Views */
   .view{display:none}
@@ -133,8 +91,6 @@
   .home-hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,13vw,72px);line-height:.98;letter-spacing:-.03em;margin-top:0}
   .home-hero h1 em{font-style:italic;color:var(--pink)}
   .home-hero p{margin-top:18px;color:var(--ink-2);font-size:16px;line-height:1.6;max-width:400px}
-  .scroll-cue{display:inline-flex;align-items:center;gap:10px;margin-top:28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);text-decoration:none;font-weight:600}
-  .scroll-cue span{display:inline-block;width:36px;height:1px;background:var(--ink)}
 
   .sec{max-width:720px;margin:auto;padding:40px 24px}
   .sec-label{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);font-weight:600}
@@ -181,7 +137,6 @@
   .foot-links button{font-size:13px;color:var(--ink-2);padding:8px 8px;min-height:40px}
   .foot-links button:hover{color:var(--pink)}
   .foot-links i{color:var(--line);font-style:normal;align-self:center}
-  .copy{margin-top:14px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
 
   /* Info sheet */
   .sheet{width:100%;max-width:520px;max-height:80vh;background:var(--card);border-radius:22px;padding:28px 24px calc(28px + env(safe-area-inset-bottom));overflow-y:auto;position:relative;transform:translateY(20px);transition:transform .3s}
@@ -203,11 +158,11 @@
   /* ===== Logo pop theme ===== */
   :root{--pink:#FF1F72;--pink-d:#E0105E;--yellow:#FFE500;--bg:#FFF6F9;--ink:#3A0A1C;--ink-2:#6B3A4E;--muted:#B07A8F;--line:#FFD3E2}
   body{background:var(--pink);color:#fff}
-  .eyebrow,.sec-label{color:#FFF3B0}
+  .sec-label{color:#FFF3B0}
   .sec-label::after{background:rgba(255,255,255,.3)}
-  .home-hero h1,.sec h2,.hero h1{color:var(--yellow)}
-  .home-hero h1 em,.sec h2 em,.hero h1 em{color:#fff}
-  .home-hero p,.sec p.body,.hero p{color:#FFE4EE}
+  .home-hero h1,.sec h2{color:var(--yellow)}
+  .home-hero h1 em,.sec h2 em{color:#fff}
+  .home-hero p,.sec p.body{color:#FFE4EE}
   .photo{background:rgba(255,255,255,.14);border:1px dashed rgba(255,255,255,.45);color:#FFE4EE}
   .note-card{background:#fff;border:0;color:var(--ink)}
   .note-card .photo{background:#FFF0F5;border-color:var(--line);color:var(--muted)}
@@ -222,8 +177,6 @@
   .pill:hover{background:var(--pink-d)}
   .rail-hint{color:#FFD0E0}
   .back{color:#FFE4EE}
-  .card{border:0;color:var(--ink)}
-  .datebox{background:#FFF0F5;border-color:var(--line)}
   .btn{background:var(--pink)}
   .btn:hover{background:var(--pink-d)}
   .bar{background:rgba(255,255,255,.96);border-top:0;color:var(--ink)}
@@ -255,9 +208,6 @@
   .sign b{font-size:22px}
   .ev{text-align:left}
   .ev h3{font-size:26px;line-height:1.1}
-  .card-top h2{font-size:clamp(28px,8vw,36px);line-height:1.05}
-  .hero h1{font-size:clamp(44px,12vw,62px);line-height:1}
-  .datebox b{font-size:38px}
   .r-head h3{font-size:30px}
   .chat-top b{font-size:22px}
   .sheet h3{font-size:32px}
@@ -269,12 +219,7 @@
   .poster-photo img{width:100%;height:100%;object-fit:cover}
   .poster-title{font-family:var(--serif);font-weight:400;font-size:clamp(44px,12.5vw,64px);line-height:.98;color:var(--yellow);margin:24px 0 18px;letter-spacing:-.01em}
   .poster-title em{color:#fff}
-  .chips-row{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.18);color:#fff;font-size:13.5px;padding:9px 14px;border-radius:99px;text-decoration:none;min-height:38px}
-  .chip svg{width:15px;height:15px;stroke:#FFE500;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-  a.chip{text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.45)}
   .poster-about{margin-top:20px;color:#FFE4EE;font-size:15.5px;line-height:1.7}
-  .poster-cta{margin-top:26px;text-align:center}
   .btn-w{width:100%;min-height:56px;background:#fff;color:var(--pink);font-weight:600;font-size:16px;border-radius:99px;transition:transform .12s,background .2s}
   .btn-w:hover{background:#FFF3B0}
   .btn-w:active{transform:scale(.98)}
@@ -318,8 +263,6 @@
   .qf{width:100%;max-width:480px;min-height:min(640px,92vh);max-height:92vh;overflow-y:auto;background:var(--pink);color:#fff;border-radius:24px;padding:18px 22px calc(28px + env(safe-area-inset-bottom));position:relative;display:flex;flex-direction:column;transform:translateY(20px);transition:transform .3s}
   .overlay.show .qf{transform:none}
   .qf-top{display:flex;align-items:center;gap:12px}
-  .qf-back,.qf-x{width:40px;height:40px;flex:none;border-radius:50%;font-size:20px;color:#fff;background:rgba(255,255,255,.14)}
-  .qf-back[hidden]{visibility:hidden;display:block}
   .qf-bars{flex:1;display:flex;gap:5px}
   .qf-bars span{flex:1;height:4px;border-radius:9px;background:rgba(255,255,255,.3);overflow:hidden}
   .qf-bars i{display:block;height:100%;width:0;background:var(--yellow);border-radius:9px;transition:width .35s ease}
@@ -363,15 +306,14 @@
     .qf{max-width:none;max-height:none;min-height:100%;height:100%;border-radius:0;padding-top:calc(16px + env(safe-area-inset-top));transform:translateY(100%)}
   }
   .qf-ok[disabled]{opacity:.6;pointer-events:none}
+  .home-hero{padding-bottom:20px}
+  #about{padding-top:12px}
+  #about .photo{margin-top:18px}
   .ev .pill.soon{background:rgba(58,10,28,.08);color:var(--ink)}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-
-
-
-<!-- ============ HOME ============ -->
 <div class="view on" id="v-home">
   <section class="home-hero">
     <h1 id="hTitle">galcode<br><em>women's community</em></h1>
@@ -380,7 +322,6 @@
 
   <section class="sec" id="about">
     <div class="sec-label">About galcode</div>
-    <h2 id="aHead">A room full of women <em>rooting for you.</em></h2>
     <div class="photo wide" id="aboutPhoto">Photo</div>
     <p class="body" id="aBody">galcode started with a simple idea: women grow faster when they have each other. We host small, thoughtful events across Chennai, from founder meetups to slow Sunday evenings, where you can walk in alone and leave with friends.</p>
   </section>
@@ -401,98 +342,33 @@
     <h2 id="dHead">Dates worth <em>joining</em></h2>
   </section>
   <div class="rail-wrap">
-    <div class="rail" id="rail">
-      <div class="ev">
-        <div class="ev-photo p1"><span>Photo</span></div>
-        <h3>Women Entrepreneurs <em>Meet</em></h3>
-        <a class="pill" href="#women-entrepreneurs-meet">View details</a>
-      </div>
-      <div class="ev">
-        <div class="ev-photo p2"><span>Photo</span></div>
-        <h3>Sunday <em>Book Club</em></h3>
-        <a class="pill" href="#">View details</a>
-      </div>
-      <div class="ev">
-        <div class="ev-photo p3"><span>Photo</span></div>
-        <h3>Pottery &amp; <em>Chai</em></h3>
-        <a class="pill" href="#">View details</a>
-      </div>
-      <div class="ev">
-        <div class="ev-photo p4"><span>Photo</span></div>
-        <h3>Sunset <em>Run Club</em></h3>
-        <a class="pill" href="#">View details</a>
-      </div>
-      <div class="ev">
-        <div class="ev-photo p5"><span>Photo</span></div>
-        <h3>Founders' <em>Brunch</em></h3>
-        <a class="pill" href="#">View details</a>
-      </div>
-    </div>
+    <div class="rail" id="rail"></div>
   </div>
   <p class="rail-hint">Swipe to see more →</p>
 </div>
-
-<!-- ============ EVENT ============ -->
 <div class="view" id="v-event">
   <div class="topback"><a class="back" href="#">← Back</a></div>
 <main class="poster">
-  <!-- 1. Photo header -->
   <div class="poster-photo" id="pPhoto"><span>Event photo</span></div>
-
-  <!-- 2. Text header -->
   <h1 class="poster-title" id="pTitle">Women Entrepreneurs <em>Meet</em></h1>
   <p class="poster-about" id="pAbout">An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.</p>
-
-  <!-- 3. Event details -->
   <section class="ev-sec">
     <p class="ev-label">Event details</p>
-    <div class="ev-box" id="pDetails">
-      <div class="d-row"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><div><small>Date</small><b>Sunday, 29 November</b></div></div>
-      <div class="d-row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><small>Time</small><b>5:00 – 7:00 PM</b></div></div>
-      <div class="d-row"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><div><small>Venue</small><b>Tower Park, Anna Nagar</b><a href="https://maps.google.com/?q=Tower+Park+Anna+Nagar+Chennai" target="_blank" rel="noopener">Open in Maps</a></div></div>
-      <div class="d-row"><svg viewBox="0 0 24 24"><path d="M12 21s-6-4.4-8.5-8A5 5 0 0 1 12 6.5 5 5 0 0 1 20.5 13C18 16.6 12 21 12 21z"/></svg><div><small>Who it's for</small><b>Girls only</b></div></div>
-    </div>
+    <div class="ev-box" id="pDetails"></div>
   </section>
-
-  <!-- 4. What's included -->
   <section class="ev-sec" id="secInc">
     <p class="ev-label">What's included</p>
-    <ul class="ev-box inc" id="pInc">
-      <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Curated networking circles</span></li>
-      <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Founder spotlight talk</span></li>
-      <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Chai and light snacks</span></li>
-      <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>A little galcode goodie to take home</span></li>
-    </ul>
+    <ul class="ev-box inc" id="pInc"></ul>
   </section>
-
-  <!-- 5. Agenda -->
   <section class="ev-sec" id="secAgenda">
     <p class="ev-label">Event agenda</p>
-    <ol class="ev-box agenda" id="pAgenda">
-      <li><span class="num">01</span><div><b>Arrive and settle in</b><time>5:00 PM</time><small>Grab a chai, find your people</small></div></li>
-      <li><span class="num">02</span><div><b>Welcome and intros</b><time>5:20 PM</time><small>Quick hellos in a circle</small></div></li>
-      <li><span class="num">03</span><div><b>Founder spotlight</b><time>5:40 PM</time><small>A local founder shares her story</small></div></li>
-      <li><span class="num">04</span><div><b>Small-group circles</b><time>6:10 PM</time><small>Talk ideas, challenges and wins</small></div></li>
-      <li><span class="num">05</span><div><b>Open networking</b><time>6:45 PM</time><small>Swap numbers, make plans</small></div></li>
-      <li><span class="num">06</span><div><b>Wrap up</b><time>7:00 PM</time></div></li>
-    </ol>
+    <ol class="ev-box agenda" id="pAgenda"></ol>
   </section>
-
-  <!-- 6. Event diary -->
   <section class="ev-sec diary" id="secDiary">
     <p class="ev-label">Event diary</p>
-    <div class="diary-track" id="diary">
-      <figure class="diary-slide" style="background:#FFE500"><span>Photo 1</span><figcaption>Past event</figcaption></figure>
-      <figure class="diary-slide" style="background:#FFD3E2"><span>Photo 2</span><figcaption>Past event</figcaption></figure>
-      <figure class="diary-slide" style="background:#FFF3B0"><span>Photo 3</span><figcaption>Past event</figcaption></figure>
-      <figure class="diary-slide" style="background:#FFB8D0"><span>Photo 4</span><figcaption>Past event</figcaption></figure>
-      <figure class="diary-slide" style="background:#FFEFC7"><span>Photo 5</span><figcaption>Past event</figcaption></figure>
-      <figure class="diary-slide" style="background:#FFC6D9"><span>Photo 6</span><figcaption>Past event</figcaption></figure>
-    </div>
+    <div class="diary-track" id="diary"></div>
     <div class="diary-dots" id="diaryDots"></div>
   </section>
-
-  <!-- CTA -->
   <div class="poster-cta">
     <button class="btn-w" id="confirmBtn">Confirm my spot</button>
     <button class="doubt-w" id="doubtBtn">I have a doubt</button>
@@ -510,8 +386,6 @@
     <button data-info="refund">Refund Policy</button>
   </div>
 </footer>
-
-<!-- Info sheet -->
 <div class="overlay" id="infoOv">
   <div class="sheet" role="dialog">
     <button class="x" data-close="infoOv" aria-label="Close">×</button>
@@ -524,8 +398,6 @@
   <div><b id="barT">Women Entrepreneurs Meet</b><span id="barS">Sun, 29 Nov · 5–7 PM</span></div>
   <button class="btn" id="barBtn">Confirm my spot</button>
 </div>
-
-<!-- Receipt -->
 <div class="overlay" id="receiptOv">
   <div class="receipt-wrap">
     <button class="x" data-close="receiptOv" aria-label="Close">×</button>
@@ -557,8 +429,6 @@
     </div>
   </div>
 </div>
-
-<!-- Booking form: one question at a time -->
 <div class="overlay" id="formOv">
   <div class="qf" role="dialog" aria-label="Confirm my spot">
     <div class="qf-top">
@@ -566,23 +436,13 @@
       <button class="qf-x" data-close="formOv" aria-label="Close">×</button>
     </div>
     <p class="qf-count" id="qfCount"></p>
-
-    <!-- Screen: event -->
     <section class="qs" data-s="event">
       <h3>First, the <em>details</em></h3>
-      <div class="qf-sum" id="qfEvSum">
-        <div><small>Event</small><b>Women Entrepreneurs Meet</b></div>
-        <div><small>Date</small><b>Sun, 29 November</b></div>
-        <div><small>Time</small><b>5:00 – 7:00 PM</b></div>
-        <div><small>Venue</small><b>Tower Park, Anna Nagar</b></div>
-        <div><small>Price</small><b id="evPrice">To be announced</b></div>
-      </div>
+      <div class="qf-sum" id="qfEvSum"></div>
       <label class="qf-agree"><input type="checkbox" id="agree"><span>I've read the event details and agree to galcode's <button type="button" data-info="terms">Terms &amp; Conditions</button> and <button type="button" data-info="refund">Refund Policy</button>.</span></label>
       <p class="qf-err" id="errEvent"></p>
       <button class="qf-ok" data-next>Let's go →</button>
     </section>
-
-    <!-- Screens: questions -->
     <section class="qs" data-s="name">
       <h3>What's your <em>name?</em></h3>
       <input class="qf-in" id="fName" autocomplete="name" placeholder="Type your full name" enterkeyhint="next">
@@ -611,8 +471,6 @@
       <p class="qf-err"></p>
       <div class="qf-row"><button class="qf-ok" data-next>OK ✓</button><button class="qf-prev" data-prev>Back</button></div>
     </section>
-
-    <!-- Screen: payment -->
     <section class="qs" data-s="pay">
       <h3>Almost <em>there,</em> <span id="payHi"></span></h3>
       <div class="qf-sum">
@@ -627,8 +485,6 @@
     </section>
   </div>
 </div>
-
-<!-- Chatbot -->
 <div class="overlay" id="chatOv">
   <div class="chat" role="dialog" aria-label="Ask a question">
     <button class="x" data-close="chatOv" aria-label="Close">×</button>
@@ -707,7 +563,6 @@ function renderHome(){
   const c = CONTENT;
   $("hTitle").innerHTML = esc(c.hero_title) + (c.hero_subtitle ? "<br><em>" + esc(c.hero_subtitle) + "</em>" : "");
   $("hDesc").textContent = c.hero_desc;
-  $("aHead").innerHTML = titleHTML(c.about_heading, c.about_heading_em);
   $("aBody").textContent = c.about_body;
   setPhoto($("aboutPhoto"), c.about_photo);
   $("fdQuote").textContent = "“" + c.founder_quote + "”";
