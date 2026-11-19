@@ -328,6 +328,13 @@
   .lt-body{font-family:var(--serif);font-size:clamp(19px,5.2vw,23px);line-height:1.42;color:var(--ink);white-space:pre-line}
   .lt-sign{font-family:'Caveat',cursive;font-weight:600;font-size:40px;line-height:1;color:var(--pink);margin-top:16px;transform:rotate(-3deg);transform-origin:left;display:inline-block}
   .lt-role{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .lt-head a{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none}
+  .lt-head a:hover{color:var(--pink)}
+  button.photo{padding:0;cursor:zoom-in}
+  #photoOv{background:rgba(20,6,12,.9);z-index:40}
+  #photoOv img{max-width:100%;max-height:85vh;border-radius:16px;object-fit:contain;transform:scale(.94);transition:transform .25s}
+  #photoOv.show img{transform:none}
+  #photoOv .x{color:#fff;background:rgba(255,255,255,.14);top:calc(14px + env(safe-area-inset-top));right:14px}
   /* Sticky bar: dark so it stands apart from the white cards */
   .bar{background:rgba(58,10,28,.96);color:#fff;box-shadow:0 -8px 24px rgba(58,10,28,.25)}
   .bar b{color:#fff}
@@ -357,7 +364,7 @@
   <section class="sec">
     <div class="sec-label">Founder's note</div>
     <div class="note-card letter">
-      <div class="lt-head"><div class="photo" id="founderPhoto"></div><p>A note from our founder</p></div>
+      <div class="lt-head"><button class="photo" id="founderPhoto" type="button" aria-label="View photo"></button><a id="fdIg" href="https://instagram.com/ft.rakshaa" target="_blank" rel="noopener">@ft.rakshaa</a></div>
       <p class="lt-body" id="fdQuote">I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is.</p>
       <p class="lt-sign" id="fdName">Raksha</p>
       <p class="lt-role" id="fdRole">Founder, galcode</p>
@@ -413,6 +420,7 @@
     <button data-info="refund">Refund Policy</button>
   </div>
 </footer>
+<div class="overlay" id="photoOv"><button class="x" data-close="photoOv" aria-label="Close">×</button><img id="photoBig" alt=""></div>
 <div class="overlay" id="infoOv">
   <div class="sheet" role="dialog">
     <button class="x" data-close="infoOv" aria-label="Close">×</button>
@@ -558,7 +566,7 @@ let CONTENT = {
   about_heading:"A room full of women", about_heading_em:"rooting for you.",
   about_body:"galcode started with a simple idea: women grow faster when they have each other. We host small, thoughtful events across Chennai, from founder meetups to slow Sunday evenings, where you can walk in alone and leave with friends.",
   about_photo:"", founder_quote:"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is.",
-  founder_name:"Raksha", founder_role:"Founder, galcode", founder_photo:"",
+  founder_name:"Raksha", founder_role:"Founder, galcode", founder_photo:"", founder_instagram:"ft.rakshaa",
   dates_heading:"Dates worth", dates_heading_em:"joining", instagram:"thisisgalcode",
   policy_about:"galcode is a girls-only community in Chennai. We host small, thoughtful events where women can meet, learn and build things together.\n\nEvery event is designed to feel safe, warm and easy to walk into, even if you're coming alone.",
   policy_contact:"The fastest way to reach us is a DM on Instagram: @thisisgalcode",
@@ -596,6 +604,8 @@ function renderHome(){
   $("fdName").textContent = c.founder_name;
   $("fdRole").textContent = c.founder_role;
   setPhoto($("founderPhoto"), c.founder_photo);
+  const fig = (c.founder_instagram || "").replace(/^@/, "").trim();
+  $("fdIg").hidden = !fig; $("fdIg").textContent = "@" + fig; $("fdIg").href = "https://instagram.com/" + encodeURIComponent(fig);
   $("dHead").innerHTML = titleHTML(c.dates_heading, c.dates_heading_em);
   const ig = "https://instagram.com/" + (c.instagram || "thisisgalcode").replace(/^@/, "");
   $("dmLink").href = ig;
@@ -775,6 +785,13 @@ if ("IntersectionObserver" in window){
   new IntersectionObserver(([e]) => { ctaVisible = e.isIntersecting; upd(); }).observe($("confirmBtn"));
   window.addEventListener("scroll", upd, {passive:true});
 }
+
+/* ---------- Tap a photo to see it big ---------- */
+$("founderPhoto").onclick = () => {
+  if (!CONTENT.founder_photo) return;
+  $("photoBig").src = CONTENT.founder_photo; $("photoOv").classList.add("show");
+};
+$("photoBig").onclick = () => $("photoOv").classList.remove("show");
 
 /* ---------- Footer pages ---------- */
 const INFO_TITLES = {about:"About us", contact:"Contact", privacy:"Privacy policy", terms:"Terms & conditions", refund:"Refund policy"};
