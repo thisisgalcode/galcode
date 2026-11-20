@@ -645,6 +645,11 @@
       <button class="qf-ok" id="payBtn">Pay and confirm</button>
       <button class="qf-prev center" data-prev>Back</button>
     </section>
+    <section class="qs" data-s="done">
+      <h3>You're on the <em>list,</em> <span id="doneHi"></span></h3>
+      <p class="qf-hint" style="font-size:15px">Payments aren't open yet for this event. We'll send you the payment link as soon as booking opens, so keep an eye on your messages.</p>
+      <button class="qf-ok" data-close="formOv" style="align-self:stretch;margin-top:26px">Done</button>
+    </section>
   </div>
 </div>
 <div class="overlay" id="chatOv">
@@ -832,7 +837,8 @@ function openReceipt(){
 
 /* ---------- Booking form: one question at a time ---------- */
 const booking = {};
-const SCREENS = ["event","name","phone","age","email","pay"];
+const SHOW_RECEIPT = false; // turn on once a payment gateway is connected
+const SCREENS = ["event","name","phone","age","email","pay","done"];
 let cur = 0;
 const scr = n => document.querySelector('#formOv .qs[data-s="' + SCREENS[n] + '"]');
 function show(n){
@@ -842,7 +848,8 @@ function show(n){
   $("bar1").style.width = n >= 1 ? "100%" : "50%";
   $("bar2").style.width = n <= 0 ? "0" : n >= 5 ? "100%" : ((n - 1) / 4 * 100 + 12) + "%";
   $("bar3").style.width = n >= 5 ? "60%" : "0";
-  $("qfCount").textContent = n === 0 ? "Step 1 of 3 · Event" : n === 5 ? "Step 3 of 3 · Payment" : "Step 2 of 3 · Question " + n + " of 4";
+  $("qfCount").textContent = n === 0 ? "Step 1 of 3 · Event" : n >= 5 ? "Step 3 of 3 · Payment" : "Step 2 of 3 · Question " + n + " of 4";
+  if (n === 6){ $("bar3").style.width = "100%"; $("qfCount").textContent = "All done"; }
   const inp = el.querySelector("input.qf-in");
   if (inp && window.matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 250);
 }
@@ -851,9 +858,9 @@ function openForm(){
   document.querySelectorAll("#formOv .qf-err").forEach(e => e.textContent = "");
   $("sumPrice").textContent = curEvent.price || "To be announced";
   const url = curEvent.booking_url;
-  $("payBtn").textContent = url ? "Pay and confirm" : "Confirm my spot";
+  $("payBtn").textContent = url ? "Pay & confirm →" : "Confirm my spot";
   $("payBtn").disabled = false;
-  $("payNote").textContent = url ? "You'll pay securely on our event partner's page." : "Payments open soon. We'll send you the link once booking opens.";
+  $("payNote").textContent = url ? "We'll save your spot and take you to our ticketing partner's page to pay." : "Payments open soon. We'll save your spot and send you the link once booking opens.";
   show(0);
   $("formOv").classList.add("show");
 }
@@ -891,22 +898,22 @@ $("payBtn").onclick = async () => {
   const btn = $("payBtn"), err = scr(5).querySelector(".qf-err");
   err.textContent = "";
   const url = curEvent.booking_url;
-  const payWin = url ? window.open("about:blank", "_blank") : null;   // opened now so phones don't block it
   if (db && curEvent.id){
     btn.disabled = true; const label = btn.textContent; btn.textContent = "Saving…";
     const { error } = await db.from("bookings").insert({ event_id: curEvent.id, name: booking.name, phone: booking.phone, age: booking.age, email: booking.email });
-    btn.disabled = false; btn.textContent = label;
     if (error){
-      if (payWin) payWin.close();
+      btn.disabled = false; btn.textContent = label;
       err.textContent = "Couldn't save your spot. Check your connection and try again, or DM us on Instagram.";
       return;
     }
+    btn.textContent = url ? "Taking you to payment…" : label;
   }
-  if (payWin) payWin.location.href = url;
-  $("formOv").classList.remove("show");
-  $("rName").textContent = booking.name || "—";
   ["fName","fPhone","fAge","fEmail"].forEach(id => $(id).value = ""); $("agree").checked = false;
-  openReceipt();
+  if (url){ window.location.href = url; return; }          // straight to the ticketing website
+  if (SHOW_RECEIPT){ $("formOv").classList.remove("show"); $("rName").textContent = booking.name || "—"; openReceipt(); return; }
+  $("payBtn").disabled = false;
+  $("doneHi").textContent = (booking.name || "").split(" ")[0] + ".";
+  show(6);
 };
 
 /* ---------- Overlays ---------- */
