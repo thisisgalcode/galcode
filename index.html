@@ -828,8 +828,10 @@ function openReceipt(){
   $("orderNo").textContent = "GC-" + Math.floor(1000 + Math.random() * 9000);
   const d = new Date();
   $("issued").textContent = d.toLocaleDateString("en-IN", {day:"2-digit", month:"short"}) + ", " + d.toLocaleTimeString("en-IN", {hour:"numeric", minute:"2-digit"});
-  const url = curEvent && curEvent.booking_url;
+  const gw = curEvent && curEvent.payment_mode === "gateway";
+  const url = !gw && curEvent && curEvent.booking_url;
   const go = $("goBtn");
+  go.hidden = gw; $("goNote").hidden = gw;
   if (url){ go.href = url; go.classList.remove("pending"); go.textContent = "Complete booking"; $("goNote").textContent = "You'll finish booking on our event partner's page."; }
   else { go.removeAttribute("href"); go.classList.add("pending"); go.textContent = "Booking opens soon"; $("goNote").textContent = "We'll share the link shortly."; }
   const ov = $("receiptOv"); ov.classList.remove("show"); void ov.offsetWidth; ov.classList.add("show");
@@ -837,7 +839,6 @@ function openReceipt(){
 
 /* ---------- Booking form: one question at a time ---------- */
 const booking = {};
-const SHOW_RECEIPT = false; // turn on once a payment gateway is connected
 const SCREENS = ["event","name","phone","age","email","pay","done"];
 let cur = 0;
 const scr = n => document.querySelector('#formOv .qs[data-s="' + SCREENS[n] + '"]');
@@ -857,10 +858,11 @@ function openForm(){
   if (!curEvent) return;
   document.querySelectorAll("#formOv .qf-err").forEach(e => e.textContent = "");
   $("sumPrice").textContent = curEvent.price || "To be announced";
-  const url = curEvent.booking_url;
-  $("payBtn").textContent = url ? "Pay & confirm →" : "Confirm my spot";
+  const gateway = curEvent.payment_mode === "gateway";
+  const url = gateway ? "" : curEvent.booking_url;
+  $("payBtn").textContent = gateway ? "Pay & confirm" : url ? "Pay & confirm →" : "Confirm my spot";
   $("payBtn").disabled = false;
-  $("payNote").textContent = url ? "We'll save your spot and take you to our ticketing partner's page to pay." : "Payments open soon. We'll save your spot and send you the link once booking opens.";
+  $("payNote").textContent = gateway ? "Your spot is confirmed as soon as you tap below." : url ? "We'll save your spot and take you to our ticketing partner's page to pay." : "Payments open soon. We'll save your spot and send you the link once booking opens.";
   show(0);
   $("formOv").classList.add("show");
 }
@@ -897,7 +899,8 @@ $("fAge").addEventListener("input", e => e.target.value = e.target.value.replace
 $("payBtn").onclick = async () => {
   const btn = $("payBtn"), err = scr(5).querySelector(".qf-err");
   err.textContent = "";
-  const url = curEvent.booking_url;
+  const gateway = curEvent.payment_mode === "gateway";
+  const url = gateway ? "" : curEvent.booking_url;
   if (db && curEvent.id){
     btn.disabled = true; const label = btn.textContent; btn.textContent = "Saving…";
     const { error } = await db.from("bookings").insert({ event_id: curEvent.id, name: booking.name, phone: booking.phone, age: booking.age, email: booking.email });
@@ -909,12 +912,16 @@ $("payBtn").onclick = async () => {
     btn.textContent = url ? "Taking you to payment…" : label;
   }
   ["fName","fPhone","fAge","fEmail"].forEach(id => $(id).value = ""); $("agree").checked = false;
-  if (url){ window.location.href = url; return; }          // straight to the ticketing website
-  if (SHOW_RECEIPT){ $("formOv").classList.remove("show"); $("rName").textContent = booking.name || "—"; openReceipt(); return; }
-  $("payBtn").disabled = false;
+  if (gateway){                                            // payment gateway: show the receipt
+    btn.disabled = false;
+    $("formOv").classList.remove("show"); $("rName").textContent = booking.name || "—"; openReceipt(); return;
+  }
+  if (url){ window.location.href = url; return; }          // external link: straight to the ticketing website, no receipt
+  btn.disabled = false;
   $("doneHi").textContent = (booking.name || "").split(" ")[0] + ".";
   show(6);
 };
+
 
 /* ---------- Overlays ---------- */
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $(b.dataset.close).classList.remove("show"));
