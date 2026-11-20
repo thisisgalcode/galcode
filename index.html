@@ -674,6 +674,7 @@ const db = (window.supabase && SUPABASE_KEY.indexOf("__") !== 0) ? window.supaba
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const titleHTML = (t, em) => esc(t) + (em ? " <em>" + esc(em) + "</em>" : "");
+const safeUrl = u => /^https:\/\/[^\s]+$/i.test(String(u || "").trim()) ? String(u).trim() : "";
 const plainTitle = ev => [ev.title, ev.title_em].filter(Boolean).join(" ");
 function richText(txt){
   const blocks = String(txt || "").split(/\n\s*\n/);
@@ -776,7 +777,7 @@ function renderEvent(ev){
   const rows = [];
   if (ev.date_label || ev.event_date) rows.push([ICON.cal, "Date", ev.date_label || shortDate(ev), ""]);
   if (ev.time_label) rows.push([ICON.clk, "Time", ev.time_label, ""]);
-  if (ev.venue) rows.push([ICON.pin, "Venue", ev.venue, ev.maps_url ? '<a href="' + esc(ev.maps_url) + '" target="_blank" rel="noopener">Open in Maps</a>' : ""]);
+  if (ev.venue) rows.push([ICON.pin, "Venue", ev.venue, safeUrl(ev.maps_url) ? '<a href="' + esc(safeUrl(ev.maps_url)) + '" target="_blank" rel="noopener">Open in Maps</a>' : ""]);
   rows.push([ICON.tag, "Price", ev.price || "To be announced", ""]);
   if ((ev.audience ?? "Girls only").trim()) rows.push([ICON.heart, "Who it's for", ev.audience ?? "Girls only", ""]);
   $("pDetails").innerHTML = rows.map(r => '<div class="d-row">' + r[0] + "<div><small>" + r[1] + "</small><b>" + esc(r[2]) + "</b>" + r[3] + "</div></div>").join("");
@@ -829,7 +830,7 @@ function openReceipt(){
   const d = new Date();
   $("issued").textContent = d.toLocaleDateString("en-IN", {day:"2-digit", month:"short"}) + ", " + d.toLocaleTimeString("en-IN", {hour:"numeric", minute:"2-digit"});
   const gw = curEvent && curEvent.payment_mode === "gateway";
-  const url = !gw && curEvent && curEvent.booking_url;
+  const url = !gw && curEvent && safeUrl(curEvent.booking_url);
   const go = $("goBtn");
   go.hidden = gw; $("goNote").hidden = gw;
   if (url){ go.href = url; go.classList.remove("pending"); go.textContent = "Complete booking"; $("goNote").textContent = "You'll finish booking on our event partner's page."; }
@@ -861,7 +862,7 @@ function openForm(){
   document.querySelectorAll("#formOv .qf-err").forEach(e => e.textContent = "");
   $("sumPrice").textContent = curEvent.price || "To be announced";
   const gateway = curEvent.payment_mode === "gateway";
-  const url = gateway ? "" : curEvent.booking_url;
+  const url = gateway ? "" : safeUrl(curEvent.booking_url);
   $("payBtn").textContent = gateway ? "Pay & confirm" : url ? "Pay & confirm →" : "Confirm my spot";
   $("payBtn").disabled = false;
   $("payNote").textContent = gateway ? "Your spot is confirmed as soon as you tap below." : url ? "We'll save your spot and take you to our ticketing partner's page to pay." : "Payments open soon. We'll save your spot and send you the link once booking opens.";
@@ -911,7 +912,7 @@ $("payBtn").onclick = async () => {
   const btn = $("payBtn"), err = scr(5).querySelector(".qf-err");
   err.textContent = "";
   const gateway = curEvent.payment_mode === "gateway";
-  const url = gateway ? "" : curEvent.booking_url;
+  const url = gateway ? "" : safeUrl(curEvent.booking_url);
   if (db && curEvent.id){
     btn.disabled = true; const label = btn.textContent; btn.textContent = "Saving…";
     const { error } = await saveBooking("paid", true);
@@ -998,7 +999,7 @@ const asked = new Set();
 function eventFaqs(){
   const list = (curEvent && curEvent.faqs || []).filter(f => f.q && f.a).map(f => ({q: f.q, a: esc(f.a)}));
   if (curEvent && curEvent.venue && !list.some(f => /where/i.test(f.q)))
-    list.push({q:"Where exactly is it?", a: esc(curEvent.venue) + (curEvent.maps_url ? ' <a href="' + esc(curEvent.maps_url) + '" target="_blank" rel="noopener">Open in Maps</a>' : "")});
+    list.push({q:"Where exactly is it?", a: esc(curEvent.venue) + (safeUrl(curEvent.maps_url) ? ' <a href="' + esc(safeUrl(curEvent.maps_url)) + '" target="_blank" rel="noopener">Open in Maps</a>' : "")});
   if (!list.some(f => /book/i.test(f.q)))
     list.push({q:"How do I book?", a:'Tap "Confirm my spot" on this page and follow the three quick steps.'});
   return list;

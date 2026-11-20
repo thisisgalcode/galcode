@@ -279,6 +279,9 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cssUrl = u => esc(String(u ?? "").replace(/['"()\\\s]/g, c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")));
+const isWebUrl = u => !u || /^https:\/\/[^\s]+$/i.test(String(u).trim());
+const csvCell = v => { v = String(v ?? ""); if (/^[=@\t\r]/.test(v) || /^[+\-](?![\d\s]*$)/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
 const plainTitle = e => [e.title, e.title_em].filter(Boolean).join(" ");
 let ME = null, EVENTS = [], BOOKINGS = [], CONTENT = {}, TEAM = [];
 let bkFilter = "all";
@@ -356,7 +359,7 @@ document.addEventListener("click", e => { const a = e.target.closest('[data-act=
 
 /* ================= Home ================= */
 function bookingRow(b, i){
-  return '<button class="row ic tap" data-person="' + b.id + '"><span class="av' + (i % 2 ? " y" : "") + '">' + esc(initials(b.name)) + '</span><span class="t"><b>' + esc(b.name) + "</b><small>" + esc(evName(b.event_id)) + '</small></span><span class="v">' + ago(b.created_at) + '</span><span class="chev">›</span></button>';
+  return '<button class="row ic tap" data-person="' + esc(b.id) + '"><span class="av' + (i % 2 ? " y" : "") + '">' + esc(initials(b.name)) + '</span><span class="t"><b>' + esc(b.name) + "</b><small>" + esc(evName(b.event_id)) + '</small></span><span class="v">' + ago(b.created_at) + '</span><span class="chev">›</span></button>';
 }
 function renderHome(){
   const week = Date.now() - 7 * 864e5;
@@ -382,7 +385,7 @@ function renderBookings(){
   $("bkEvent").innerHTML = '<option value="all">All events</option>' + evs.map(e => '<option value="' + e.id + '"' + (bkFilter === e.id ? " selected" : "") + ">" + esc(plainTitle(e)) + "</option>").join("");
   const list = bkFiltered();
   $("bkList").innerHTML = list.length ? list.map(b =>
-    '<tr data-person="' + b.id + '"><td>' + esc(b.name) + "</td><td>" + esc(evName(b.event_id)) + "</td><td>" + (b.phone ? esc(b.phone) : '<span class="mut">—</span>') + "</td><td>" + (b.age ? esc(b.age) : '<span class="mut">—</span>') + "</td><td>" + (b.email ? esc(b.email) : '<span class="mut">—</span>') + '</td><td>' + fmtTime(b.updated_at || b.created_at) + "</td><td>" +
+    '<tr data-person="' + esc(b.id) + '"><td>' + esc(b.name) + "</td><td>" + esc(evName(b.event_id)) + "</td><td>" + (b.phone ? esc(b.phone) : '<span class="mut">—</span>') + "</td><td>" + (b.age ? esc(b.age) : '<span class="mut">—</span>') + "</td><td>" + (b.email ? esc(b.email) : '<span class="mut">—</span>') + '</td><td>' + fmtTime(b.updated_at || b.created_at) + "</td><td>" +
     (done(b) ? '<span class="st ok">Complete</span>' : '<span class="st no">Incomplete</span><small>' + esc(STEP_TXT[b.step] || "") + "</small>") + "</td></tr>"
   ).join("") : '<tr><td colspan="7" class="mut" style="text-align:center;padding:26px;position:static;box-shadow:none;font-weight:400">No bookings here yet.</td></tr>';
   const c = list.filter(done).length;
@@ -394,7 +397,7 @@ $("bkSearch").oninput = renderBookings;
 $("bkExport").onclick = () => {
   const list = bkFiltered();
   const rows = [["Event","Name","Phone","Age","Email","Time","Status","Stopped at","Attended"]].concat(list.map(b => [evName(b.event_id), b.name, b.phone || "", b.age || "", b.email || "", new Date(b.updated_at || b.created_at).toLocaleString("en-IN"), done(b) ? "Complete" : "Incomplete", done(b) ? "" : (STEP_TXT[b.step] || ""), b.attended ? "Yes" : "No"]));
-  const csv = "﻿" + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\n");
+  const csv = "﻿" + rows.map(r => r.map(csvCell).join(",")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
   a.download = "galcode-bookings" + (bkFilter !== "all" ? "-" + (EVENTS.find(e => e.id === bkFilter)?.slug || "") : "") + ".csv";
@@ -441,7 +444,7 @@ function renderEvents(){
   const label = {live:"Live", soon:"Soon", draft:"Draft", past:"Past"};
   $("evList").innerHTML = EVENTS.length ? EVENTS.map(e => {
     const n = BOOKINGS.filter(b => b.event_id === e.id && done(b)).length;
-    return '<button class="row tap" data-ev="' + e.id + '"><span class="thumb" style="width:52px;height:52px;border-radius:10px;' + (e.photo_url ? "background-image:url('" + esc(e.photo_url) + "')" : "") + '">' + (e.photo_url ? "" : "✦") + '</span><span class="t"><b>' + esc(plainTitle(e)) + "</b><small>" + [fmtDate(e.event_date), n + " booked"].filter(Boolean).join(" · ") + '</small></span><span class="badge b-' + e.status + '">' + label[e.status] + '</span><span class="chev">›</span></button>';
+    return '<button class="row tap" data-ev="' + e.id + '"><span class="thumb" style="width:52px;height:52px;border-radius:10px;' + (e.photo_url ? "background-image:url('" + cssUrl(e.photo_url) + "')" : "") + '">' + (e.photo_url ? "" : "✦") + '</span><span class="t"><b>' + esc(plainTitle(e)) + "</b><small>" + [fmtDate(e.event_date), n + " booked"].filter(Boolean).join(" · ") + '</small></span><span class="badge b-' + e.status + '">' + label[e.status] + '</span><span class="chev">›</span></button>';
   }).join("") : '<div class="empty">No events yet.</div>';
 }
 $("evList").onclick = e => { const r = e.target.closest("[data-ev]"); if (r) openEvent(r.dataset.ev); };
@@ -553,7 +556,7 @@ function renderEventForm(){
   $("evForm").innerHTML =
     '<p class="gl">Status</p><div class="seg" id="evStatus">' + st.map(s => '<button data-s="' + s + '" class="' + (d.status === s ? "on" : "") + '">' + stL[s] + "</button>").join("") + "</div>" +
 
-    '<p class="gl">Photo</p><div class="grp"><div class="photo-pick"><span class="thumb wide" id="evThumb" style="' + (d.photo_url ? "background-image:url('" + esc(d.photo_url) + "')" : "") + '">' + (d.photo_url ? "" : "No photo") + '</span><div><button class="link" id="evPhotoBtn">' + (d.photo_url ? "Change photo" : "Add photo") + "</button>" + (d.photo_url ? '<br><button class="danger" id="evPhotoDel" style="margin-top:8px;font-size:14px">Remove</button>' : "") + "</div></div></div>" +
+    '<p class="gl">Photo</p><div class="grp"><div class="photo-pick"><span class="thumb wide" id="evThumb" style="' + (d.photo_url ? "background-image:url('" + cssUrl(d.photo_url) + "')" : "") + '">' + (d.photo_url ? "" : "No photo") + '</span><div><button class="link" id="evPhotoBtn">' + (d.photo_url ? "Change photo" : "Add photo") + "</button>" + (d.photo_url ? '<br><button class="danger" id="evPhotoDel" style="margin-top:8px;font-size:14px">Remove</button>' : "") + "</div></div></div>" +
 
     '<p class="gl">Title</p><div class="grp">' + f("Title", "title", "Women Entrepreneurs") + f("Italic word", "title_em", "Meet") + "</div>" +
     '<p class="gf">The italic word shows in a different colour, like <i>Meet</i> in Women Entrepreneurs <i>Meet</i>.</p>' +
@@ -573,7 +576,7 @@ function renderEventForm(){
 
     '<p class="gl">Event agenda</p><div class="grp" id="lAg">' + d.agenda.map((a, i) => listRow("ag", i, '<input data-l="ag" data-i="' + i + '" data-f="title" value="' + esc(a.title) + '" placeholder="What happens"><input class="sm" data-l="ag" data-i="' + i + '" data-f="time" value="' + esc(a.time) + '" placeholder="Time, e.g. 5:00 PM"><input class="sm" data-l="ag" data-i="' + i + '" data-f="note" value="' + esc(a.note) + '" placeholder="Short note (optional)">')).join("") + '<button class="add-row" data-add="ag">＋ Add step</button></div>' +
 
-    '<p class="gl">Event diary</p><div class="grp"><div class="diary-grid">' + d.diary.map((p, i) => '<div class="dg"><span class="thumb" style="background-image:url(\'' + esc(p.url) + '\')"></span><button class="x" data-ddel="' + i + '">×</button><input data-l="di" data-i="' + i + '" value="' + esc(p.caption) + '" placeholder="Caption"></div>').join("") + '<button class="dg add" id="diaryAdd"><span class="thumb">＋</span></button></div></div>' +
+    '<p class="gl">Event diary</p><div class="grp"><div class="diary-grid">' + d.diary.map((p, i) => '<div class="dg"><span class="thumb" style="background-image:url(\'' + cssUrl(p.url) + '\')"></span><button class="x" data-ddel="' + i + '">×</button><input data-l="di" data-i="' + i + '" value="' + esc(p.caption) + '" placeholder="Caption"></div>').join("") + '<button class="dg add" id="diaryAdd"><span class="thumb">＋</span></button></div></div>' +
     '<p class="gf">Photos from past events. They scroll by themselves on the event page.</p>' +
 
     '<p class="gl">FAQs for this event</p><div class="grp" id="lFaq">' + d.faqs.map((q, i) => listRow("faq", i, '<input data-l="faq" data-i="' + i + '" data-f="q" value="' + esc(q.q) + '" placeholder="Question"><textarea class="sm" data-l="faq" data-i="' + i + '" data-f="a" rows="2" placeholder="Answer" style="font-size:14.5px;color:var(--ink2)">' + esc(q.a) + "</textarea>")).join("") + '<button class="add-row" data-add="faq">＋ Add question</button></div>' +
@@ -643,6 +646,7 @@ $("evCancel").onclick = () => $("evSheet").classList.remove("show");
 $("evSave").onclick = async () => {
   const d = draft;
   if (!d.title.trim()) return toast("Add a title first");
+  if (!isWebUrl(d.booking_url) || !isWebUrl(d.maps_url)) return toast("Links must start with https://");
   d.slug = slugify(d.slug || plainTitle(d));
   if (EVENTS.some(e => e.slug === d.slug && e.id !== d.id)) d.slug += "-" + Math.floor(Math.random() * 900 + 100);
   if (!d.date_label && d.event_date) d.date_label = new Date(d.event_date + "T00:00:00").toLocaleDateString("en-IN", {weekday:"long", day:"numeric", month:"long"});
@@ -673,7 +677,7 @@ function updateSaveBtn(){ const n = siteDirty().length; $("siteSave").textConten
 function paintSite(){
   $("siteForm").innerHTML = SITE.map(([g, fields]) =>
     '<p class="gl">' + g + '</p><div class="grp">' + fields.map(([k, label, ph, long]) => {
-      if (label === "photo") return '<div class="photo-pick" style="position:relative"><span class="thumb" style="' + (siteDraft[k] ? "background-image:url('" + esc(siteDraft[k]) + "')" : "") + '">' + (siteDraft[k] ? "" : "Photo") + '</span><div><button class="link" data-sphoto="' + k + '">' + (siteDraft[k] ? "Change photo" : "Add photo") + "</button>" + ((siteDraft[k] ?? "") !== (CONTENT[k] ?? "") ? '<span class="unsaved">Not saved yet</span>' : "") + (siteDraft[k] ? '<br><button class="danger" data-sdel="' + k + '" style="margin-top:8px;font-size:14px">Remove</button>' : "") + "</div></div>";
+      if (label === "photo") return '<div class="photo-pick" style="position:relative"><span class="thumb" style="' + (siteDraft[k] ? "background-image:url('" + cssUrl(siteDraft[k]) + "')" : "") + '">' + (siteDraft[k] ? "" : "Photo") + '</span><div><button class="link" data-sphoto="' + k + '">' + (siteDraft[k] ? "Change photo" : "Add photo") + "</button>" + ((siteDraft[k] ?? "") !== (CONTENT[k] ?? "") ? '<span class="unsaved">Not saved yet</span>' : "") + (siteDraft[k] ? '<br><button class="danger" data-sdel="' + k + '" style="margin-top:8px;font-size:14px">Remove</button>' : "") + "</div></div>";
       if (long) return '<div class="area"><label>' + label + '</label><textarea data-s="' + k + '" rows="' + (k.startsWith("policy") ? 5 : 3) + '">' + esc(siteDraft[k]) + "</textarea></div>";
       return '<div class="fld"><label>' + label + '</label><input data-s="' + k + '" value="' + esc(siteDraft[k]) + '" placeholder="' + esc(ph) + '"></div>';
     }).join("") + "</div>" + (g === "Footer pages" ? '<p class="gf">Start a line with "- " to make a bullet point. Leave an empty line between paragraphs.</p>' : "")
