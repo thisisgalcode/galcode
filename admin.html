@@ -223,11 +223,13 @@
     <div style="height:16px"></div>
     <button class="btn ghost" id="bkExport">Download as Excel (CSV)</button>
 
-    <p class="gl">WhatsApp circle</p>
+    <div id="circleWrap" hidden>
+    <p class="gl">WhatsApp numbers (old sign-up box)</p>
     <div class="grp" id="circleList"></div>
     <p class="gf" id="circleCount"></p>
     <div style="height:10px"></div>
     <button class="btn ghost" id="circleExport">Download circle list (CSV)</button>
+    </div>
   </section>
 
   <!-- Events -->
@@ -445,6 +447,7 @@ $("bkExport").onclick = () => {
 
 /* WhatsApp circle */
 function renderCircle(){
+  $("circleWrap").hidden = !CIRCLE.length;
   $("circleList").innerHTML = CIRCLE.length ? CIRCLE.map(m =>
     '<div class="row"><span class="t"><b>' + esc(m.phone) + "</b><small>Joined " + fmtTime(m.created_at) + '</small></span><a class="link" style="text-decoration:none;font-size:15px" href="https://wa.me/' + esc(m.phone.replace(/\D/g, "")) + '" target="_blank" rel="noopener">Message</a><button class="danger" data-crm="' + esc(m.id) + '" style="font-size:15px;margin-left:14px">Remove</button></div>'
   ).join("") : '<div class="empty">No one has joined yet. The sign-up box is on your home page.</div>';
@@ -764,7 +767,7 @@ const SITE = [
   ["About galcode", [["about_body","Text","",true],["about_photo","photo"]]],
   ["Founder's note", [["founder_quote","Quote","",true],["founder_name","Name","Raksha"],["founder_role","Role","Founder, galcode"],["founder_instagram","Instagram","ft.rakshaa"],["founder_photo","photo"]]],
   ["Dates section", [["dates_heading","Heading","Dates worth"],["dates_heading_em","Italic part","joining"]]],
-  ["Join the circle", [["circle_label","Small label","Never miss an evening"],["circle_title","Heading","Join the"],["circle_title_em","Italic part","circle"],["circle_desc","Text","",true]]],
+  ["Join the circle", [["circle_label","Small label","Never miss an evening"],["circle_title","Heading","Join the"],["circle_title_em","Italic part","circle"],["circle_desc","Text","",true],["circle_link","Invite link","https://chat.whatsapp.com/…"],["circle_note","Small line","Free to join…"]]],
   ["Contact", [["instagram","Instagram","thisisgalcode"]]],
   ["Footer pages", [["policy_about","About Us","",true],["policy_contact","Contact","",true],["policy_privacy","Privacy Policy","",true],["policy_terms","T&C","",true],["policy_refund","Refund Policy","",true]]]
 ];
@@ -794,6 +797,7 @@ $("siteForm").addEventListener("click", async e => {
 });
 async function saveSite(){
   const keys = siteDirty();
+  if (siteDraft.circle_link && !isWebUrl(siteDraft.circle_link)) return toast("The invite link must start with https://");
   if (!keys.length) return toast("Everything's already saved");
   $("siteSave").disabled = true;
   const rows = keys.map(k => ({key:k, value:siteDraft[k] ?? "", updated_at:new Date().toISOString()}));
