@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#FF1F72">
+<meta name="theme-color" content="#F4ECE1">
 <title>galcode — women's community</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -350,6 +350,90 @@
   .poster-cta{text-align:center}
   .doubt-w{display:block;margin:12px auto 0}
   .ev .pill.soon{background:rgba(58,10,28,.08);color:var(--ink)}
+
+  /* =================== Beige editorial theme =================== */
+  :root{--bg:#F4ECE1;--card:#FFFCF7;--ink:#3A0A1C;--ink-2:#6A5348;--muted:#9C8574;--line:#E9DCCB;--pink:#E8175D;--pink-d:#C40F4C;--gold:#B8892B;--yellow:#B8892B;--blush:#F6E3E6}
+  body{background:var(--bg);color:var(--ink)}
+  .home-hero::before{background:radial-gradient(closest-side,rgba(232,23,93,.09),rgba(184,137,43,.06) 55%,transparent 75%)}
+  .home-hero h1{color:var(--pink)}
+  .home-hero h1 em{color:var(--ink)}
+  .home-hero p{color:var(--ink-2)}
+  .sec-label{color:var(--gold)}
+  .sec-label::before,.sec-label::after{background:rgba(58,10,28,.16)}
+  .sec h2{color:var(--pink)}
+  .sec h2 em{color:var(--ink)}
+  .sec p.body{color:var(--ink-2)}
+  .photo{background:#EADFD0;border:1px solid var(--line);color:var(--muted)}
+  .note-card.letter{background:var(--card);box-shadow:0 12px 32px rgba(58,10,28,.08);border:1px solid var(--line)}
+  .lt-head .photo{background:var(--blush)}
+  .ev{background:var(--card);border:1px solid var(--line)}
+  .ev h3{color:var(--ink)}
+  .ev h3 em{color:var(--pink)}
+  .ev-photo{color:rgba(58,10,28,.35)}
+  .p1{background:#EAD7BE}.p2{background:#F2C9D1}.p3{background:#E9DCCB}.p4{background:#F1D9C9}.p5{background:#E6D3D8}
+  .pill{background:var(--ink);color:var(--bg)}
+  .pill:hover{background:var(--pink);color:#fff}
+  .ev .pill.soon{background:#EFE3D2;color:var(--ink-2)}
+  .rail-hint{color:var(--muted)}
+  .site-foot{border-top:1px solid rgba(58,10,28,.12)}
+  .foot-links button{color:var(--ink-2)}
+  .foot-links button:hover{color:var(--pink)}
+  .foot-links i{color:var(--muted)}
+  .copy{color:var(--muted)}
+
+  /* Event page */
+  .back{color:var(--ink-2)}
+  .poster-photo{background:#EAD7BE;color:rgba(58,10,28,.35);border:2px solid #fff;box-shadow:0 10px 28px rgba(58,10,28,.10)}
+  .poster-title{color:var(--pink)}
+  .poster-title em{color:var(--ink)}
+  .poster-about{color:var(--ink-2)}
+  .ev-label{color:var(--gold)}
+  .ev-box{background:var(--card);border:1px solid var(--line)}
+  .inc svg{background:#F6EBD3}
+  .btn-w{background:var(--ink);color:#fff}
+  .btn-w:hover{background:var(--pink)}
+  .doubt-w{color:var(--muted)}
+  .diary-dots i{background:rgba(58,10,28,.18)}
+  .diary-dots i.on{background:var(--ink)}
+  .diary-slide{color:rgba(58,10,28,.35)}
+  .bar .btn{background:var(--pink);color:#fff}
+  .bar .btn:hover{background:#fff;color:var(--ink)}
+
+  /* Sheets, chat, receipt */
+  .sheet{background:var(--card)}
+  .chat{background:var(--bg)}
+  .chat-top,.dm-bar{background:var(--card)}
+  .m.me{background:var(--ink)}
+  .m.bot{background:var(--card)}
+  .chips button{background:var(--card)}
+  .go{background:var(--ink)}
+
+  /* Booking form */
+  .qf{background:var(--bg);color:var(--ink)}
+  .qf-x{width:40px;height:40px;flex:none;border-radius:50%;font-size:20px;line-height:1;color:var(--ink);background:rgba(58,10,28,.07)}
+  .qf-bars span{background:rgba(58,10,28,.12)}
+  .qf-bars i{background:var(--pink)}
+  .qf-count{color:var(--gold)}
+  .qs h3{color:var(--ink)}
+  .qs h3 em{color:var(--pink)}
+  .qf-in{color:var(--ink);border-bottom-color:rgba(58,10,28,.35)}
+  .qf-in::placeholder{color:#B9A897}
+  .qf-in:focus,.qf-phone:focus-within{border-bottom-color:var(--pink)}
+  .qf-phone{border-bottom-color:rgba(58,10,28,.35)}
+  .qf-phone b{color:var(--ink-2)}
+  .qf-hint{color:var(--ink-2)}
+  .qf-err{background:#FBE3EA;color:#A3123F}
+  .qf-ok{background:var(--ink);color:#fff}
+  .qf-ok:hover{background:var(--pink)}
+  .qf-prev{color:var(--ink-2);text-decoration-color:rgba(58,10,28,.3)}
+  .qf-sum{background:var(--card);border:1px solid var(--line)}
+  .qf-sum div{border-bottom-color:var(--line)}
+  .qf-sum small{color:var(--muted)}
+  .qf-sum b{color:var(--ink)}
+  .qf-sum .tot b{color:var(--pink)}
+  .qf-agree{color:var(--ink-2)}
+  .qf-agree input{accent-color:var(--pink)}
+  .qf-agree button{color:var(--ink)}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -657,7 +741,7 @@ function renderEvent(ev){
 
   const di = ev.diary || [];
   $("secDiary").hidden = !di.length;
-  $("diary").innerHTML = di.map((d, i) => '<figure class="diary-slide" style="background:' + ["#FFE500","#FFD3E2","#FFF3B0","#FFB8D0","#FFEFC7","#FFC6D9"][i % 6] + '">' + (d.url ? '<img src="' + esc(d.url) + '" alt="" loading="lazy">' : "<span>Photo</span>") + (d.caption ? "<figcaption>" + esc(d.caption) + "</figcaption>" : "") + "</figure>").join("");
+  $("diary").innerHTML = di.map((d, i) => '<figure class="diary-slide" style="background:' + ["#EAD7BE","#F2C9D1","#E9DCCB","#F1D9C9","#E6D3D8","#EFE3D2"][i % 6] + '">' + (d.url ? '<img src="' + esc(d.url) + '" alt="" loading="lazy">' : "<span>Photo</span>") + (d.caption ? "<figcaption>" + esc(d.caption) + "</figcaption>" : "") + "</figure>").join("");
   initDiary();
 
   const sd = shortDate(ev);
