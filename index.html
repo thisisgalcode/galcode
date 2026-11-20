@@ -492,6 +492,16 @@
   .circle-fine{font-size:11.5px;color:#B79AA6;margin-top:4px;position:relative}
   .circle.joined .circle-form{display:none}
   .circle.joined .circle-msg{font-family:var(--serif);font-size:24px;color:#fff;margin-top:0}
+  /* ===== Countdown ===== */
+  .cd{margin-top:22px;text-align:center}
+  .cd .ev-label{margin-bottom:10px}
+  .cd-row{display:flex;justify-content:center;gap:10px}
+  .cd-box{flex:1;max-width:108px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 6px 10px}
+  .cd-box b{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(34px,10vw,44px);line-height:1;color:var(--pink);font-variant-numeric:tabular-nums}
+  .cd-box span{display:block;margin-top:4px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .cd.live .cd-row{display:none}
+  .cd.live .ev-label{font-family:var(--serif);font-size:24px;letter-spacing:0;text-transform:none;color:var(--pink);font-weight:400}
+  .poster-about{margin-top:20px}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -553,6 +563,14 @@
       </div>
     </div>
   </div>
+  <section class="cd" id="cdSec" hidden>
+    <p class="ev-label" id="cdLabel">Starts in</p>
+    <div class="cd-row">
+      <div class="cd-box"><b id="cdA">00</b><span id="cdAL">Days</span></div>
+      <div class="cd-box"><b id="cdB">00</b><span id="cdBL">Hrs</span></div>
+      <div class="cd-box"><b id="cdC">00</b><span id="cdCL">Mins</span></div>
+    </div>
+  </section>
   <p class="poster-about" id="pAbout">An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.</p>
   <section class="ev-sec">
     <p class="ev-label">Event details</p>
@@ -762,7 +780,7 @@ let CONTENT = {
   policy_refund:"Tickets are booked through our event partner's platform.\n- Full refund if you cancel at least 48 hours before the event.\n- No refunds within 48 hours of the event, but you can transfer your spot to a friend.\n- If we cancel or reschedule, you get a full refund.\n\nTo request a refund, DM us on Instagram with your booking details."
 };
 let EVENTS = [
-  {id:null, slug:"women-entrepreneurs-meet", title:"Women Entrepreneurs", title_em:"Meet", status:"live", event_date:"2026-11-29",
+  {id:null, slug:"women-entrepreneurs-meet", title:"Women Entrepreneurs", title_em:"Meet", status:"live", event_date:"2026-11-29", start_time:"17:00", show_countdown:true,
    date_label:"Sunday, 29 November", time_label:"5:00 – 7:00 PM", venue:"Tower Park, Anna Nagar",
    maps_url:"https://maps.google.com/?q=Tower+Park+Anna+Nagar+Chennai", price:"", booking_url:"",
    about:"An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.",
@@ -856,6 +874,7 @@ function renderEvent(ev){
   $("secDiary").hidden = !di.length;
   $("diary").innerHTML = di.map((d, i) => '<figure class="diary-slide" style="background:' + ["#EAD7BE","#F2C9D1","#E9DCCB","#F1D9C9","#E6D3D8","#EFE3D2"][i % 6] + '">' + (d.url ? '<img src="' + esc(d.url) + '" alt="" loading="lazy">' : "<span>Photo</span>") + (d.caption ? "<figcaption>" + esc(d.caption) + "</figcaption>" : "") + "</figure>").join("");
   initDiary();
+  startCountdown(ev);
 
   const sd = shortDate(ev);
   $("barT").textContent = plainTitle(ev);
@@ -871,6 +890,40 @@ function renderEvent(ev){
   $("rTime").textContent = ev.time_label || "—";
   $("rVenue").textContent = ev.venue || "—";
   document.title = plainTitle(ev) + " · galcode";
+}
+
+/* ---------- Countdown ---------- */
+let cdTimer = null;
+function eventStart(ev){
+  if (!ev.event_date) return null;
+  let t = ev.start_time ? String(ev.start_time).slice(0, 5) : "";
+  if (!t){
+    const lbl = String(ev.time_label || ""), m = lbl.match(/(\d{1,2})(?::(\d{2}))?/), ap = lbl.match(/([ap])\.?\s*m\b/i);
+    if (m){ let h = +m[1] % 12; if (ap && /p/i.test(ap[1])) h += 12; t = String(h).padStart(2, "0") + ":" + (m[2] || "00"); }
+  }
+  if (!t) return null;
+  const d = new Date(ev.event_date + "T" + t + ":00+05:30");   // event times are Chennai time
+  return isNaN(d) ? null : d;
+}
+function startCountdown(ev){
+  clearInterval(cdTimer);
+  const sec = $("cdSec"), start = ev.show_countdown === false ? null : eventStart(ev);
+  if (!start){ sec.hidden = true; return; }
+  const pad = n => String(n).padStart(2, "0");
+  const tick = () => {
+    const ms = start - Date.now();
+    if (ms <= 0){
+      sec.classList.add("live");
+      if (ms > -4 * 3600e3){ $("cdLabel").textContent = "Happening now"; sec.hidden = false; }
+      else { sec.hidden = true; clearInterval(cdTimer); }
+      return;
+    }
+    sec.classList.remove("live"); sec.hidden = false; $("cdLabel").textContent = "Starts in";
+    const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+    if (d > 0){ $("cdA").textContent = pad(d); $("cdAL").textContent = d === 1 ? "Day" : "Days"; $("cdB").textContent = pad(h); $("cdBL").textContent = "Hrs"; $("cdC").textContent = pad(m); $("cdCL").textContent = "Mins"; }
+    else { $("cdA").textContent = pad(h); $("cdAL").textContent = "Hrs"; $("cdB").textContent = pad(m); $("cdBL").textContent = "Mins"; $("cdC").textContent = pad(s % 60); $("cdCL").textContent = "Secs"; }
+  };
+  tick(); cdTimer = setInterval(tick, 1000);
 }
 
 /* ---------- Routing ---------- */

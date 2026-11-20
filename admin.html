@@ -605,7 +605,7 @@ let draft = null;
 const slugify = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "event";
 function openEvent(id){
   const src = id ? EVENTS.find(e => e.id === id) : null;
-  draft = src ? JSON.parse(JSON.stringify(src)) : {id:null, payment_mode:"external", audience:"Girls only", slug:"", title:"", title_em:"", status:"draft", event_date:null, date_label:"", time_label:"", venue:"", maps_url:"", price:"", booking_url:"", about:"", photo_url:"", included:[], agenda:[], diary:[], faqs:[], sort:(EVENTS.length + 1)};
+  draft = src ? JSON.parse(JSON.stringify(src)) : {id:null, start_time:null, show_countdown:true, payment_mode:"external", audience:"Girls only", slug:"", title:"", title_em:"", status:"draft", event_date:null, date_label:"", time_label:"", venue:"", maps_url:"", price:"", booking_url:"", about:"", photo_url:"", included:[], agenda:[], diary:[], faqs:[], sort:(EVENTS.length + 1)};
   $("evSheetTitle").textContent = src ? "Edit event" : "New event";
   renderEventForm();
   $("evSheet").classList.add("show"); $("evSheet").scrollTop = 0;
@@ -624,9 +624,10 @@ function renderEventForm(){
     '<p class="gl">Title</p><div class="grp">' + f("Title", "title", "Women Entrepreneurs") + f("Italic word", "title_em", "Meet") + "</div>" +
     '<p class="gf">The italic word shows in a different colour, like <i>Meet</i> in Women Entrepreneurs <i>Meet</i>.</p>' +
 
-    '<p class="gl">When and where</p><div class="grp">' + f("Date", "event_date", "", "date") + f("Date text", "date_label", "Sunday, 29 November") + f("Time", "time_label", "5:00 – 7:00 PM") + f("Venue", "venue", "Tower Park, Anna Nagar") + f("Maps link", "maps_url", "Paste Google Maps link", "url") + f("Who it's for", "audience", "Girls only") + "</div>" +
+    '<p class="gl">When and where</p><div class="grp">' + f("Date", "event_date", "", "date") + f("Date text", "date_label", "Sunday, 29 November") + f("Time", "time_label", "5:00 – 7:00 PM") + f("Starts at", "start_time", "", "time") + f("Venue", "venue", "Tower Park, Anna Nagar") + f("Maps link", "maps_url", "Paste Google Maps link", "url") + f("Who it's for", "audience", "Girls only") + "</div>" +
     '<p class="gf">Leave "Date text" empty and it\'s filled in from the date. "Who it\'s for" shows on the event page only; leave it empty to hide it.</p>' +
 
+    '<div style="height:10px"></div><div class="grp"><div class="row"><span class="t"><b>Show countdown</b><small>Counts down to "Starts at" on the event page</small></span><button class="switch' + (d.show_countdown !== false ? " on" : "") + '" id="cdSwitch" aria-label="Show countdown"></button></div></div>' +
     '<p class="gl">Tickets</p><div class="grp">' + f("Price", "price", "₹499") + "</div>" +
     '<p class="gl">How people pay</p><div class="seg" id="evPay"><button data-p="external" class="' + ((d.payment_mode || "external") === "external" ? "on" : "") + '">External link</button><button data-p="gateway" class="' + (d.payment_mode === "gateway" ? "on" : "") + '">Payment gateway</button></div>' +
     ((d.payment_mode || "external") === "external"
@@ -657,7 +658,7 @@ function listRow(kind, i, inner){
 const LIST = {inc:"included", ag:"agenda", faq:"faqs", di:"diary"};
 $("evForm").addEventListener("input", e => {
   const t = e.target;
-  if (t.dataset.k) draft[t.dataset.k] = t.value || (t.dataset.k === "event_date" ? null : "");
+  if (t.dataset.k) draft[t.dataset.k] = t.value || (t.dataset.k === "event_date" || t.dataset.k === "start_time" ? null : "");
   if (t.dataset.l){
     const arr = draft[LIST[t.dataset.l]], i = +t.dataset.i;
     if (t.dataset.l === "inc") arr[i] = t.value;
@@ -668,6 +669,7 @@ $("evForm").addEventListener("input", e => {
 $("evForm").addEventListener("click", async e => {
   const t = e.target.closest("button"); if (!t) return;
   if (t.closest("#evStatus")){ draft.status = t.dataset.s; renderEventForm(); return; }
+  if (t.id === "cdSwitch"){ draft.show_countdown = draft.show_countdown === false; renderEventForm(); return; }
   if (t.closest("#evPay")){ draft.payment_mode = t.dataset.p; renderEventForm(); return; }
   if (t.dataset.add){
     const k = t.dataset.add;
@@ -716,7 +718,7 @@ $("evSave").onclick = async () => {
   d.included = d.included.map(s => s.trim()).filter(Boolean);
   d.agenda = d.agenda.filter(a => a.title.trim());
   d.faqs = d.faqs.filter(q => q.q.trim() && q.a.trim());
-  const row = {slug:d.slug, title:d.title.trim(), title_em:d.title_em.trim(), status:d.status, event_date:d.event_date || null, date_label:d.date_label, time_label:d.time_label, venue:d.venue, maps_url:d.maps_url, audience:(d.audience ?? "").trim(), payment_mode:d.payment_mode || "external", price:d.price, booking_url:d.booking_url, about:d.about, photo_url:d.photo_url, included:d.included, agenda:d.agenda, diary:d.diary, faqs:d.faqs, sort:d.sort};
+  const row = {slug:d.slug, title:d.title.trim(), title_em:d.title_em.trim(), status:d.status, event_date:d.event_date || null, date_label:d.date_label, time_label:d.time_label, venue:d.venue, maps_url:d.maps_url, audience:(d.audience ?? "").trim(), payment_mode:d.payment_mode || "external", start_time:d.start_time ? String(d.start_time).slice(0, 5) : null, show_countdown:d.show_countdown !== false, price:d.price, booking_url:d.booking_url, about:d.about, photo_url:d.photo_url, included:d.included, agenda:d.agenda, diary:d.diary, faqs:d.faqs, sort:d.sort};
   $("evSave").disabled = true;
   const res = d.id ? await db.from("events").update(row).eq("id", d.id) : await db.from("events").insert(row);
   $("evSave").disabled = false;
