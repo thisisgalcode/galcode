@@ -222,6 +222,12 @@
     <p class="gf" id="bkCount"></p>
     <div style="height:16px"></div>
     <button class="btn ghost" id="bkExport">Download as Excel (CSV)</button>
+
+    <p class="gl">WhatsApp circle</p>
+    <div class="grp" id="circleList"></div>
+    <p class="gf" id="circleCount"></p>
+    <div style="height:10px"></div>
+    <button class="btn ghost" id="circleExport">Download circle list (CSV)</button>
   </section>
 
   <!-- Events -->
@@ -314,7 +320,7 @@ const cssUrl = u => esc(String(u ?? "").replace(/['"()\\\s]/g, c => "%" + c.char
 const isWebUrl = u => !u || /^https:\/\/[^\s]+$/i.test(String(u).trim());
 const csvCell = v => { v = String(v ?? ""); if (/^[=@\t\r]/.test(v) || /^[+\-](?![\d\s]*$)/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
 const plainTitle = e => [e.title, e.title_em].filter(Boolean).join(" ");
-let ME = null, EVENTS = [], BOOKINGS = [], CONTENT = {}, TEAM = [];
+let ME = null, EVENTS = [], BOOKINGS = [], CONTENT = {}, TEAM = [], CIRCLE = [];
 let bkFilter = "all";
 
 function toast(t){ const el = $("toast"); el.textContent = t; el.classList.add("show"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2200); }
@@ -362,6 +368,8 @@ db.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_IN" && !ME) boot(); });
 
 /* ================= Data ================= */
 async function loadAll(){
+  const cr = await db.from("circle").select("*").order("created_at", {ascending:false});
+  CIRCLE = cr.data || [];
   const [e, b, c, t] = await Promise.all([
     db.from("events").select("*").order("sort").order("event_date"),
     db.from("bookings").select("*").order("created_at", {ascending:false}),
@@ -372,7 +380,7 @@ async function loadAll(){
   CONTENT = {}; (c.data || []).forEach(r => CONTENT[r.key] = r.value);
   const me = TEAM.find(x => x.email.toLowerCase() === ME.email.toLowerCase());
   $("hiName").textContent = (me && me.name) || toUser(ME.email);
-  renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam();
+  renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam(); renderCircle();
 }
 const done = b => (b.status || "complete") === "complete";
 const STEP_TXT = {name:"Stopped after name", phone:"Stopped after number", age:"Stopped after age", email:"Didn't tap Pay"};
@@ -433,6 +441,27 @@ $("bkExport").onclick = () => {
   a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
   a.download = "galcode-bookings" + (bkFilter !== "all" ? "-" + (EVENTS.find(e => e.id === bkFilter)?.slug || "") : "") + ".csv";
   a.click();
+};
+
+/* WhatsApp circle */
+function renderCircle(){
+  $("circleList").innerHTML = CIRCLE.length ? CIRCLE.map(m =>
+    '<div class="row"><span class="t"><b>' + esc(m.phone) + "</b><small>Joined " + fmtTime(m.created_at) + '</small></span><a class="link" style="text-decoration:none;font-size:15px" href="https://wa.me/' + esc(m.phone.replace(/\D/g, "")) + '" target="_blank" rel="noopener">Message</a><button class="danger" data-crm="' + esc(m.id) + '" style="font-size:15px;margin-left:14px">Remove</button></div>'
+  ).join("") : '<div class="empty">No one has joined yet. The sign-up box is on your home page.</div>';
+  $("circleCount").textContent = CIRCLE.length === 1 ? "1 person wants event updates on WhatsApp." : CIRCLE.length + " people want event updates on WhatsApp.";
+}
+$("circleList").onclick = async e => {
+  const b = e.target.closest("[data-crm]"); if (!b) return;
+  const m = CIRCLE.find(x => x.id === b.dataset.crm);
+  if (!confirmBox("Remove " + m.phone + " from the circle?")) return;
+  const { error } = await db.from("circle").delete().eq("id", m.id);
+  if (error) return toast("Couldn't remove");
+  CIRCLE = CIRCLE.filter(x => x.id !== m.id); renderCircle(); toast("Removed");
+};
+$("circleExport").onclick = () => {
+  const rows = [["Phone","Joined"]].concat(CIRCLE.map(m => [m.phone, new Date(m.created_at).toLocaleString("en-IN")]));
+  const csv = "\uFEFF" + rows.map(r => r.map(csvCell).join(",")).join("\n");
+  const l = document.createElement("a"); l.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); l.download = "galcode-circle.csv"; l.click();
 };
 
 /* Person sheet */
@@ -735,6 +764,7 @@ const SITE = [
   ["About galcode", [["about_body","Text","",true],["about_photo","photo"]]],
   ["Founder's note", [["founder_quote","Quote","",true],["founder_name","Name","Raksha"],["founder_role","Role","Founder, galcode"],["founder_instagram","Instagram","ft.rakshaa"],["founder_photo","photo"]]],
   ["Dates section", [["dates_heading","Heading","Dates worth"],["dates_heading_em","Italic part","joining"]]],
+  ["Join the circle", [["circle_label","Small label","Never miss an evening"],["circle_title","Heading","Join the"],["circle_title_em","Italic part","circle"],["circle_desc","Text","",true]]],
   ["Contact", [["instagram","Instagram","thisisgalcode"]]],
   ["Footer pages", [["policy_about","About Us","",true],["policy_contact","Contact","",true],["policy_privacy","Privacy Policy","",true],["policy_terms","T&C","",true],["policy_refund","Refund Policy","",true]]]
 ];

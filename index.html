@@ -463,6 +463,29 @@
   .evc-go{display:inline-block;margin-top:8px;font-size:13px;font-weight:500;color:#F4D58D;letter-spacing:.02em}
   .evc.soon{box-shadow:0 8px 20px rgba(58,10,28,.08)}
   .evc.soon .evc-cap{background:linear-gradient(to bottom,rgba(58,10,28,0),rgba(58,10,28,.6) 70%)}
+  /* ===== Join the circle ===== */
+  .circle-sec{max-width:720px;margin:auto;padding:56px 20px 0}
+  .circle{background:var(--ink);color:#fff;border-radius:26px;padding:34px 22px 26px;text-align:center;position:relative;overflow:hidden;box-shadow:0 18px 40px rgba(58,10,28,.18)}
+  .circle::before{content:"";position:absolute;inset:-40% -30% auto auto;width:260px;height:260px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,23,93,.35),transparent);pointer-events:none}
+  .circle-lb{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#F4D58D;font-weight:600;position:relative}
+  .circle h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,10.5vw,50px);line-height:1;margin-top:10px;color:#fff;position:relative}
+  .circle h2 em{font-style:italic;color:#F7C6D6}
+  .circle-desc{margin:12px auto 22px;max-width:330px;font-size:14.5px;line-height:1.6;color:#E9D6DC;position:relative}
+  .circle-form{display:flex;gap:8px;max-width:400px;margin:0 auto;position:relative}
+  .circle-in{flex:1;min-width:0;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:0 6px 0 16px}
+  .circle-in:focus-within{border-color:#F7C6D6;background:rgba(255,255,255,.14)}
+  .circle-in b{font-weight:500;color:#E9D6DC;font-size:15px}
+  .circle-in input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font:inherit;font-size:16px;padding:14px 0}
+  .circle-in input::placeholder{color:#B79AA6}
+  .circle-form button{flex:none;background:var(--pink);color:#fff;font-weight:600;font-size:15px;border-radius:99px;padding:0 22px;min-height:50px;transition:background .2s,transform .12s}
+  .circle-form button:hover{background:#fff;color:var(--ink)}
+  .circle-form button:active{transform:scale(.97)}
+  .circle-form button[disabled]{opacity:.6}
+  .circle-msg{min-height:20px;margin-top:12px;font-size:14px;color:#F4D58D;position:relative}
+  .circle-msg.err{color:#FFB3C7}
+  .circle-fine{font-size:11.5px;color:#B79AA6;margin-top:4px;position:relative}
+  .circle.joined .circle-form{display:none}
+  .circle.joined .circle-msg{font-family:var(--serif);font-size:24px;color:#fff;margin-top:0}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -497,6 +520,20 @@
     <div class="rail" id="rail"></div>
   </div>
   <p class="rail-hint">Swipe to see more →</p>
+
+  <section class="circle-sec">
+    <div class="circle">
+      <p class="circle-lb" id="cLabel">Never miss an evening</p>
+      <h2 id="cHead">Join the <em>circle</em></h2>
+      <p class="circle-desc" id="cDesc">Be the first to hear about new events on WhatsApp, before they sell out.</p>
+      <form class="circle-form" id="circleForm" novalidate>
+        <div class="circle-in"><b>+91</b><input id="cPhone" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="WhatsApp number" aria-label="WhatsApp number"></div>
+        <button type="submit" id="cBtn">Join</button>
+      </form>
+      <p class="circle-msg" id="cMsg" role="status"></p>
+      <p class="circle-fine" id="cFine">We'll only message you about galcode events. Ask us anytime to be removed.</p>
+    </div>
+  </section>
 </div>
 <div class="view" id="v-event">
   <div class="topback"><a class="back" href="#">← Back</a></div>
@@ -712,6 +749,7 @@ let CONTENT = {
   about_photo:"", founder_quote:"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is.",
   founder_name:"Raksha", founder_role:"Founder, galcode", founder_photo:"", founder_instagram:"ft.rakshaa",
   dates_heading:"Dates worth", dates_heading_em:"joining", instagram:"thisisgalcode",
+  circle_label:"Never miss an evening", circle_title:"Join the", circle_title_em:"circle", circle_desc:"Be the first to hear about new events on WhatsApp, before they sell out.",
   policy_about:"galcode is a girls-only community in Chennai. We host small, thoughtful events where women can meet, learn and build things together.\n\nEvery event is designed to feel safe, warm and easy to walk into, even if you're coming alone.",
   policy_contact:"The fastest way to reach us is a DM on Instagram: @thisisgalcode",
   policy_privacy:"We only collect what we need to run our events, like your name and phone number.\n\nWe use it to send you event updates. We never sell or share your details with anyone else. Ask us anytime and we'll delete your data.",
@@ -751,6 +789,9 @@ function renderHome(){
   const fig = (c.founder_instagram || "").replace(/^@/, "").trim();
   $("fdIg").hidden = !fig; $("fdIg").textContent = "@" + fig; $("fdIg").href = "https://instagram.com/" + encodeURIComponent(fig);
   $("dHead").innerHTML = titleHTML(c.dates_heading, c.dates_heading_em);
+  $("cLabel").textContent = c.circle_label || "";
+  $("cHead").innerHTML = titleHTML(c.circle_title, c.circle_title_em);
+  $("cDesc").textContent = c.circle_desc || "";
   const ig = "https://instagram.com/" + (c.instagram || "thisisgalcode").replace(/^@/, "");
   $("dmLink").href = ig;
 
@@ -972,6 +1013,26 @@ $("founderPhoto").onclick = () => {
   $("photoBig").src = CONTENT.founder_photo; $("photoOv").classList.add("show");
 };
 $("photoBig").onclick = () => $("photoOv").classList.remove("show");
+
+/* ---------- Join the circle ---------- */
+(function(){
+  const box = document.querySelector(".circle");
+  const joined = () => { box.classList.add("joined"); $("cMsg").classList.remove("err"); $("cMsg").textContent = "You're in. See you on WhatsApp."; $("cFine").textContent = "We'll only message you about galcode events."; };
+  try { if (localStorage.getItem("gc_circle")) joined(); } catch {}
+  $("cPhone").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10); $("cMsg").textContent = ""; });
+  $("circleForm").onsubmit = async e => {
+    e.preventDefault();
+    const n = $("cPhone").value;
+    if (!/^[6-9]\d{9}$/.test(n)){ $("cMsg").classList.add("err"); $("cMsg").textContent = "Enter a valid 10-digit WhatsApp number."; return; }
+    if (!db){ $("cMsg").classList.add("err"); $("cMsg").textContent = "Couldn't connect. Please try again."; return; }
+    $("cBtn").disabled = true; $("cBtn").textContent = "Joining…";
+    const { error } = await db.rpc("join_circle", { p_phone: "+91" + n, p_name: null });
+    $("cBtn").disabled = false; $("cBtn").textContent = "Join";
+    if (error){ $("cMsg").classList.add("err"); $("cMsg").textContent = "Couldn't add you just now. Please try again."; return; }
+    try { localStorage.setItem("gc_circle", "1"); } catch {}
+    joined();
+  };
+})();
 
 /* ---------- Footer pages ---------- */
 $("yr").textContent = new Date().getFullYear();
