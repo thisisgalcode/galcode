@@ -434,6 +434,22 @@
   .qf-agree{color:var(--ink-2)}
   .qf-agree input{accent-color:var(--pink)}
   .qf-agree button{color:var(--ink)}
+
+  /* ===== Event header: ticket ===== */
+  .ticket{margin-top:4px;filter:drop-shadow(0 10px 22px rgba(58,10,28,.10))}
+  .ticket .poster-photo{border-radius:20px 20px 0 0;border:2px solid #fff;border-bottom:0;box-shadow:none}
+  .stub{position:relative;display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-top:2px dashed var(--line);border-radius:0 0 20px 20px;padding:16px 18px}
+  .stub::before,.stub::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+  .stub::before{left:-11px;box-shadow:inset -1px 0 0 var(--line)}
+  .stub::after{right:-11px;box-shadow:inset 1px 0 0 var(--line)}
+  .stub-date{flex:none;text-align:center;padding-right:16px;border-right:1.5px dashed var(--line);min-width:64px}
+  .stub-date b{display:block;font-family:var(--serif);font-weight:400;font-size:44px;line-height:.9;color:var(--pink)}
+  .stub-date span{display:block;margin-top:4px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;white-space:nowrap}
+  .stub-main{min-width:0}
+  .ticket .poster-title{font-size:clamp(25px,7vw,34px);line-height:1.04;margin:0;color:var(--ink)}
+  .ticket .poster-title em{color:var(--pink)}
+  .stub-meta{margin-top:6px;font-size:13px;line-height:1.45;color:var(--ink-2)}
+  .poster-about{margin-top:20px}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -472,8 +488,16 @@
 <div class="view" id="v-event">
   <div class="topback"><a class="back" href="#">← Back</a></div>
 <main class="poster">
-  <div class="poster-photo" id="pPhoto"><span>Event photo</span></div>
-  <h1 class="poster-title" id="pTitle">Women Entrepreneurs <em>Meet</em></h1>
+  <div class="ticket">
+    <div class="poster-photo" id="pPhoto"><span>Event photo</span></div>
+    <div class="stub">
+      <div class="stub-date" id="pStubDate"><b id="pDay">29</b><span id="pMon">Nov · Sun</span></div>
+      <div class="stub-main">
+        <h1 class="poster-title" id="pTitle">Women Entrepreneurs <em>Meet</em></h1>
+        <p class="stub-meta" id="pMeta">5:00 – 7:00 PM · Tower Park, Anna Nagar</p>
+      </div>
+    </div>
+  </div>
   <p class="poster-about" id="pAbout">An evening for women who are building something, or about to. Bring your ideas, your questions and your curiosity. We'll bring the good company.</p>
   <section class="ev-sec">
     <p class="ev-label">Event details</p>
@@ -723,6 +747,10 @@ function renderEvent(ev){
   setPhoto($("pPhoto"), ev.photo_url, "Event photo");
   $("pTitle").innerHTML = titleHTML(ev.title, ev.title_em);
   $("pAbout").textContent = ev.about || "";
+  const dt = ev.event_date ? new Date(ev.event_date + "T00:00:00") : null;
+  $("pStubDate").hidden = !dt;
+  if (dt){ $("pDay").textContent = dt.getDate(); $("pMon").textContent = dt.toLocaleDateString("en-IN", {month:"short"}) + " · " + dt.toLocaleDateString("en-IN", {weekday:"short"}); }
+  $("pMeta").textContent = [dt ? "" : ev.date_label, ev.time_label, ev.venue].filter(Boolean).join(" · ");
   const rows = [];
   if (ev.date_label || ev.event_date) rows.push([ICON.cal, "Date", ev.date_label || shortDate(ev), ""]);
   if (ev.time_label) rows.push([ICON.clk, "Time", ev.time_label, ""]);
