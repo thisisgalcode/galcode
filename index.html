@@ -450,6 +450,19 @@
   .ticket .poster-title em{color:var(--pink)}
   .stub-meta{margin-top:6px;font-size:13px;line-height:1.45;color:var(--ink-2)}
   .poster-about{margin-top:20px}
+
+  /* ===== Event cards: full photo with overlay ===== */
+  .evc{flex:0 0 72%;max-width:290px;aspect-ratio:4/5;position:relative;border-radius:22px;overflow:hidden;scroll-snap-align:start;scroll-margin-left:24px;display:block;text-decoration:none;color:#fff;box-shadow:0 12px 28px rgba(58,10,28,.14);transition:transform .15s}
+  a.evc:active{transform:scale(.98)}
+  .evc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .evc-chip{position:absolute;top:12px;left:12px;background:var(--card);color:var(--ink);font-size:12px;font-weight:500;padding:6px 12px;border-radius:99px;z-index:1}
+  .evc-chip.soon{background:var(--bg);color:var(--ink-2)}
+  .evc-cap{position:absolute;left:0;right:0;bottom:0;padding:56px 16px 16px;background:linear-gradient(to bottom,rgba(58,10,28,0),rgba(58,10,28,.82) 70%)}
+  .evc h3{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.05;color:#fff;margin:0}
+  .evc h3 em{font-style:italic;color:#F7C6D6}
+  .evc-go{display:inline-block;margin-top:8px;font-size:13px;font-weight:500;color:#F4D58D;letter-spacing:.02em}
+  .evc.soon{box-shadow:0 8px 20px rgba(58,10,28,.08)}
+  .evc.soon .evc-cap{background:linear-gradient(to bottom,rgba(58,10,28,0),rgba(58,10,28,.6) 70%)}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -725,11 +738,15 @@ function renderHome(){
   $("dmLink").href = ig;
 
   const list = EVENTS.filter(e => e.status === "live" || e.status === "soon");
-  $("rail").innerHTML = list.map((e, i) =>
-    '<div class="ev"><div class="ev-photo ' + TONES[i % 5] + '">' + (e.photo_url ? '<img src="' + esc(e.photo_url) + '" alt="" loading="lazy">' : "<span>Photo</span>") + "</div>" +
-    "<h3>" + titleHTML(e.title, e.title_em) + "</h3>" +
-    (e.status === "live" ? '<a class="pill" href="#' + esc(e.slug) + '">View details</a>' : '<button class="pill soon" type="button">Details soon</button>') + "</div>"
-  ).join("");
+  $("rail").innerHTML = list.map((e, i) => {
+    const live = e.status === "live";
+    const chip = live ? (e.event_date ? new Date(e.event_date + "T00:00:00").toLocaleDateString("en-IN", {weekday:"short"}) + " · " + new Date(e.event_date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric", month:"short"}) : (e.date_label || "Upcoming")) : "Coming soon";
+    const inner = (e.photo_url ? '<img src="' + esc(e.photo_url) + '" alt="" loading="lazy">' : "") +
+      '<span class="evc-chip' + (live ? "" : " soon") + '">' + esc(chip) + "</span>" +
+      '<div class="evc-cap"><h3>' + titleHTML(e.title, e.title_em) + "</h3>" + (live ? '<span class="evc-go">View details →</span>' : "") + "</div>";
+    return live ? '<a class="evc ' + TONES[i % 5] + '" href="#' + esc(e.slug) + '">' + inner + "</a>"
+                : '<div class="evc soon ' + TONES[i % 5] + '">' + inner + "</div>";
+  }).join("");
   document.querySelector(".rail-hint").style.display = list.length > 1 ? "" : "none";
 }
 
