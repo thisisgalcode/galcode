@@ -123,6 +123,23 @@
   .switch.on{background:var(--green)}
   .switch.on::after{transform:translateX(20px)}
 
+  /* Bookings table */
+  .tbl-wrap{background:var(--card);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;font-size:14px}
+  .tbl th{position:sticky;top:0;background:#FAFAFC;text-align:left;font-weight:600;font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:11px 12px;border-bottom:.5px solid var(--sep);white-space:nowrap}
+  .tbl td{padding:12px;border-bottom:.5px solid var(--sep);white-space:nowrap;color:var(--ink)}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl tbody tr{cursor:pointer}
+  .tbl tbody tr:active td{background:#F2F2F7}
+  .tbl td:first-child,.tbl th:first-child{position:sticky;left:0;z-index:1;background:inherit}
+  .tbl td:first-child{background:var(--card);font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;box-shadow:.5px 0 0 var(--sep)}
+  .tbl th:first-child{background:#FAFAFC;z-index:2;box-shadow:.5px 0 0 var(--sep)}
+  .tbl .mut{color:var(--muted)}
+  .st{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px}
+  .st.ok{background:#E3F9E8;color:#1F8A3B}
+  .st.no{background:#FFF1DE;color:#B25E00}
+  .tbl small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .sel{width:100%;border:0;border-radius:10px;background:#E3E3E8;padding:10px 12px;font-size:15px;margin-bottom:10px;appearance:none;-webkit-appearance:none}
   /* Cropper */
   .crop{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;color:#fff}
   .crop[hidden]{display:none!important}
@@ -183,9 +200,10 @@
   <!-- Bookings -->
   <section class="wrap tab-view" data-tab="bookings" hidden>
     <h1 class="big">Bookings</h1>
-    <div class="chips" id="bkFilter"></div>
+    <div class="seg" id="bkStatus" style="margin-bottom:10px"><button data-st="all" class="on">All</button><button data-st="complete">Complete</button><button data-st="incomplete">Incomplete</button></div>
+    <select class="sel" id="bkEvent"></select>
     <div class="search"><span style="color:var(--muted)">⌕</span><input id="bkSearch" placeholder="Search name, phone or email" type="search"></div>
-    <div class="grp" id="bkList"></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Event</th><th>Phone</th><th>Age</th><th>Email</th><th>Time</th><th>Status</th></tr></thead><tbody id="bkList"></tbody></table></div>
     <p class="gf" id="bkCount"></p>
     <div style="height:16px"></div>
     <button class="btn ghost" id="bkExport">Download as Excel (CSV)</button>
@@ -322,6 +340,10 @@ async function loadAll(){
   $("hiName").textContent = (me && me.name) || toUser(ME.email);
   renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam();
 }
+const done = b => (b.status || "complete") === "complete";
+const STEP_TXT = {name:"Stopped after name", phone:"Stopped after number", age:"Stopped after age", email:"Didn't tap Pay"};
+const fmtTime = d => new Date(d).toLocaleString("en-IN", {day:"numeric", month:"short", hour:"numeric", minute:"2-digit"});
+let bkStatus = "all";
 const evName = id => { const e = EVENTS.find(x => x.id === id); return e ? plainTitle(e) : "Deleted event"; };
 
 /* ================= Tabs ================= */
@@ -338,30 +360,40 @@ function bookingRow(b, i){
 }
 function renderHome(){
   const week = Date.now() - 7 * 864e5;
-  $("stWeek").textContent = BOOKINGS.filter(b => new Date(b.created_at) > week).length;
-  $("stTotal").textContent = BOOKINGS.length;
+  const ok = BOOKINGS.filter(done);
+  $("stWeek").textContent = ok.filter(b => new Date(b.created_at) > week).length;
+  $("stTotal").textContent = ok.length;
   $("stLive").textContent = EVENTS.filter(e => e.status === "live").length;
   const today = new Date().toISOString().slice(0,10);
   const next = EVENTS.filter(e => e.status === "live" && e.event_date && e.event_date >= today).sort((a,b) => a.event_date.localeCompare(b.event_date))[0];
   $("stNext").textContent = next ? fmtDate(next.event_date) : "—";
-  $("latest").innerHTML = BOOKINGS.length ? BOOKINGS.slice(0, 8).map(bookingRow).join("") : '<div class="empty">No bookings yet. They\'ll appear here the moment someone books.</div>';
+  $("latest").innerHTML = ok.length ? ok.slice(0, 8).map(bookingRow).join("") : '<div class="empty">No bookings yet. They\'ll appear here the moment someone books.</div>';
 }
 
 /* ================= Bookings ================= */
+function bkFiltered(){
+  const q = $("bkSearch").value.trim().toLowerCase();
+  return BOOKINGS.filter(b => (bkFilter === "all" || b.event_id === bkFilter)
+    && (bkStatus === "all" || (bkStatus === "complete") === done(b))
+    && (!q || [b.name, b.phone, b.email].join(" ").toLowerCase().includes(q)));
+}
 function renderBookings(){
   const evs = EVENTS.filter(e => BOOKINGS.some(b => b.event_id === e.id) || e.status === "live");
-  $("bkFilter").innerHTML = '<button class="chip' + (bkFilter === "all" ? " on" : "") + '" data-f="all">All</button>' +
-    evs.map(e => '<button class="chip' + (bkFilter === e.id ? " on" : "") + '" data-f="' + e.id + '">' + esc(plainTitle(e)) + "</button>").join("");
-  const q = $("bkSearch").value.trim().toLowerCase();
-  const list = BOOKINGS.filter(b => (bkFilter === "all" || b.event_id === bkFilter) && (!q || (b.name + " " + b.phone + " " + b.email).toLowerCase().includes(q)));
-  $("bkList").innerHTML = list.length ? list.map(bookingRow).join("") : '<div class="empty">No bookings here yet.</div>';
-  $("bkCount").textContent = list.length + (list.length === 1 ? " person" : " people") + (bkFilter !== "all" ? " for " + evName(bkFilter) : "") + " · " + list.filter(b => b.attended).length + " attended";
+  $("bkEvent").innerHTML = '<option value="all">All events</option>' + evs.map(e => '<option value="' + e.id + '"' + (bkFilter === e.id ? " selected" : "") + ">" + esc(plainTitle(e)) + "</option>").join("");
+  const list = bkFiltered();
+  $("bkList").innerHTML = list.length ? list.map(b =>
+    '<tr data-person="' + b.id + '"><td>' + esc(b.name) + "</td><td>" + esc(evName(b.event_id)) + "</td><td>" + (b.phone ? esc(b.phone) : '<span class="mut">—</span>') + "</td><td>" + (b.age ? esc(b.age) : '<span class="mut">—</span>') + "</td><td>" + (b.email ? esc(b.email) : '<span class="mut">—</span>') + '</td><td>' + fmtTime(b.updated_at || b.created_at) + "</td><td>" +
+    (done(b) ? '<span class="st ok">Complete</span>' : '<span class="st no">Incomplete</span><small>' + esc(STEP_TXT[b.step] || "") + "</small>") + "</td></tr>"
+  ).join("") : '<tr><td colspan="7" class="mut" style="text-align:center;padding:26px;position:static;box-shadow:none;font-weight:400">No bookings here yet.</td></tr>';
+  const c = list.filter(done).length;
+  $("bkCount").textContent = c + " complete · " + (list.length - c) + " incomplete · " + list.filter(b => b.attended).length + " attended" + (bkFilter !== "all" ? " · " + evName(bkFilter) : "");
 }
-$("bkFilter").onclick = e => { const c = e.target.closest(".chip"); if (c){ bkFilter = c.dataset.f; renderBookings(); } };
+$("bkStatus").onclick = e => { const b = e.target.closest("button"); if (!b) return; bkStatus = b.dataset.st; [...$("bkStatus").children].forEach(x => x.classList.toggle("on", x === b)); renderBookings(); };
+$("bkEvent").onchange = () => { bkFilter = $("bkEvent").value; renderBookings(); };
 $("bkSearch").oninput = renderBookings;
 $("bkExport").onclick = () => {
-  const list = BOOKINGS.filter(b => bkFilter === "all" || b.event_id === bkFilter);
-  const rows = [["Name","Phone","Age","Email","Event","Booked on","Attended"]].concat(list.map(b => [b.name, b.phone, b.age, b.email, evName(b.event_id), new Date(b.created_at).toLocaleString("en-IN"), b.attended ? "Yes" : "No"]));
+  const list = bkFiltered();
+  const rows = [["Event","Name","Phone","Age","Email","Time","Status","Stopped at","Attended"]].concat(list.map(b => [evName(b.event_id), b.name, b.phone || "", b.age || "", b.email || "", new Date(b.updated_at || b.created_at).toLocaleString("en-IN"), done(b) ? "Complete" : "Incomplete", done(b) ? "" : (STEP_TXT[b.step] || ""), b.attended ? "Yes" : "No"]));
   const csv = "﻿" + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
@@ -373,17 +405,18 @@ $("bkExport").onclick = () => {
 document.addEventListener("click", e => { const r = e.target.closest("[data-person]"); if (r) openPerson(r.dataset.person); });
 function openPerson(id){
   const b = BOOKINGS.find(x => x.id === id); if (!b) return;
-  const wa = "https://wa.me/" + b.phone.replace(/\D/g, "");
+  const wa = b.phone ? "https://wa.me/" + b.phone.replace(/\D/g, "") : "";
   $("pBody").innerHTML =
     '<div style="text-align:center;margin:18px 0 6px"><span class="av" style="width:72px;height:72px;font-size:26px;margin:0 auto">' + esc(initials(b.name)) + '</span><h2 style="font-size:24px;margin-top:12px">' + esc(b.name) + '</h2><p style="color:var(--muted);margin-top:4px">' + esc(evName(b.event_id)) + "</p></div>" +
     '<div class="grp person" style="margin-top:18px">' +
-      '<div class="row"><span class="t"><small>Phone</small><b><a href="tel:' + esc(b.phone) + '">' + esc(b.phone) + "</a></b></span></div>" +
-      '<div class="row"><span class="t"><small>Email</small><b><a href="mailto:' + esc(b.email) + '">' + esc(b.email) + "</a></b></span></div>" +
-      '<div class="row"><span class="t"><small>Age</small><b>' + esc(b.age) + "</b></span></div>" +
+      '<div class="row"><span class="t"><small>Status</small><b>' + (done(b) ? "Complete" : "Incomplete · " + esc(STEP_TXT[b.step] || "")) + "</b></span></div>" +
+      '<div class="row"><span class="t"><small>Phone</small><b>' + (b.phone ? '<a href="tel:' + esc(b.phone) + '">' + esc(b.phone) + "</a>" : "—") + "</b></span></div>" +
+      '<div class="row"><span class="t"><small>Email</small><b>' + (b.email ? '<a href="mailto:' + esc(b.email) + '">' + esc(b.email) + "</a>" : "—") + "</b></span></div>" +
+      '<div class="row"><span class="t"><small>Age</small><b>' + (b.age ? esc(b.age) : "—") + "</b></span></div>" +
       '<div class="row"><span class="t"><small>Booked</small><b>' + new Date(b.created_at).toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"}) + "</b></span></div>" +
     "</div>" +
     '<div class="grp" style="margin-top:22px"><div class="row"><span class="t"><b>Attended</b></span><button class="switch' + (b.attended ? " on" : "") + '" id="attSw" aria-label="Attended"></button></div></div>' +
-    '<div style="height:22px"></div><a class="btn" style="display:grid;place-items:center;text-decoration:none" href="' + wa + '" target="_blank" rel="noopener">Message on WhatsApp</a>' +
+    (wa ? '<div style="height:22px"></div><a class="btn" style="display:grid;place-items:center;text-decoration:none" href="' + wa + '" target="_blank" rel="noopener">Message on WhatsApp</a>' : "") +
     '<div style="height:12px"></div><button class="btn red" id="pDel">Delete booking</button>';
   $("attSw").onclick = async () => {
     const v = !b.attended;
@@ -407,7 +440,7 @@ const confirmBox = msg => window.confirm(msg);
 function renderEvents(){
   const label = {live:"Live", soon:"Soon", draft:"Draft", past:"Past"};
   $("evList").innerHTML = EVENTS.length ? EVENTS.map(e => {
-    const n = BOOKINGS.filter(b => b.event_id === e.id).length;
+    const n = BOOKINGS.filter(b => b.event_id === e.id && done(b)).length;
     return '<button class="row tap" data-ev="' + e.id + '"><span class="thumb" style="width:52px;height:52px;border-radius:10px;' + (e.photo_url ? "background-image:url('" + esc(e.photo_url) + "')" : "") + '">' + (e.photo_url ? "" : "✦") + '</span><span class="t"><b>' + esc(plainTitle(e)) + "</b><small>" + [fmtDate(e.event_date), n + " booked"].filter(Boolean).join(" · ") + '</small></span><span class="badge b-' + e.status + '">' + label[e.status] + '</span><span class="chev">›</span></button>';
   }).join("") : '<div class="empty">No events yet.</div>';
 }

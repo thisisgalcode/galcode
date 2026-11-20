@@ -856,6 +856,8 @@ function show(n){
 }
 function openForm(){
   if (!curEvent) return;
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
+  if (!booking.id || booking.done){ booking.id = uid(); booking.token = uid(); booking.done = false; }
   document.querySelectorAll("#formOv .qf-err").forEach(e => e.textContent = "");
   $("sumPrice").textContent = curEvent.price || "To be announced";
   const gateway = curEvent.payment_mode === "gateway";
@@ -870,6 +872,14 @@ $("confirmBtn").onclick = openForm;
 $("barBtn").onclick = openForm;
 document.querySelectorAll("#formOv [data-prev]").forEach(b => b.onclick = () => cur > 0 && show(cur - 1));
 
+function saveBooking(step, complete){
+  if (!db || !curEvent || !curEvent.id || !booking.name) return Promise.resolve({ error: null });
+  return db.rpc("save_booking", {
+    p_id: booking.id, p_token: booking.token, p_event: curEvent.id,
+    p_name: booking.name, p_phone: booking.phone || null, p_age: booking.age || null, p_email: booking.email || null,
+    p_step: step, p_complete: complete
+  }).then(r => r, e => ({ error: e }));
+}
 const RULES = {
   name:  [() => $("fName").value.trim().length >= 2, "Enter your full name.", () => booking.name = $("fName").value.trim()],
   phone: [() => /^[6-9]\d{9}$/.test($("fPhone").value), "Enter a valid 10-digit mobile number.", () => booking.phone = "+91" + $("fPhone").value],
@@ -884,6 +894,7 @@ function next(){
     RULES[key][2]();
   }
   err.textContent = "";
+  if (RULES[key]) saveBooking(key, false);
   if (cur === 4) $("payHi").textContent = (booking.name || "").split(" ")[0] + ".";
   show(cur + 1);
 }
@@ -903,7 +914,7 @@ $("payBtn").onclick = async () => {
   const url = gateway ? "" : curEvent.booking_url;
   if (db && curEvent.id){
     btn.disabled = true; const label = btn.textContent; btn.textContent = "Saving…";
-    const { error } = await db.from("bookings").insert({ event_id: curEvent.id, name: booking.name, phone: booking.phone, age: booking.age, email: booking.email });
+    const { error } = await saveBooking("paid", true);
     if (error){
       btn.disabled = false; btn.textContent = label;
       err.textContent = "Couldn't save your spot. Check your connection and try again, or DM us on Instagram.";
@@ -911,6 +922,7 @@ $("payBtn").onclick = async () => {
     }
     btn.textContent = url ? "Taking you to payment…" : label;
   }
+  booking.done = true;
   ["fName","fPhone","fAge","fEmail"].forEach(id => $(id).value = ""); $("agree").checked = false;
   if (gateway){                                            // payment gateway: show the receipt
     btn.disabled = false;
