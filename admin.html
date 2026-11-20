@@ -147,10 +147,14 @@
 <!-- Login -->
 <div class="login" id="login" hidden>
   <h1>galcode <em>admin</em></h1>
-  <p>Sign in with your email. We'll send you a link.</p>
-  <div class="grp"><input id="loginEmail" type="email" autocomplete="email" placeholder="you@gmail.com" inputmode="email"></div>
+  <p>Sign in with your username and password.</p>
+  <form class="grp" id="loginForm" autocomplete="on">
+    <div class="fld"><input id="loginUser" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Username" style="text-align:left"></div>
+    <div class="fld"><input id="loginPass" name="password" type="password" autocomplete="current-password" placeholder="Password" style="text-align:left"><button type="button" id="showPass" class="link" style="font-size:14px;flex:none">Show</button></div>
+    <button type="submit" hidden></button>
+  </form>
   <div style="height:14px"></div>
-  <button class="btn" id="loginBtn">Send sign-in link</button>
+  <button class="btn" id="loginBtn">Sign in</button>
   <p class="msg" id="loginMsg"></p>
 </div>
 
@@ -205,9 +209,9 @@
 
     <p class="gl">Team</p>
     <div class="grp" id="teamList"></div>
-    <p class="gf">Anyone listed here can sign in to this admin panel with their email.</p>
+    <p class="gf">Anyone listed here can sign in with their username and password. A new member's login is created in Supabase → Authentication → Users → Add user, with username@galcode.vercel.app as the email.</p>
     <div style="height:10px"></div>
-    <div class="grp"><div class="fld"><input id="teamEmail" type="email" placeholder="Add a team member's email" style="text-align:left"></div></div>
+    <div class="grp"><div class="fld"><input id="teamEmail" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Add a team member's username" style="text-align:left"></div></div>
     <div style="height:10px"></div>
     <button class="btn ghost" id="teamAdd">Add to team</button>
 
@@ -272,28 +276,35 @@ async function boot(){
   if (!session){ showLogin(); return; }
   const { data: ok, error } = await db.rpc("is_admin");
   if (error || !ok){
-    showLogin("This email (" + session.user.email + ") isn't on the galcode team yet. Ask Raksha to add you, then sign in again.", true);
+    showLogin(handle(session.user.email) + " isn't on the galcode team yet. Ask Raksha to add you, then sign in again.", true);
     await db.auth.signOut(); return;
   }
   ME = session.user;
   $("boot").hidden = true; $("login").hidden = true; $("app").hidden = false;
-  $("whoami").textContent = ME.email;
+  $("whoami").textContent = handle(ME.email);
   await loadAll();
 }
 function showLogin(msg, isErr){
   $("boot").hidden = true; $("app").hidden = true; $("login").hidden = false;
   $("loginMsg").textContent = msg || ""; $("loginMsg").classList.toggle("err", !!isErr);
 }
-$("loginBtn").onclick = async () => {
-  const email = $("loginEmail").value.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ showLogin("Enter a valid email address.", true); return; }
-  $("loginBtn").disabled = true;
-  const { error } = await db.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + "/admin" } });
-  $("loginBtn").disabled = false;
-  if (error) showLogin(error.message.includes("rate") ? "Too many tries. Wait a few minutes and try again." : "Couldn't send the link: " + error.message, true);
-  else showLogin("Check " + email + " for a sign-in link from Supabase. Open it on this device.");
-};
-$("loginEmail").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
+const LOGIN_DOMAIN = "galcode.vercel.app";
+const toEmail = u => { u = u.trim().toLowerCase(); return u.includes("@") ? u : u + "@" + LOGIN_DOMAIN; };
+const toUser = e => (e || "").toLowerCase().endsWith("@" + LOGIN_DOMAIN) ? e.split("@")[0] : (e || "").split("@")[0];
+const handle = e => (e || "").toLowerCase().endsWith("@" + LOGIN_DOMAIN) ? "@" + e.split("@")[0] : e;
+async function doLogin(){
+  const user = $("loginUser").value.trim(), pass = $("loginPass").value;
+  if (!user || !pass){ showLogin("Enter your username and password.", true); return; }
+  $("loginBtn").disabled = true; $("loginBtn").textContent = "Signing in…";
+  const { error } = await db.auth.signInWithPassword({ email: toEmail(user), password: pass });
+  $("loginBtn").disabled = false; $("loginBtn").textContent = "Sign in";
+  if (error){ showLogin(/invalid/i.test(error.message) ? "Wrong username or password." : /rate|many/i.test(error.message) ? "Too many tries. Wait a minute and try again." : "Couldn't sign in: " + error.message, true); return; }
+  $("loginPass").value = "";
+  boot();
+}
+$("loginBtn").onclick = doLogin;
+$("loginForm").onsubmit = e => { e.preventDefault(); doLogin(); };
+$("showPass").onclick = () => { const p = $("loginPass"); p.type = p.type === "password" ? "text" : "password"; $("showPass").textContent = p.type === "password" ? "Show" : "Hide"; };
 $("signOut").onclick = async () => { await db.auth.signOut(); location.reload(); };
 db.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_IN" && !ME) boot(); });
 
@@ -308,7 +319,7 @@ async function loadAll(){
   EVENTS = e.data || []; BOOKINGS = b.data || []; TEAM = t.data || [];
   CONTENT = {}; (c.data || []).forEach(r => CONTENT[r.key] = r.value);
   const me = TEAM.find(x => x.email.toLowerCase() === ME.email.toLowerCase());
-  $("hiName").textContent = (me && me.name) || ME.email.split("@")[0];
+  $("hiName").textContent = (me && me.name) || toUser(ME.email);
   renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam();
 }
 const evName = id => { const e = EVENTS.find(x => x.id === id); return e ? plainTitle(e) : "Deleted event"; };
@@ -664,24 +675,25 @@ $("siteSave").onclick = () => saveSite();
 function renderTeam(){
   $("teamList").innerHTML = TEAM.map(m => {
     const me = m.email.toLowerCase() === ME.email.toLowerCase();
-    return '<div class="row ic"><span class="av">' + esc(initials(m.name || m.email)) + '</span><span class="t"><b>' + esc(m.name || m.email.split("@")[0]) + (me ? " (you)" : "") + "</b><small>" + esc(m.email) + " · " + (m.role === "owner" ? "Owner" : "Team") + "</small></span>" +
+    return '<div class="row ic"><span class="av">' + esc(initials(m.name || toUser(m.email))) + '</span><span class="t"><b>' + esc(m.name || toUser(m.email)) + (me ? " (you)" : "") + "</b><small>" + esc(handle(m.email)) + " · " + (m.role === "owner" ? "Owner" : "Team") + "</small></span>" +
       (!me && m.role !== "owner" ? '<button class="danger" data-rm="' + esc(m.email) + '" style="font-size:15px">Remove</button>' : "") + "</div>";
   }).join("");
 }
 $("teamList").onclick = async e => {
   const b = e.target.closest("[data-rm]"); if (!b) return;
-  if (!confirmBox("Remove " + b.dataset.rm + " from the team? They won't be able to sign in.")) return;
+  if (!confirmBox("Remove " + handle(b.dataset.rm) + " from the team? They won't be able to sign in.")) return;
   const { error } = await db.from("admins").delete().eq("email", b.dataset.rm);
   if (error) return toast("Couldn't remove");
   TEAM = TEAM.filter(m => m.email !== b.dataset.rm); renderTeam(); toast("Removed");
 };
 $("teamAdd").onclick = async () => {
-  const email = $("teamEmail").value.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return toast("Enter a valid email");
+  const u = $("teamEmail").value.trim().toLowerCase().replace(/^@/, "");
+  if (!/^[a-z0-9._-]{3,30}$/.test(u)) return toast("Use 3–30 letters, numbers, dots or dashes");
+  const email = toEmail(u);
   const { error } = await db.from("admins").insert({email, role:"team"});
   if (error) return toast(error.code === "23505" ? "Already on the team" : "Couldn't add");
   $("teamEmail").value = ""; const t = await db.from("admins").select("*").order("created_at"); TEAM = t.data || TEAM; renderTeam();
-  toast("Added. They can sign in at /admin");
+  toast("Added @" + u + ". Now create their login in Supabase.");
 };
 
 boot();
