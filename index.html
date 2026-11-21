@@ -318,6 +318,11 @@
   .tk-d span{display:block;font-family:var(--sans,inherit);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-top:3px}
   .tk.past{opacity:.7}
   .mb-empty{margin-top:14px;color:var(--ink-2);font-size:15px;line-height:1.6}
+  .mb-none{text-align:center;padding:18px 0 6px}
+  .mb-sad{font-size:54px;line-height:1}
+  .mb-none p{margin-top:12px;font-family:var(--serif);font-size:26px;color:var(--ink)}
+  .mb-none small{display:block;margin:6px auto 20px;max-width:260px;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+  .mb-none .btn{width:auto;min-height:50px;padding:0 28px;border-radius:99px;font-size:15px}
   .mb-out{font:inherit;font-size:14px;color:var(--ink-2);background:none;border:0;text-decoration:underline;margin-top:20px;cursor:pointer;padding:0}
   .view-si{min-height:100vh;background:var(--bg);padding:20px 22px calc(40px + env(safe-area-inset-bottom))}
   .si-wrap{max-width:420px;margin:0 auto}
@@ -1406,9 +1411,8 @@ async function openBookings(){
     const live = EVENTS.some(e => e.slug === r.slug && e.status === "live");
     const inner = '<div class="tk-ph"' + (safeUrl(r.photo_url) ? ' style="background-image:url(\'' + esc(safeUrl(r.photo_url)).replace(/'/g, "%27") + '\')"' : "") + '></div><div class="tk-in"><div><b>' + titleHTML(r.title, r.title_em) + "</b><small>" + esc([r.date_label || (d ? d.toLocaleDateString("en-IN", {weekday:"short", day:"numeric", month:"short"}) : ""), r.time_label, r.venue].filter(Boolean).join(" · ")) + "</small></div>" + (d ? '<div class="tk-d">' + d.getDate() + "<span>" + d.toLocaleDateString("en-IN", {month:"short"}) + "</span></div>" : "") + "</div>";
     return live ? '<a class="tk' + (past ? " past" : "") + '" href="#' + esc(r.slug) + '" data-tk>' + inner + "</a>" : '<div class="tk' + (past ? " past" : "") + '">' + inner + "</div>";
-  }).join("") : '<p class="mb-empty">No tickets here yet. Bookings made with <b>' + esc(ME.email || "your email") + "</b> show up here once you've booked an event.</p>") +
-    '<button class="mb-out" id="mbOut" type="button">Sign out</button>';
-  $("mbOut").onclick = signOutNow;
+  }).join("") : '<div class="mb-none"><div class="mb-sad">😔</div><p>No tickets yet</p><small>When you book an event, your ticket shows up here.</small><button class="btn" id="mbExplore" type="button">Explore events</button></div>');
+  if ($("mbExplore")) $("mbExplore").onclick = () => { $("mbOv").classList.remove("show"); const t = document.getElementById("dates"); if (t) t.scrollIntoView({behavior:"smooth", block:"start"}); };
   $("mbBody").querySelectorAll("[data-tk]").forEach(a => a.addEventListener("click", () => $("mbOv").classList.remove("show")));
 }
 if (db){ db.auth.getSession().then(r => setMe(r.data && r.data.session)); db.auth.onAuthStateChange((_e, sess) => setMe(sess)); }
