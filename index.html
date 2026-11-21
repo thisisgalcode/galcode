@@ -240,6 +240,14 @@
   .inc li{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);font-size:15.5px;line-height:1.45}
   .inc li:last-child{border:0}
   .inc svg{background:#FFF3B0;border-radius:50%;padding:3px;width:22px;height:22px;stroke-width:2.2;margin-top:0}
+  .inc li.no{color:var(--muted);font-size:14.5px;padding:10px 0}
+  .inc li.no svg{background:transparent;stroke:var(--muted);stroke-width:1.8;padding:4px}
+  .inc li.no.first{border-top:1px dashed var(--line)}
+  .inc li:has(+ li.no.first){border-bottom:0}
+  .act li{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);font-size:15.5px;line-height:1.4}
+  .act li:last-child{border:0}
+  .act li b{font-weight:500}.act li small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+  .act li em{font-style:normal;flex:none;background:#FFF3B0;color:var(--ink);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:500}
   .agenda{padding:4px 18px}
   .agenda li{display:flex;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
   .agenda li:last-child{border:0}
@@ -590,6 +598,10 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
     <p class="ev-label">What's included</p>
     <ul class="ev-box inc" id="pInc"></ul>
   </section>
+  <section class="ev-sec" id="secAct" hidden>
+    <p class="ev-label">Optional activities</p>
+    <ul class="ev-box act" id="pAct"></ul>
+  </section>
   <section class="ev-sec" id="secAgenda">
     <p class="ev-label">Event agenda</p>
     <ol class="ev-box agenda" id="pAgenda"></ol>
@@ -869,7 +881,8 @@ const ICON = {
   pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   tag:'<svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg>',
   heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-6-4.4-8.5-8A5 5 0 0 1 12 6.5 5 5 0 0 1 20.5 13C18 16.6 12 21 12 21z"/></svg>',
-  tick:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+  tick:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  cross:'<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>'
 };
 function renderEvent(ev){
   curEvent = ev;
@@ -889,8 +902,14 @@ function renderEvent(ev){
   $("pDetails").innerHTML = rows.map(r => '<div class="d-row">' + r[0] + "<div><small>" + r[1] + "</small><b>" + esc(r[2]) + "</b>" + r[3] + "</div></div>").join("");
 
   const inc = ev.included || [];
-  $("secInc").hidden = !inc.length;
-  $("pInc").innerHTML = inc.map(t => "<li>" + ICON.tick + "<span>" + esc(t) + "</span></li>").join("");
+  const no = ev.show_not_included === false ? [] : (ev.not_included || []).filter(t => String(t).trim());
+  $("secInc").hidden = !inc.length && !no.length;
+  $("pInc").innerHTML = inc.map(t => "<li>" + ICON.tick + "<span>" + esc(t) + "</span></li>").join("") +
+    no.map((t, i) => '<li class="no' + (i === 0 && inc.length ? " first" : "") + '">' + ICON.cross + "<span>" + esc(t) + "</span></li>").join("");
+
+  const acts = ev.show_activities === false ? [] : (ev.activities || []).filter(a => a && String(a.title || "").trim());
+  $("secAct").hidden = !acts.length;
+  $("pAct").innerHTML = acts.map(a => "<li><span><b>" + esc(a.title) + "</b>" + (a.note ? "<small>" + esc(a.note) + "</small>" : "") + "</span>" + (a.price ? "<em>" + esc(a.price) + "</em>" : "") + "</li>").join("");
 
   const ag = ev.agenda || [];
   $("secAgenda").hidden = !ag.length;

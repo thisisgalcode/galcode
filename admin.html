@@ -639,7 +639,7 @@ let draft = null;
 const slugify = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "event";
 function openEvent(id){
   const src = id ? EVENTS.find(e => e.id === id) : null;
-  draft = src ? JSON.parse(JSON.stringify(src)) : {id:null, payment_mode:"external", audience:"Girls only", slug:"", title:"", title_em:"", status:"draft", event_date:null, date_label:"", time_label:"", venue:"", maps_url:"", price:"", booking_url:"", about:"", photo_url:"", included:[], agenda:[], diary:[], faqs:[], sort:(EVENTS.length + 1)};
+  draft = src ? JSON.parse(JSON.stringify(src)) : {id:null, not_included:[], activities:[], show_not_included:true, show_activities:true, payment_mode:"external", audience:"Girls only", slug:"", title:"", title_em:"", status:"draft", event_date:null, date_label:"", time_label:"", venue:"", maps_url:"", price:"", booking_url:"", about:"", photo_url:"", included:[], agenda:[], diary:[], faqs:[], sort:(EVENTS.length + 1)};
   $("evSheetTitle").textContent = src ? "Edit event" : "New event";
   renderEventForm();
   $("evSheet").classList.add("show"); $("evSheet").scrollTop = 0;
@@ -671,6 +671,12 @@ function renderEventForm(){
 
     '<p class="gl">What\'s included</p><div class="grp" id="lInc">' + d.included.map((t, i) => listRow("inc", i, '<input data-l="inc" data-i="' + i + '" value="' + esc(t) + '" placeholder="Chai and snacks">')).join("") + '<button class="add-row" data-add="inc">＋ Add item</button></div>' +
 
+    '<p class="gl">Not included</p><div class="grp"><div class="row"><span class="t"><b>Show on the page</b><small>Shown with a ✗ in the "What\'s included" card</small></span><button class="switch' + (d.show_not_included !== false ? " on" : "") + '" data-tg="show_not_included" aria-label="Show not included"></button></div></div>' +
+    '<div style="height:10px"></div><div class="grp" id="lNo">' + d.not_included.map((t, i) => listRow("no", i, '<input data-l="no" data-i="' + i + '" value="' + esc(t) + '" placeholder="Travel to the venue">')).join("") + '<button class="add-row" data-add="no">＋ Add item</button></div>' +
+
+    '<p class="gl">Optional activities</p><div class="grp"><div class="row"><span class="t"><b>Show on the page</b><small>Its own card, after "What\'s included"</small></span><button class="switch' + (d.show_activities !== false ? " on" : "") + '" data-tg="show_activities" aria-label="Show optional activities"></button></div></div>' +
+    '<div style="height:10px"></div><div class="grp" id="lAct">' + d.activities.map((x, i) => listRow("act", i, '<input data-l="act" data-i="' + i + '" data-f="title" value="' + esc(x.title) + '" placeholder="Pottery corner"><input class="sm" data-l="act" data-i="' + i + '" data-f="price" value="' + esc(x.price) + '" placeholder="Price, e.g. ₹150"><input class="sm" data-l="act" data-i="' + i + '" data-f="note" value="' + esc(x.note) + '" placeholder="Short note (optional)">')).join("") + '<button class="add-row" data-add="act">＋ Add activity</button></div>' +
+
     '<p class="gl">Event agenda</p><div class="grp" id="lAg">' + d.agenda.map((a, i) => listRow("ag", i, '<input data-l="ag" data-i="' + i + '" data-f="title" value="' + esc(a.title) + '" placeholder="What happens"><input class="sm" data-l="ag" data-i="' + i + '" data-f="time" value="' + esc(a.time) + '" placeholder="Time, e.g. 5:00 PM"><input class="sm" data-l="ag" data-i="' + i + '" data-f="note" value="' + esc(a.note) + '" placeholder="Short note (optional)">')).join("") + '<button class="add-row" data-add="ag">＋ Add step</button></div>' +
 
     '<p class="gl">Event diary</p><div class="grp"><div class="diary-grid">' + d.diary.map((p, i) => '<div class="dg"><span class="thumb" style="background-image:url(\'' + cssUrl(p.url) + '\')"></span><button class="x" data-ddel="' + i + '">×</button><input data-l="di" data-i="' + i + '" value="' + esc(p.caption) + '" placeholder="Caption"></div>').join("") + '<button class="dg add" id="diaryAdd"><span class="thumb">＋</span></button></div></div>' +
@@ -688,13 +694,13 @@ function renderEventForm(){
 function listRow(kind, i, inner){
   return '<div class="list-row"><div class="cols">' + inner + '</div><div class="acts"><button class="mini" data-up="' + kind + '" data-i="' + i + '" aria-label="Move up">↑</button><button class="mini del" data-del="' + kind + '" data-i="' + i + '" aria-label="Remove">✕</button></div></div>';
 }
-const LIST = {inc:"included", ag:"agenda", faq:"faqs", di:"diary"};
+const LIST = {inc:"included", no:"not_included", act:"activities", ag:"agenda", faq:"faqs", di:"diary"};
 $("evForm").addEventListener("input", e => {
   const t = e.target;
   if (t.dataset.k) draft[t.dataset.k] = t.value || (t.dataset.k === "event_date" ? null : "");
   if (t.dataset.l){
     const arr = draft[LIST[t.dataset.l]], i = +t.dataset.i;
-    if (t.dataset.l === "inc") arr[i] = t.value;
+    if (t.dataset.l === "inc" || t.dataset.l === "no") arr[i] = t.value;
     else if (t.dataset.l === "di") arr[i].caption = t.value;
     else arr[i][t.dataset.f] = t.value;
   }
@@ -703,13 +709,16 @@ $("evForm").addEventListener("click", async e => {
   const t = e.target.closest("button"); if (!t) return;
   if (t.closest("#evStatus")){ draft.status = t.dataset.s; renderEventForm(); return; }
   if (t.closest("#evPay")){ draft.payment_mode = t.dataset.p; renderEventForm(); return; }
+  if (t.dataset.tg){ draft[t.dataset.tg] = draft[t.dataset.tg] === false; renderEventForm(); return; }
   if (t.dataset.add){
     const k = t.dataset.add;
     if (k === "inc") draft.included.push("");
+    if (k === "no") draft.not_included.push("");
+    if (k === "act") draft.activities.push({title:"", price:"", note:""});
     if (k === "ag") draft.agenda.push({time:"", title:"", note:""});
     if (k === "faq") draft.faqs.push({q:"", a:""});
     renderEventForm();
-    const ins = $("evForm").querySelectorAll('[data-l="' + k + '"]'); if (ins.length) ins[ins.length - (k === "ag" ? 3 : k === "faq" ? 2 : 1)].focus();
+    const ins = $("evForm").querySelectorAll('[data-l="' + k + '"]'); if (ins.length) ins[ins.length - (k === "ag" || k === "act" ? 3 : k === "faq" ? 2 : 1)].focus();
     return;
   }
   if (t.dataset.del){ draft[LIST[t.dataset.del]].splice(+t.dataset.i, 1); renderEventForm(); return; }
@@ -755,9 +764,11 @@ $("evSave").onclick = async () => {
   if (EVENTS.some(e => e.slug === d.slug && e.id !== d.id)) d.slug += "-" + Math.floor(Math.random() * 900 + 100);
   if (!d.date_label && d.event_date) d.date_label = new Date(d.event_date + "T00:00:00").toLocaleDateString("en-IN", {weekday:"long", day:"numeric", month:"long"});
   d.included = d.included.map(s => s.trim()).filter(Boolean);
+  d.not_included = (d.not_included || []).map(s => s.trim()).filter(Boolean);
+  d.activities = (d.activities || []).filter(x => x.title.trim()).map(x => ({title:x.title.trim(), price:(x.price || "").trim(), note:(x.note || "").trim()}));
   d.agenda = d.agenda.filter(a => a.title.trim());
   d.faqs = d.faqs.filter(q => q.q.trim() && q.a.trim());
-  const row = {slug:d.slug, title:d.title.trim(), title_em:d.title_em.trim(), status:d.status, event_date:d.event_date || null, date_label:d.date_label, time_label:d.time_label, venue:d.venue, maps_url:d.maps_url, audience:(d.audience ?? "").trim(), payment_mode:d.payment_mode || "external", price:d.price, booking_url:d.booking_url, about:d.about, photo_url:d.photo_url, included:d.included, agenda:d.agenda, diary:d.diary, faqs:d.faqs, sort:d.sort};
+  const row = {slug:d.slug, title:d.title.trim(), title_em:d.title_em.trim(), status:d.status, event_date:d.event_date || null, date_label:d.date_label, time_label:d.time_label, venue:d.venue, maps_url:d.maps_url, audience:(d.audience ?? "").trim(), payment_mode:d.payment_mode || "external", price:d.price, booking_url:d.booking_url, about:d.about, photo_url:d.photo_url, included:d.included, not_included:d.not_included, activities:d.activities, show_not_included:d.show_not_included !== false, show_activities:d.show_activities !== false, agenda:d.agenda, diary:d.diary, faqs:d.faqs, sort:d.sort};
   $("evSave").disabled = true;
   const res = d.id ? await db.from("events").update(row).eq("id", d.id) : await db.from("events").insert(row);
   $("evSave").disabled = false;
