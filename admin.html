@@ -171,6 +171,18 @@
   .ratios button{color:#ddd;font-size:14px;padding:7px 13px;border-radius:99px;background:rgba(255,255,255,.12)}
   .ratios button.on{background:#FFD60A;color:#000;font-weight:600}
   .crop-hint{text-align:center;font-size:12.5px;color:#aaa;margin-top:8px}
+  /* Auto DM */
+  .ad-th{width:40px;height:56px;border-radius:7px;background:#EDEDF0 center/cover no-repeat;flex:none;display:grid;place-items:center;color:var(--muted);font-size:10px}
+  .ad-row{cursor:pointer}
+  .ad-tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:var(--pink-soft);color:#C2185B;margin-right:4px}
+  .kw{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px}
+  .kw span{display:inline-flex;align-items:center;gap:6px;background:var(--pink-soft);color:#C2185B;border-radius:99px;padding:6px 6px 6px 12px;font-size:14.5px;font-weight:500}
+  .kw span button{width:22px;height:22px;border-radius:50%;background:rgba(194,24,91,.12);color:#C2185B;font-size:14px;line-height:1}
+  .ad-head{display:flex;gap:14px;align-items:center;padding:12px 16px}
+  .ad-head .ad-th{width:64px;height:90px;border-radius:10px}
+  .ad-head p{font-size:14.5px;color:var(--ink2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .ad-err{color:var(--red);font-size:14px;margin:10px 16px 0;line-height:1.45}
+  .count{font-size:12px;color:var(--muted);text-align:right;padding:0 16px 8px}
   .unsaved{display:inline-block;font-size:12px;color:#FF9500;font-weight:600;margin-left:6px}
 </style>
 </head>
@@ -284,11 +296,25 @@
     <div class="grp"><button class="row tap" id="signOut"><span class="t"><b class="danger">Sign out</b><small id="whoami"></small></span></button></div>
   </section>
 
+  <!-- Auto DM -->
+  <section class="wrap tab-view" data-tab="autodm" hidden>
+    <h1 class="big">Auto <em>DM</em></h1>
+    <div class="seg" id="adAcct"></div>
+    <p class="gl">Presets</p>
+    <div class="grp"><button class="row tap" id="adPresetsBtn"><span class="t"><b>Saved presets</b><small id="adPresetCount">None yet</small></span><span class="chev">›</span></button></div>
+    <p class="gl">Reels and posts</p>
+    <div class="grp" id="adList"><div class="spin"></div></div>
+    <div style="height:12px"></div>
+    <button class="btn ghost" id="adMore" hidden>Load more</button>
+    <p class="gf">Tap a reel to set its comment reply, DM and button. Switch it on to start sending. Reels that are off or not set up don't get any auto reply.</p>
+  </section>
+
   <nav class="tabs">
     <button data-go="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
     <button data-go="bookings"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></svg>Bookings</button>
     <button data-go="events"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Events</button>
     <button data-go="insights"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Insights</button>
+    <button data-go="autodm"><svg viewBox="0 0 24 24"><path d="M21 4L10 14"/><path d="M21 4l-7 17-4-7-7-4z"/></svg>Auto DM</button>
     <button data-go="site"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Edit site</button>
   </nav>
 </div>
@@ -303,6 +329,18 @@
 <div class="sheet" id="pSheet">
   <div class="nav"><button id="pBack">‹ Back</button><b>Booking</b><span style="min-width:70px"></span></div>
   <div class="wrap" id="pBody"></div>
+</div>
+
+<!-- Auto DM: reel editor -->
+<div class="sheet" id="adSheet">
+  <div class="nav"><button id="adCancel">Cancel</button><b>Auto DM</b><button class="r" id="adSaveTop">Save</button></div>
+  <div class="wrap" style="padding-top:4px" id="adForm"></div>
+</div>
+
+<!-- Auto DM: presets -->
+<div class="sheet" id="adPSheet">
+  <div class="nav"><button id="adPBack">‹ Back</button><b>Presets</b><span style="min-width:70px"></span></div>
+  <div class="wrap" id="adPBody"></div>
 </div>
 
 <div class="crop" id="crop" hidden>
@@ -911,6 +949,241 @@ $("teamAdd").onclick = async () => {
   if (error) return toast(error.code === "23505" ? "Already on the team" : "Couldn't add");
   $("teamEmail").value = ""; const t = await db.from("admins").select("*").order("created_at"); TEAM = t.data || TEAM; renderTeam();
   toast("Added @" + u + ". Now create their login in Supabase.");
+};
+
+/* ================= Auto DM ================= */
+const AUTODM_API = "https://galcode-autodm.thisisgalcode.workers.dev";
+const AD_ACCOUNTS = [{id:"17841435710872356", name:"@thisisgalcode"}, {id:"17841469055525280", name:"@ft.rakshaa"}];
+const AD_LIMITS = {reply:300, dm:640, button_text:20};
+let adAcct = AD_ACCOUNTS[0].id, AD_MEDIA = {}, AD_NEXT = {}, AD_ERR = {}, AD_RULES = {}, AD_PRESETS = [], adReady = false, adDraft = null, adMedia = null, adDirty = false;
+const adKey = (a, m) => a + ":" + m;
+const adBlank = () => ({enabled:false, trigger:"all", keywords:[], reply:"", dm:"", button_text:"", button_link:""});
+const AD_FIELDS = ["trigger", "keywords", "reply", "dm", "button_text", "button_link"];
+
+async function loadAutoDM(){
+  if (!adReady){
+    $("adList").innerHTML = '<div class="spin"></div>';
+    const [r, p] = await Promise.all([db.from("autodm_rules").select("*"), db.from("autodm_presets").select("*").order("created_at")]);
+    if (r.error || p.error){ $("adList").innerHTML = '<div class="empty">Auto DM isn\'t set up in the database yet.</div>'; return; }
+    AD_RULES = {}; (r.data || []).forEach(x => AD_RULES[adKey(x.account, x.media_id)] = x);
+    AD_PRESETS = p.data || [];
+    adReady = true;
+  }
+  renderAD();
+  if (AD_MEDIA[adAcct] === undefined) adFetch(adAcct, false);
+}
+async function adFetch(acct, more){
+  delete AD_ERR[acct];
+  if (!more) AD_MEDIA[acct] = null;
+  renderAD();
+  try {
+    const after = more && AD_NEXT[acct] ? "&after=" + encodeURIComponent(AD_NEXT[acct]) : "";
+    const res = await fetch(AUTODM_API + "/media?account=" + encodeURIComponent(acct) + after);
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || "Couldn't load");
+    AD_MEDIA[acct] = (more ? (AD_MEDIA[acct] || []) : []).concat(j.items || []);
+    AD_NEXT[acct] = j.next || null;
+  } catch (e){
+    AD_ERR[acct] = e.message || "Couldn't load";
+    if (!more) AD_MEDIA[acct] = [];
+  }
+  renderAD();
+}
+function adStatus(rule){
+  if (!rule || !rule.dm) return "Not set up";
+  const t = rule.trigger === "keywords" ? "Keywords: " + (rule.keywords || []).join(", ") : "Every comment";
+  return (rule.enabled ? "" : "Off · ") + t;
+}
+const adThumb = (url, cls) => '<span class="' + (cls || "ad-th") + '" style="' + (url ? "background-image:url('" + cssUrl(url) + "')" : "") + '">' + (url ? "" : "No preview") + "</span>";
+const adCaption = m => (m.caption || "").split("\n")[0].trim() || (m.type === "reel" ? "Reel" : "Post");
+function renderAD(){
+  $("adAcct").innerHTML = AD_ACCOUNTS.map(a => '<button data-acct="' + a.id + '" class="' + (a.id === adAcct ? "on" : "") + '">' + esc(a.name) + "</button>").join("");
+  $("adPresetCount").textContent = AD_PRESETS.length ? AD_PRESETS.length + (AD_PRESETS.length === 1 ? " preset" : " presets") : "None yet. Save one from any reel.";
+  const items = AD_MEDIA[adAcct], err = AD_ERR[adAcct];
+  $("adMore").hidden = !(items && items.length && AD_NEXT[adAcct]);
+  if (items === null || items === undefined){ $("adList").innerHTML = '<div class="spin"></div>'; return; }
+  let html = items.map(m => {
+    const rule = AD_RULES[adKey(adAcct, m.id)];
+    const on = !!(rule && rule.enabled);
+    return '<div class="row ad-row tap" data-adopen="' + esc(m.id) + '">' + adThumb(m.thumb) +
+      '<span class="t"><b>' + esc(adCaption(m)) + "</b><small>" + (m.type === "reel" ? '<span class="ad-tag">Reel</span>' : "") + esc(fmtDate((m.timestamp || "").slice(0, 10))) + " · " + esc(adStatus(rule)) + "</small></span>" +
+      '<button class="switch' + (on ? " on" : "") + '" data-adsw="' + esc(m.id) + '" aria-label="Auto DM on or off"></button></div>';
+  }).join("");
+  if (!items.length && !err) html = '<div class="empty">No reels or posts on this account yet.</div>';
+  if (err) html += '<div class="empty">Couldn\'t load reels from Instagram (' + esc(err) + '). <button class="link" id="adRetry">Try again</button></div>';
+  $("adList").innerHTML = html;
+}
+$("adAcct").onclick = e => {
+  const b = e.target.closest("[data-acct]"); if (!b) return;
+  adAcct = b.dataset.acct; renderAD();
+  if (AD_MEDIA[adAcct] === undefined) adFetch(adAcct, false);
+};
+$("adMore").onclick = () => adFetch(adAcct, true);
+$("adList").onclick = async e => {
+  if (e.target.closest("#adRetry")) return adFetch(adAcct, false);
+  const sw = e.target.closest("[data-adsw]");
+  if (sw){
+    e.stopPropagation();
+    const id = sw.dataset.adsw, rule = AD_RULES[adKey(adAcct, id)];
+    if (!rule || !rule.dm){ toast("Set up the DM first"); return openAD(id, true); }
+    const next = !rule.enabled;
+    sw.classList.toggle("on", next);
+    const { error } = await db.from("autodm_rules").update({enabled: next, updated_at: new Date().toISOString()}).eq("account", adAcct).eq("media_id", id);
+    if (error){ sw.classList.toggle("on", !next); return toast("Couldn't update"); }
+    rule.enabled = next; renderAD(); toast(next ? "Auto DM on" : "Auto DM off");
+    return;
+  }
+  const row = e.target.closest("[data-adopen]");
+  if (row) openAD(row.dataset.adopen, false);
+};
+document.querySelector('.tabs [data-go="autodm"]').addEventListener("click", loadAutoDM);
+
+/* Reel editor */
+function openAD(mediaId, turnOn){
+  adMedia = (AD_MEDIA[adAcct] || []).find(m => m.id === mediaId);
+  if (!adMedia) return;
+  const rule = AD_RULES[adKey(adAcct, mediaId)];
+  adDraft = rule ? JSON.parse(JSON.stringify(rule)) : adBlank();
+  adDraft.keywords = adDraft.keywords || [];
+  if (turnOn) adDraft.enabled = true;
+  adDirty = false;
+  renderADForm();
+  $("adSheet").classList.add("show"); $("adSheet").scrollTop = 0;
+}
+function adArea(label, key, ph){
+  const v = adDraft[key] || "";
+  return '<div class="area"><label>' + label + '</label><textarea data-ad="' + key + '" maxlength="' + AD_LIMITS[key] + '" placeholder="' + esc(ph) + '">' + esc(v) + '</textarea></div><div class="count" data-count="' + key + '">' + v.length + " / " + AD_LIMITS[key] + "</div>";
+}
+function renderADForm(){
+  const d = adDraft, m = adMedia, acct = AD_ACCOUNTS.find(a => a.id === adAcct);
+  $("adForm").innerHTML =
+    '<div class="grp"><div class="ad-head">' + adThumb(m.thumb) + '<div style="min-width:0"><p>' + esc(m.caption || (m.type === "reel" ? "Reel" : "Post")) + '</p><small style="color:var(--muted);font-size:13px">' + esc(acct ? acct.name : "") + " · " + esc(fmtDate((m.timestamp || "").slice(0, 10))) + "</small>" +
+      (m.permalink ? '<br><a class="link" style="font-size:14px;text-decoration:none" href="' + esc(m.permalink) + '" target="_blank" rel="noopener">Open on Instagram</a>' : "") + "</div></div>" +
+      '<div class="row"><span class="t"><b>Auto DM for this reel</b></span><button class="switch' + (d.enabled ? " on" : "") + '" id="adOn" aria-label="Auto DM on or off"></button></div></div>' +
+
+    '<p class="gl">Preset</p><div class="grp"><div class="fld"><label>Load preset</label><select id="adPreset"><option value="">Choose…</option>' +
+      AD_PRESETS.map(p => '<option value="' + esc(p.id) + '">' + esc(p.name) + "</option>").join("") + "</select></div></div>" +
+    '<p class="gf">Loading a preset fills in everything below. You can still change it for this reel.</p>' +
+
+    '<p class="gl">Trigger</p><div class="seg" id="adTrig"><button data-t="all" class="' + (d.trigger !== "keywords" ? "on" : "") + '">Every comment</button><button data-t="keywords" class="' + (d.trigger === "keywords" ? "on" : "") + '">Specific keywords</button></div>' +
+    (d.trigger === "keywords" ?
+      '<div style="height:10px"></div><div class="grp">' +
+        (d.keywords.length ? '<div class="kw">' + d.keywords.map((k, i) => "<span>" + esc(k) + '<button data-kwrm="' + i + '" aria-label="Remove ' + esc(k) + '">×</button></span>').join("") + "</div>" : "") +
+        '<div class="fld"><input id="adKwIn" placeholder="Add a keyword, like link" style="text-align:left" autocapitalize="none" autocorrect="off"><button class="link" id="adKwAdd" style="flex:none">Add</button></div></div>' +
+      '<p class="gf">The bot replies when a comment contains any of these words. Capital letters don\'t matter.</p>'
+      : '<p class="gf">The bot replies to every comment on this reel.</p>') +
+
+    '<p class="gl">Comment reply</p><div class="grp">' + adArea("Posted under their comment", "reply", "Check ur dms for more details!") + "</div>" +
+    '<p class="gl">DM message</p><div class="grp">' + adArea("Sent to their DMs", "dm", "Hey! Here are the details you asked for") + "</div>" +
+    '<p class="gl">Button</p><div class="grp">' +
+      '<div class="fld"><label>Button text</label><input data-ad="button_text" maxlength="' + AD_LIMITS.button_text + '" value="' + esc(d.button_text) + '" placeholder="Girls Only Events"></div>' +
+      '<div class="fld"><label>Button link</label><input data-ad="button_link" type="url" inputmode="url" autocapitalize="none" value="' + esc(d.button_link) + '" placeholder="https://galcode.vercel.app/"></div></div>' +
+    '<p class="gf">The button shows under the DM. Leave both empty to send the message without a button. Button text can be up to 20 characters.</p>' +
+
+    '<p class="ad-err" id="adErr" hidden></p>' +
+    '<div style="height:18px"></div><button class="btn" id="adSave">Save</button>' +
+    '<div style="height:10px"></div><button class="btn ghost" id="adAsPreset">Save as preset</button>' +
+    '<div id="adPresetName" hidden><div style="height:10px"></div><div class="grp"><div class="fld"><input id="adPName" placeholder="Preset name, like Event booking" style="text-align:left" maxlength="40"></div></div><div style="height:10px"></div><button class="btn ghost" id="adPSave">Save preset</button></div>' +
+    (AD_RULES[adKey(adAcct, m.id)] ? '<div style="height:10px"></div><button class="btn red" id="adClear">Remove auto DM from this reel</button>' : "");
+}
+function adErr(msg){ const el = $("adErr"); el.textContent = msg || ""; el.hidden = !msg; if (msg) el.scrollIntoView({block:"center", behavior:"smooth"}); }
+function adAddKw(){
+  const inp = $("adKwIn"); if (!inp) return;
+  const words = inp.value.split(",").map(w => w.trim().toLowerCase()).filter(Boolean);
+  if (!words.length){ adErr("Type a keyword first."); return; }
+  words.forEach(w => { if (!adDraft.keywords.includes(w)) adDraft.keywords.push(w); });
+  adDirty = true; adErr(""); renderADForm();
+  setTimeout(() => $("adKwIn") && $("adKwIn").focus(), 0);
+}
+$("adForm").addEventListener("input", e => {
+  const k = e.target.dataset.ad; if (!k) return;
+  adDraft[k] = e.target.value; adDirty = true;
+  const c = $("adForm").querySelector('[data-count="' + k + '"]'); if (c) c.textContent = e.target.value.length + " / " + AD_LIMITS[k];
+  adErr("");
+});
+$("adForm").addEventListener("keydown", e => { if (e.target.id === "adKwIn" && e.key === "Enter"){ e.preventDefault(); adAddKw(); } });
+$("adForm").addEventListener("change", e => {
+  if (e.target.id !== "adPreset" || !e.target.value) return;
+  const p = AD_PRESETS.find(x => x.id === e.target.value); if (!p) return;
+  AD_FIELDS.forEach(k => adDraft[k] = k === "keywords" ? [...(p.keywords || [])] : (p[k] || ""));
+  adDirty = true; renderADForm(); toast("Loaded " + p.name);
+});
+$("adForm").addEventListener("click", async e => {
+  const t = e.target;
+  if (t.id === "adOn"){ adDraft.enabled = !adDraft.enabled; t.classList.toggle("on", adDraft.enabled); adDirty = true; return; }
+  const tb = t.closest("#adTrig [data-t]");
+  if (tb){ adDraft.trigger = tb.dataset.t; adDirty = true; adErr(""); renderADForm(); return; }
+  if (t.id === "adKwAdd") return adAddKw();
+  const rm = t.closest("[data-kwrm]");
+  if (rm){ adDraft.keywords.splice(+rm.dataset.kwrm, 1); adDirty = true; renderADForm(); return; }
+  if (t.id === "adSave") return saveAD();
+  if (t.id === "adAsPreset"){ $("adPresetName").hidden = false; $("adPName").focus(); return; }
+  if (t.id === "adPSave") return savePreset();
+  if (t.id === "adClear") return clearAD();
+});
+function adValidate(forPreset){
+  const d = adDraft;
+  ["reply", "dm", "button_text", "button_link"].forEach(k => d[k] = (d[k] || "").trim());
+  if (d.trigger === "keywords" && !d.keywords.length) return "Add at least one keyword, or choose Every comment.";
+  if (!d.dm) return "Write the DM message.";
+  if (!!d.button_text !== !!d.button_link) return d.button_text ? "Add the button link too, or clear the button text." : "Add the button text too, or clear the button link.";
+  if (d.button_link && !/^https:\/\/[^\s]+\.[^\s]+$/i.test(d.button_link)) return "The button link should start with https://";
+  if (!forPreset && d.enabled && !d.reply && !d.dm) return "Write a comment reply or DM.";
+  return "";
+}
+async function saveAD(){
+  const msg = adValidate(false); if (msg) return adErr(msg);
+  const d = adDraft, m = adMedia;
+  const row = {account: adAcct, media_id: m.id, enabled: !!d.enabled, trigger: d.trigger === "keywords" ? "keywords" : "all", keywords: d.trigger === "keywords" ? d.keywords : [],
+    reply: d.reply, dm: d.dm, button_text: d.button_text, button_link: d.button_link,
+    caption: (m.caption || "").slice(0, 300), thumb: m.thumb || "", permalink: m.permalink || "", updated_at: new Date().toISOString()};
+  $("adSave").disabled = true; $("adSave").textContent = "Saving…";
+  const { error } = await db.from("autodm_rules").upsert(row);
+  $("adSave").disabled = false; $("adSave").textContent = "Save";
+  if (error) return adErr("Couldn't save: " + error.message);
+  AD_RULES[adKey(adAcct, m.id)] = row; adDirty = false;
+  closeAD(); renderAD(); toast(row.enabled ? "Saved · auto DM on" : "Saved · auto DM off");
+}
+async function savePreset(){
+  const name = ($("adPName").value || "").trim();
+  if (!name) return adErr("Give the preset a name.");
+  const msg = adValidate(true); if (msg) return adErr(msg);
+  const d = adDraft;
+  const row = {name, trigger: d.trigger === "keywords" ? "keywords" : "all", keywords: d.trigger === "keywords" ? d.keywords : [], reply: d.reply, dm: d.dm, button_text: d.button_text, button_link: d.button_link};
+  const { data, error } = await db.from("autodm_presets").insert(row).select().single();
+  if (error) return adErr("Couldn't save the preset: " + error.message);
+  AD_PRESETS.push(data); $("adPresetName").hidden = true; $("adPName").value = ""; adErr("");
+  renderAD(); toast("Preset saved");
+}
+async function clearAD(){
+  if (!confirmBox("Remove the auto DM from this reel? It won't reply to comments any more.")) return;
+  const { error } = await db.from("autodm_rules").delete().eq("account", adAcct).eq("media_id", adMedia.id);
+  if (error) return adErr("Couldn't remove: " + error.message);
+  delete AD_RULES[adKey(adAcct, adMedia.id)]; adDirty = false;
+  closeAD(); renderAD(); toast("Removed");
+}
+function closeAD(){ $("adSheet").classList.remove("show"); adDraft = null; adMedia = null; }
+$("adCancel").onclick = () => { if (adDirty && !confirmBox("Discard your changes?")) return; adDirty = false; closeAD(); };
+$("adSaveTop").onclick = saveAD;
+
+/* Presets */
+function renderPresets(){
+  $("adPBody").innerHTML = (AD_PRESETS.length ?
+    '<div class="grp">' + AD_PRESETS.map(p => '<div class="row"><span class="t"><b>' + esc(p.name) + "</b><small>" +
+      esc(p.trigger === "keywords" ? "Keywords: " + (p.keywords || []).join(", ") : "Every comment") + " · " + esc((p.dm || "").replace(/\s+/g, " ").slice(0, 60)) +
+      '</small></span><button class="danger" data-prm="' + esc(p.id) + '" style="font-size:15px">Delete</button></div>').join("") + "</div>"
+    : '<div class="empty">No presets yet.</div>') +
+    '<p class="gf">To make a preset, open any reel, fill in the reply and DM, then tap Save as preset. Deleting a preset doesn\'t change reels that already used it.</p>';
+}
+$("adPresetsBtn").onclick = () => { renderPresets(); $("adPSheet").classList.add("show"); $("adPSheet").scrollTop = 0; };
+$("adPBack").onclick = () => $("adPSheet").classList.remove("show");
+$("adPBody").onclick = async e => {
+  const b = e.target.closest("[data-prm]"); if (!b) return;
+  const p = AD_PRESETS.find(x => x.id === b.dataset.prm);
+  if (!confirmBox('Delete the preset "' + p.name + '"?')) return;
+  const { error } = await db.from("autodm_presets").delete().eq("id", p.id);
+  if (error) return toast("Couldn't delete");
+  AD_PRESETS = AD_PRESETS.filter(x => x.id !== p.id); renderPresets(); renderAD(); toast("Deleted");
 };
 
 boot();
