@@ -30,6 +30,9 @@ create table if not exists public.autodm_presets (
   created_at   timestamptz not null default now()
 );
 
+grant select, insert, update, delete on public.autodm_rules   to authenticated;
+grant select, insert, update, delete on public.autodm_presets to authenticated;
+
 alter table public.autodm_rules   enable row level security;
 alter table public.autodm_presets enable row level security;
 
