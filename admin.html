@@ -819,6 +819,8 @@ const SITE = [
   ["About galcode", [["about_body","Text","",true],["about_photo","photo"]]],
   ["Founder's note", [["founder_quote","Quote","",true],["founder_name","Name","Raksha"],["founder_role","Role","Founder, galcode"],["founder_instagram","Instagram","ft.rakshaa"],["founder_photo","photo"]]],
   ["Dates section", [["dates_heading","Heading","Dates worth"],["dates_heading_em","Italic part","joining"]]],
+  ["Questions", [["qna_label","Small label","Questions"],["qna_title","Heading","Good to"],["qna_title_em","Italic part","know"],["qna1_q","Question 1","Can I come alone?"],["qna1_a","Answer 1","",true],["qna2_q","Question 2","Can I come alone?"],["qna2_a","Answer 2","",true],["qna3_q","Question 3","Can I come alone?"],["qna3_a","Answer 3","",true],["qna4_q","Question 4","Can I come alone?"],["qna4_a","Answer 4","",true],["qna5_q","Question 5","Can I come alone?"],["qna5_a","Answer 5","",true]]],
+  ["Work with us", [["work_label","Small label","Work with us"],["work_title","Heading","Host or"],["work_title_em","Italic part","partner"],["work_desc","Text","",true],["work_btn","Button text","Message us on Instagram"],["work_link","Button link","https://… (empty = your Instagram)"]]],
   ["How it works", [["how_label","Small label","How it works"],["how_title","Heading","Three steps,"],["how_title_em","Italic part","no pressure"],["how1_title","Step 1","Pick an event you like"],["how1_note","Step 1 note","",true],["how2_title","Step 2","Book your spot in a minute"],["how2_note","Step 2 note","",true],["how3_title","Step 3","Show up, even alone"],["how3_note","Step 3 note","",true]]],
   ["Join the circle", [["circle_label","Small label","Never miss an evening"],["circle_title","Heading","Join the"],["circle_title_em","Italic part","circle"],["circle_desc","Text","",true],["circle_link","Invite link","https://chat.whatsapp.com/…"],["circle_note","Small line","Free to join…"]]],
   ["Contact", [["instagram","Instagram","thisisgalcode"]]],
@@ -851,6 +853,7 @@ $("siteForm").addEventListener("click", async e => {
 async function saveSite(){
   const keys = siteDirty();
   if (siteDraft.circle_link && !isWebUrl(siteDraft.circle_link)) return toast("The invite link must start with https://");
+  if (siteDraft.work_link && !isWebUrl(siteDraft.work_link)) return toast("The button link must start with https://");
   if (!keys.length) return toast("Everything's already saved");
   $("siteSave").disabled = true;
   const rows = keys.map(k => ({key:k, value:siteDraft[k] ?? "", updated_at:new Date().toISOString()}));
