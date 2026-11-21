@@ -794,7 +794,7 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
         <label for="siEmail">Email</label><input class="si-in" id="siEmail" type="email" autocomplete="email" placeholder="you@email.com" enterkeyhint="go">
         <div class="si-err" id="siErr" role="alert"></div>
         <button class="si-go" id="siGo" type="submit" disabled>Continue</button>
-        <p class="si-note" id="siNote">Next, we'll email you a 6-digit code.</p>
+        <p class="si-note" id="siNote"></p>
       </form>
     </div>
     <div id="siStep2" hidden>
@@ -1430,7 +1430,7 @@ function siSetMode(m){
   $("siTabUp").classList.toggle("on", m === "up"); $("siTabIn").classList.toggle("on", m === "in");
   $("siUpOnly").hidden = m === "in";
   $("siH").innerHTML = m === "up" ? "Create your <em>account</em>" : "Sign in to <em>galcode</em>";
-  $("siNote").textContent = m === "up" ? "Next, we'll email you a 6-digit code." : "Use the email you signed up with. Next, we'll email you a 6-digit code.";
+  $("siNote").textContent = m === "up" ? "" : "Use the email you signed up with.";
   $("siErr").textContent = ""; siSync();
 }
 function siStep(n){ $("siStep1").hidden = n !== 1; $("siStep2").hidden = n !== 2; window.scrollTo(0, 0); if (n === 2) setTimeout(() => $("siCode").focus(), 50); }
