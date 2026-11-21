@@ -592,7 +592,7 @@
   .qna summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;font-size:15.5px;font-weight:500;line-height:1.35;color:var(--ink);-webkit-tap-highlight-color:transparent}
   .qna summary::-webkit-details-marker{display:none}
   .qna summary::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--pink);border-bottom:2px solid var(--pink);transform:rotate(45deg) translate(-2px,-2px);transition:transform .25s}
-  .qna details[open] summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+  .qna details.on summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
   .qna .ans{padding:0 18px 16px;font-size:14.5px;line-height:1.6;color:var(--ink-2);white-space:pre-line}
   .work-sec{max-width:720px;margin:auto;padding:32px 20px 0}
   .work{background:var(--ink);color:#fff;border-radius:26px;padding:34px 22px 30px;text-align:center;box-shadow:0 18px 40px rgba(58,10,28,.18)}
@@ -1112,7 +1112,7 @@ function renderHome(){
   const qs = [1, 2, 3, 4, 5].map(n => [c["qna" + n + "_q"], c["qna" + n + "_a"]]).filter(x => (x[0] || "").trim());
   $("qList").innerHTML = qs.map(x => "<details><summary>" + esc(x[0]) + '</summary><div class="ans">' + esc(x[1] || "") + "</div></details>").join("");
   $("qna").hidden = !qs.length;
-  $("qList").querySelectorAll("details").forEach(d => d.addEventListener("toggle", () => { if (d.open) $("qList").querySelectorAll("details[open]").forEach(o => { if (o !== d) o.open = false; }); }));
+  $("qList").querySelectorAll("details").forEach(d => d.querySelector("summary").addEventListener("click", e => { e.preventDefault(); qToggle(d); }));
   $("wLabel").textContent = c.work_label || "";
   $("wHead").innerHTML = titleHTML(c.work_title, c.work_title_em);
   $("wDesc").textContent = c.work_desc || "";
@@ -1685,6 +1685,27 @@ function setDot(i){ [...$("diaryDots").children].forEach((d, j) => d.classList.t
   }, 3000);
 })();
 
+/* ---------- Home questions: smooth open/close, one at a time ---------- */
+function qAnim(d, open){
+  if (d._a) d._a.cancel();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const from = d.offsetHeight;
+  if (open) d.open = true;
+  d.classList.toggle("on", open);
+  const sumH = d.querySelector("summary").offsetHeight + 2;
+  const to = open ? d.scrollHeight : sumH;
+  const start = open ? sumH : from;
+  if (reduce) { d.open = open; return; }
+  const a = d._a = d.animate({height:[start + "px", to + "px"]}, {duration:300, easing:"cubic-bezier(.2,.8,.2,1)"});
+  const fin = () => { d._a = null; d.open = open; };
+  a.onfinish = fin; a.oncancel = () => { d._a = null; };
+}
+function qToggle(d){
+  const opening = !(d.open && !(d._a && d._closing));
+  document.querySelectorAll("#qList details").forEach(o => { if (o !== d && o.open) { o._closing = true; qAnim(o, false); } });
+  d._closing = !opening;
+  qAnim(d, opening);
+}
 /* ---------- FAQ bot (each event has its own FAQs) ---------- */
 const asked = new Set();
 function eventFaqs(){
