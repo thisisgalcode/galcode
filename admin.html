@@ -223,6 +223,15 @@
     <div style="height:16px"></div>
     <button class="btn ghost" id="bkExport">Download as Excel (CSV)</button>
 
+    <div id="wlWrap" hidden>
+    <div style="height:20px"></div>
+    <p class="gl">Waitlist</p>
+    <div class="grp" id="wlList"></div>
+    <p class="gf" id="wlCount"></p>
+    <div style="height:10px"></div>
+    <button class="btn ghost" id="wlExport">Download waitlist (CSV)</button>
+    </div>
+
     <div id="circleWrap" hidden>
     <p class="gl">WhatsApp numbers (old sign-up box)</p>
     <div class="grp" id="circleList"></div>
@@ -238,7 +247,7 @@
     <div class="grp" id="evList"></div>
     <div style="height:16px"></div>
     <button class="btn" data-act="newEvent">New event</button>
-    <p class="gf">Live: on the site and bookable. Soon: shown on the site with "Details soon". Draft: hidden. Past: hidden, bookings kept.</p>
+    <p class="gf">Live: on the site and bookable. Soon: shown on the site with a "Join waitlist" button. Draft: hidden. Past: hidden, bookings kept.</p>
   </section>
 
   <!-- Insights -->
@@ -372,6 +381,8 @@ db.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_IN" && !ME) boot(); });
 async function loadAll(){
   const cr = await db.from("circle").select("*").order("created_at", {ascending:false});
   CIRCLE = cr.data || [];
+  const wl = await db.from("waitlist").select("*").order("created_at", {ascending:false});
+  WAITLIST = wl.data || [];
   const [e, b, c, t] = await Promise.all([
     db.from("events").select("*").order("sort").order("event_date"),
     db.from("bookings").select("*").order("created_at", {ascending:false}),
@@ -382,7 +393,7 @@ async function loadAll(){
   CONTENT = {}; (c.data || []).forEach(r => CONTENT[r.key] = r.value);
   const me = TEAM.find(x => x.email.toLowerCase() === ME.email.toLowerCase());
   $("hiName").textContent = (me && me.name) || toUser(ME.email);
-  renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam(); renderCircle();
+  renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam(); renderCircle(); renderWaitlist();
 }
 const done = b => (b.status || "complete") === "complete";
 const STEP_TXT = {name:"Stopped after name", phone:"Stopped after number", age:"Stopped after age", email:"Didn't tap Pay"};
@@ -443,6 +454,29 @@ $("bkExport").onclick = () => {
   a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
   a.download = "galcode-bookings" + (bkFilter !== "all" ? "-" + (EVENTS.find(e => e.id === bkFilter)?.slug || "") : "") + ".csv";
   a.click();
+};
+
+/* Waitlist */
+let WAITLIST = [];
+function renderWaitlist(){
+  $("wlWrap").hidden = !WAITLIST.length;
+  $("wlList").innerHTML = WAITLIST.map(m =>
+    '<div class="row"><span class="t"><b>' + esc(m.name) + "</b><small>" + esc(evName(m.event_id)) + " · " + esc(m.phone) + " · " + fmtTime(m.created_at) + '</small></span><a class="link" style="text-decoration:none;font-size:15px" href="https://wa.me/' + esc(m.phone.replace(/\D/g, "")) + '" target="_blank" rel="noopener">Message</a><button class="danger" data-wlrm="' + esc(m.id) + '" style="font-size:15px;margin-left:14px">Remove</button></div>'
+  ).join("");
+  $("wlCount").textContent = WAITLIST.length === 1 ? "1 person on a waitlist." : WAITLIST.length + " people on waitlists.";
+}
+$("wlList").onclick = async e => {
+  const b = e.target.closest("[data-wlrm]"); if (!b) return;
+  const m = WAITLIST.find(x => x.id === b.dataset.wlrm);
+  if (!confirmBox("Remove " + m.name + " from the waitlist?")) return;
+  const { error } = await db.from("waitlist").delete().eq("id", m.id);
+  if (error) return toast("Couldn't remove");
+  WAITLIST = WAITLIST.filter(x => x.id !== m.id); renderWaitlist(); toast("Removed");
+};
+$("wlExport").onclick = () => {
+  const rows = [["Event","Name","Phone","Joined"]].concat(WAITLIST.map(m => [evName(m.event_id), m.name, m.phone, new Date(m.created_at).toLocaleString("en-IN")]));
+  const csv = "\uFEFF" + rows.map(r => r.map(csvCell).join(",")).join("\n");
+  const l = document.createElement("a"); l.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); l.download = "galcode-waitlist.csv"; l.click();
 };
 
 /* WhatsApp circle */

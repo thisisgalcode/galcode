@@ -146,7 +146,7 @@
   .sheet .content p+p,.sheet .content ul{margin-top:12px}
   .sheet .content ul{padding-left:18px}
   @media(max-width:520px){
-    #infoOv{padding:0;align-items:flex-end}
+    #infoOv,#wlOv{padding:0;align-items:flex-end}
     .sheet{max-width:none;border-radius:22px 22px 0 0;transform:translateY(100%)}
   }
 
@@ -258,7 +258,15 @@
   .diary-dots i{width:6px;height:6px;border-radius:99px;background:rgba(255,255,255,.45);transition:width .3s,background .3s}
   .diary-dots i.on{width:18px;background:#fff}
 
-  #infoOv{z-index:30}
+  #infoOv,#wlOv{z-index:30}
+  .evc-wl{display:inline-block;margin-top:10px;font:inherit;font-size:13px;font-weight:500;background:var(--card);color:var(--ink);border:0;border-radius:99px;padding:8px 16px;cursor:pointer}
+  .evc-wl:active{transform:scale(.97)}
+  .wl-f{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .wl-f input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:13px 14px;outline:none;width:100%}
+  .wl-f input:focus{border-color:var(--pink)}
+  .wl-ph{display:flex;align-items:center;gap:8px}.wl-ph span{color:var(--ink-2);font-size:16px}
+  .wl-go{font:inherit;font-size:16px;font-weight:500;background:var(--pink);color:#fff;border:0;border-radius:99px;padding:14px;cursor:pointer}
+  .wl-err{color:#C0392B;font-size:13px;min-height:16px}
   /* ===== Booking form: one question at a time ===== */
   .qf{width:100%;max-width:480px;min-height:min(640px,92vh);max-height:92vh;overflow-y:auto;background:var(--pink);color:#fff;border-radius:24px;padding:18px 22px calc(28px + env(safe-area-inset-bottom));position:relative;display:flex;flex-direction:column;transform:translateY(20px);transition:transform .3s}
   .overlay.show .qf{transform:none}
@@ -602,6 +610,22 @@
   <div><b id="barT">Women Entrepreneurs Meet</b><span id="barS">Sun, 29 Nov · 5–7 PM</span></div>
   <button class="btn" id="barBtn">Confirm my spot</button>
 </div>
+<div class="overlay" id="wlOv">
+  <div class="sheet" role="dialog">
+    <button class="x" data-close="wlOv" aria-label="Close">×</button>
+    <h3 id="wlTitle">Join the waitlist</h3>
+    <div class="content" id="wlBody">
+      <p id="wlLead">Leave your details and we'll message you the moment booking opens.</p>
+      <div class="wl-f" id="wlForm">
+        <input id="wlName" placeholder="Your full name" autocomplete="name" maxlength="80">
+        <div class="wl-ph"><span>+91</span><input id="wlPhone" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel-national" maxlength="10"></div>
+        <div class="wl-err" id="wlErr"></div>
+        <button class="wl-go" id="wlGo">Join waitlist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="receiptOv">
   <div class="receipt-wrap">
     <button class="x" data-close="receiptOv" aria-label="Close">×</button>
@@ -811,7 +835,7 @@ function renderHome(){
     const chip = live ? (e.event_date ? new Date(e.event_date + "T00:00:00").toLocaleDateString("en-IN", {weekday:"short"}) + " · " + new Date(e.event_date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric", month:"short"}) : (e.date_label || "Upcoming")) : "Coming soon";
     const inner = (e.photo_url ? '<img src="' + esc(e.photo_url) + '" alt="" loading="lazy">' : "") +
       '<span class="evc-chip' + (live ? "" : " soon") + '">' + esc(chip) + "</span>" +
-      '<div class="evc-cap"><h3>' + titleHTML(e.title, e.title_em) + "</h3>" + (live ? '<span class="evc-go">View details →</span>' : "") + "</div>";
+      '<div class="evc-cap"><h3>' + titleHTML(e.title, e.title_em) + "</h3>" + (live ? '<span class="evc-go">View details →</span>' : '<button class="evc-wl" data-wl="' + esc(e.id) + '">Join waitlist</button>') + "</div>";
     return live ? '<a class="evc ' + TONES[i % 5] + '" href="#' + esc(e.slug) + '">' + inner + "</a>"
                 : '<div class="evc soon ' + TONES[i % 5] + '">' + inner + "</div>";
   }).join("");
@@ -1033,7 +1057,31 @@ document.querySelectorAll("[data-info]").forEach(b => b.onclick = () => {
   $("infoBody").innerHTML = richText(CONTENT["policy_" + k]);
   $("infoOv").classList.add("show");
 });
+let wlEvent = null;
+function openWaitlist(ev){
+  wlEvent = ev;
+  $("wlTitle").innerHTML = "Join the waitlist for<br>" + titleHTML(ev.title, ev.title_em);
+  $("wlLead").textContent = "Leave your details and we'll message you the moment booking opens.";
+  $("wlForm").hidden = false; $("wlName").value = ""; $("wlPhone").value = ""; $("wlErr").textContent = ""; $("wlGo").textContent = "Join waitlist";
+  $("wlOv").classList.add("show");
+  track("waitlist_open", ev.id);
+}
+["wlName","wlPhone"].forEach(i => $(i).oninput = () => $("wlErr").textContent = "");
+$("wlGo").onclick = async () => {
+  const name = $("wlName").value.trim(), ph = $("wlPhone").value.trim();
+  if (name.length < 2) return $("wlErr").textContent = "Enter your full name.";
+  if (!/^[6-9]\d{9}$/.test(ph)) return $("wlErr").textContent = "Enter a valid 10-digit mobile number.";
+  $("wlErr").textContent = ""; $("wlGo").textContent = "Joining…";
+  const { error } = db ? await db.rpc("join_waitlist", {p_event: String(wlEvent.id), p_name: name, p_phone: "+91" + ph}) : {error: true};
+  if (error){ $("wlGo").textContent = "Join waitlist"; return $("wlErr").textContent = "Couldn't join just now. Try again."; }
+  track("waitlist_join", wlEvent.id);
+  $("wlTitle").textContent = "You're on the list";
+  $("wlLead").textContent = "Thanks, " + name.split(" ")[0] + ". We'll message you on WhatsApp as soon as booking opens.";
+  $("wlForm").hidden = true;
+};
 document.addEventListener("click", e => {
+  const wb = e.target.closest("[data-wl]");
+  if (wb){ const ev = EVENTS.find(x => String(x.id) === wb.dataset.wl); if (ev) openWaitlist(ev); return; }
   const card = e.target.closest("a.evc");
   if (card){ const ev = EVENTS.find(x => "#" + x.slug === card.getAttribute("href")); if (ev) track("card_click", ev.id); }
   const p = e.target.closest(".pill.soon");
