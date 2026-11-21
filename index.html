@@ -1112,6 +1112,7 @@ function renderHome(){
   const qs = [1, 2, 3, 4, 5].map(n => [c["qna" + n + "_q"], c["qna" + n + "_a"]]).filter(x => (x[0] || "").trim());
   $("qList").innerHTML = qs.map(x => "<details><summary>" + esc(x[0]) + '</summary><div class="ans">' + esc(x[1] || "") + "</div></details>").join("");
   $("qna").hidden = !qs.length;
+  $("qList").querySelectorAll("details").forEach(d => d.addEventListener("toggle", () => { if (d.open) $("qList").querySelectorAll("details[open]").forEach(o => { if (o !== d) o.open = false; }); }));
   $("wLabel").textContent = c.work_label || "";
   $("wHead").innerHTML = titleHTML(c.work_title, c.work_title_em);
   $("wDesc").textContent = c.work_desc || "";
