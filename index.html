@@ -351,6 +351,14 @@
   .si-code{letter-spacing:.5em;text-align:center;font-size:28px;padding:14px 8px 14px calc(8px + .5em)}
   .si-link{font:inherit;font-size:14px;color:var(--pink);background:none;border:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;margin-top:16px}
   .si-link[disabled]{color:var(--ink-2);text-decoration:none;cursor:default}
+  .crop-stage{position:relative;width:280px;height:280px;margin:18px auto 0;border-radius:18px;overflow:hidden;background:#EADFD0;touch-action:none;cursor:grab;user-select:none}
+  .crop-stage:active{cursor:grabbing}
+  .crop-stage canvas{display:block;width:100%;height:100%}
+  .crop-stage:after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 400px rgba(244,236,225,.72);border:2px solid #fff;pointer-events:none}
+  .crop-zoom{display:flex;align-items:center;gap:12px;margin:18px auto 0;max-width:280px;color:var(--ink-2);font-size:13px}
+  .crop-zoom input{flex:1;accent-color:var(--pink)}
+  .crop-row{display:flex;gap:10px;justify-content:center;margin-top:20px}
+  .crop-row .btn{width:auto;min-height:50px;padding:0 26px;border-radius:99px;font-size:15px}
   .ac-photo{display:flex;align-items:center;gap:16px;margin-top:22px}
   .ac-photo button{font:inherit;font-size:14.5px;color:var(--pink);background:none;border:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0}
   .ac-lock{opacity:.6}
@@ -833,6 +841,16 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
       <div class="ac-ok" id="acOk" role="status"></div>
     </form>
     <button class="si-link" id="acOut" type="button">Sign out</button>
+  </div>
+</div>
+<div class="overlay" id="cropOv" style="z-index:35">
+  <div class="sheet" role="dialog" aria-label="Adjust your photo">
+    <button class="x" id="cropX" aria-label="Close">×</button>
+    <h3>Adjust your photo</h3>
+    <div class="content"><p style="margin:0">Drag to move it, use the slider to zoom.</p></div>
+    <div class="crop-stage" id="cropStage"><canvas id="cropCv" width="280" height="280"></canvas></div>
+    <div class="crop-zoom"><span>−</span><input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom"><span>+</span></div>
+    <div class="crop-row"><button class="btn mb-ghost" id="cropCancel" type="button">Cancel</button><button class="btn" id="cropOk" type="button">Use photo</button></div>
   </div>
 </div>
 <div class="overlay" id="mbOv">
@@ -1510,15 +1528,35 @@ function accFill(){
   $("acName").value = meName(ME); $("acPhone").value = String(m.phone || "").replace(/\D/g, "").slice(-10); $("acEmail").value = ME.email || "";
   $("acErr").textContent = ""; $("acOk").textContent = "";
 }
-function cropSquare(file, size){
-  return new Promise((res, rej) => {
-    const img = new Image(), url = URL.createObjectURL(file);
+function cropPick(file){
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
     img.onload = () => {
-      const c = document.createElement("canvas"); c.width = c.height = size; const x = c.getContext("2d");
-      const m = Math.min(img.width, img.height); x.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, size, size);
-      URL.revokeObjectURL(url); c.toBlob(b => b ? res(b) : rej(new Error("crop")), "image/jpeg", 0.86);
+      const cv = $("cropCv"), ctx = cv.getContext("2d"), S = 280;
+      const base = S / Math.min(img.width, img.height);
+      let z = 1, ox = (S - img.width * base) / 2, oy = (S - img.height * base) / 2;
+      const clamp = () => { const w = img.width * base * z, h = img.height * base * z; ox = Math.min(0, Math.max(S - w, ox)); oy = Math.min(0, Math.max(S - h, oy)); };
+      const draw = () => { ctx.clearRect(0, 0, S, S); ctx.drawImage(img, ox, oy, img.width * base * z, img.height * base * z); };
+      const setZoom = nz => { const cx = (S / 2 - ox) / z, cy = (S / 2 - oy) / z; z = nz; ox = S / 2 - cx * z; oy = S / 2 - cy * z; clamp(); draw(); };
+      $("cropZoom").value = 1; clamp(); draw();
+      $("cropOv").classList.add("show");
+      let drag = null; const st = $("cropStage");
+      const down = e => { drag = { x: e.clientX, y: e.clientY, ox, oy }; try { st.setPointerCapture(e.pointerId); } catch {} };
+      const move = e => { if (!drag) return; const k = S / st.getBoundingClientRect().width; ox = drag.ox + (e.clientX - drag.x) * k; oy = drag.oy + (e.clientY - drag.y) * k; clamp(); draw(); };
+      const up = () => { drag = null; };
+      const wheel = e => { e.preventDefault(); const nz = Math.min(3, Math.max(1, z * (e.deltaY < 0 ? 1.06 : 0.94))); $("cropZoom").value = nz; setZoom(nz); };
+      const onZoom = e => setZoom(parseFloat(e.target.value));
+      const finish = blob => { st.removeEventListener("pointerdown", down); st.removeEventListener("pointermove", move); st.removeEventListener("pointerup", up); st.removeEventListener("pointercancel", up); st.removeEventListener("wheel", wheel); $("cropZoom").removeEventListener("input", onZoom); $("cropOv").classList.remove("show"); URL.revokeObjectURL(url); resolve(blob); };
+      st.addEventListener("pointerdown", down); st.addEventListener("pointermove", move); st.addEventListener("pointerup", up); st.addEventListener("pointercancel", up); st.addEventListener("wheel", wheel, { passive: false });
+      $("cropZoom").addEventListener("input", onZoom);
+      $("cropCancel").onclick = $("cropX").onclick = () => finish(null);
+      $("cropOk").onclick = () => {
+        const out = document.createElement("canvas"); out.width = out.height = 360; const k = 360 / S;
+        out.getContext("2d").drawImage(img, ox * k, oy * k, img.width * base * z * k, img.height * base * z * k);
+        out.toBlob(b => finish(b), "image/jpeg", 0.86);
+      };
     };
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("img")); };
     img.src = url;
   });
 }
@@ -1531,7 +1569,8 @@ if (db){
     const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f || !ME) return;
     $("acErr").textContent = ""; $("acOk").textContent = "Uploading…";
     try {
-      const blob = await cropSquare(f, 360);
+      $("acOk").textContent = ""; const blob = await cropPick(f); if (blob === null) return; if (!blob) throw new Error("image");
+      $("acOk").textContent = "Uploading…";
       const path = ME.id + "/avatar.jpg";
       const up = await db.storage.from("avatars").upload(path, blob, { upsert: true, contentType: "image/jpeg", cacheControl: "3600" });
       if (up.error) throw up.error;
@@ -1539,7 +1578,7 @@ if (db){
       const r = await db.auth.updateUser({ data: { avatar_url: url } });
       if (r.error) throw r.error;
       setMe({ user: r.data.user }); accFill(); $("acOk").textContent = "Photo updated.";
-    } catch (err) { $("acOk").textContent = ""; $("acErr").textContent = "We couldn't upload that photo. Try a different image."; }
+    } catch (err) { try { console.error("avatar upload", err); } catch {} $("acOk").textContent = ""; $("acErr").textContent = "We couldn't upload that photo. Try a JPG or PNG image."; }
   };
   $("acForm").onsubmit = async e => {
     e.preventDefault(); if (!ME) return;
