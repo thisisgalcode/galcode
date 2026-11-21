@@ -510,7 +510,12 @@
   body.introing{overflow:hidden}
   @keyframes introIn{from{opacity:0;letter-spacing:.22em;transform:translateY(8px)}to{opacity:1;letter-spacing:0;transform:none}}
   @keyframes introSub{to{opacity:.9}}
-  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#intro{display:none}}
+  /* ===== Pink dot bloom (event tap) ===== */
+  #bloom{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:#FF1F72;z-index:150;pointer-events:none;transform:scale(0);transition:transform .62s cubic-bezier(.65,0,.25,1),opacity .5s ease}
+  #bloom.fade{opacity:0}
+  body.bloomed #v-event > *{animation:bloomUp .6s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes bloomUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#intro,#bloom{display:none}}
 </style>
 </head>
 <body>
@@ -1096,6 +1101,20 @@ $("wlGo").onclick = async () => {
   $("wlForm").hidden = true;
 };
 document.addEventListener("click", e => {
+  const bc = e.target.closest("a.evc");
+  if (bc && !e.defaultPrevented && !e.metaKey && !e.ctrlKey && !e.shiftKey && !matchMedia("(prefers-reduced-motion: reduce)").matches && !document.getElementById("bloom")){
+    e.preventDefault();
+    const x = e.clientX || innerWidth / 2, y = e.clientY || innerHeight / 2, href = bc.getAttribute("href");
+    const d = document.createElement("div"); d.id = "bloom"; d.style.left = x + "px"; d.style.top = y + "px"; document.body.appendChild(d);
+    const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) * 2 / 24 + 2;
+    requestAnimationFrame(() => requestAnimationFrame(() => d.style.transform = "scale(" + R + ")"));
+    setTimeout(() => {
+      location.hash = href;
+      document.body.classList.add("bloomed");
+      requestAnimationFrame(() => d.classList.add("fade"));
+      setTimeout(() => { d.remove(); document.body.classList.remove("bloomed"); }, 800);
+    }, 640);
+  }
   const wb = e.target.closest("[data-wl]");
   if (wb){ const ev = EVENTS.find(x => String(x.id) === wb.dataset.wl); if (ev) openWaitlist(ev); return; }
   const card = e.target.closest("a.evc");
