@@ -1059,7 +1059,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") document.que
 
 if ("IntersectionObserver" in window){
   let ctaVisible = false;
-  const upd = () => $("bar").classList.toggle("show", !ctaVisible && window.scrollY > 380);
+  const pastAgenda = () => { const ag = $("pAgenda"); return ag && ag.offsetParent ? ag.getBoundingClientRect().bottom < 80 : window.scrollY > 380; };
+  const upd = () => $("bar").classList.toggle("show", !ctaVisible && pastAgenda());
   new IntersectionObserver(([e]) => { ctaVisible = e.isIntersecting; upd(); }).observe($("confirmBtn"));
   window.addEventListener("scroll", upd, {passive:true});
 }
