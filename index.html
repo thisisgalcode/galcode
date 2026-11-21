@@ -105,13 +105,13 @@
   .home-hero h1 em{font-style:italic;color:var(--pink)}
   .home-hero p{margin-top:18px;color:var(--ink-2);font-size:16px;line-height:1.6;max-width:400px}
 
-  .sec{max-width:720px;margin:auto;padding:40px 24px}
+  .sec{max-width:720px;margin:auto;padding:32px 24px}
   .sec-label{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);font-weight:600}
   .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
-  .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,8vw,42px);line-height:1.08;letter-spacing:-.02em;margin-top:16px}
+  .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,8vw,42px);line-height:1.08;letter-spacing:-.02em;margin-top:20px}
   .sec h2 em{font-style:italic;color:var(--pink)}
   .sec p.body{color:var(--ink-2);font-size:16px;line-height:1.7;margin-top:16px}
-  .photo{margin-top:24px;border-radius:20px;background:repeating-linear-gradient(135deg,#F4ECEA 0 12px,#F8F2F0 12px 24px);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;overflow:hidden}
+  .photo{margin-top:20px;border-radius:20px;background:repeating-linear-gradient(135deg,#F4ECEA 0 12px,#F8F2F0 12px 24px);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;overflow:hidden}
   .photo.wide{aspect-ratio:4/3}
   .photo.tall{aspect-ratio:4/5}
   .photo img{width:100%;height:100%;object-fit:cover;display:block}
@@ -127,8 +127,13 @@
     .note-card blockquote{margin-top:0}
   }
 
-  .rail-wrap{max-width:720px;margin:auto}
-  .rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:24px 24px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .rail-wrap{max-width:720px;margin:auto;position:relative}
+  .rail-btn{position:absolute;right:12px;top:calc(20px + 50% - 34px);transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);box-shadow:0 8px 20px rgba(58,10,28,.18);display:grid;place-items:center;cursor:pointer;padding:0;z-index:3;transition:transform .15s,opacity .2s}
+  .rail-btn:active{transform:translateY(-50%) scale(.94)}
+  .rail-btn svg{width:22px;height:22px;stroke:var(--pink);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+  .rail-btn.back svg{transform:scaleX(-1)}
+  .rail-btn[hidden]{display:none}
+  .rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:20px 24px 28px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .rail::-webkit-scrollbar{display:none}
   .ev{flex:0 0 72%;max-width:280px;scroll-snap-align:start;scroll-margin-left:24px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:10px 10px 18px;display:flex;flex-direction:column}
   .ev-photo{aspect-ratio:1/1;border-radius:16px;display:grid;place-items:center;color:rgba(31,20,24,.35);font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;overflow:hidden}
@@ -143,7 +148,6 @@
   .pill{align-self:flex-start;margin:16px 8px 0;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;border-radius:99px;background:var(--ink);color:#fff;text-decoration:none;font-size:14px;font-weight:500;transition:background .2s,transform .12s}
   .pill:hover{background:var(--pink)}
   .pill:active{transform:scale(.97)}
-  .rail-hint{padding:0 24px;font-size:12px;color:var(--muted)}
 
   .site-foot{max-width:720px;margin:48px auto 0;padding:28px 24px calc(36px + env(safe-area-inset-bottom));border-top:1px solid var(--line);text-align:center}
   .foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 6px}
@@ -188,7 +192,6 @@
   .p1{background:var(--yellow)}.p2{background:#FFD3E2}.p3{background:#FFF3B0}.p4{background:#FFB8D0}.p5{background:#FFEFC7}
   .pill{background:var(--pink)}
   .pill:hover{background:var(--pink-d)}
-  .rail-hint{color:#FFD0E0}
   .back{color:#FFE4EE}
   .btn{background:var(--pink)}
   .btn:hover{background:var(--pink-d)}
@@ -347,7 +350,7 @@
   .sign span{font-size:10.5px;letter-spacing:.1em}
   @media(min-width:640px){.note-card{grid-template-columns:220px 1fr;gap:28px;padding:22px}}
   /* Founder card: letter with signature */
-  .note-card.letter{display:block;max-width:560px;margin:24px auto 0;background:#FFFBF5;border-radius:22px;padding:22px 20px 24px;text-align:left;box-shadow:0 10px 30px rgba(58,10,28,.12)}
+  .note-card.letter{display:block;max-width:560px;margin:20px auto 0;background:#FFFBF5;border-radius:22px;padding:22px 20px 24px;text-align:left;box-shadow:0 10px 30px rgba(58,10,28,.12)}
   .lt-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .lt-head .photo{width:48px;height:48px;flex:none;margin:0;border-radius:50%;aspect-ratio:auto;background:#FFE3EE;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line)}
   .lt-head .photo span{display:none}
@@ -403,7 +406,6 @@
   .pill{background:var(--ink);color:var(--bg)}
   .pill:hover{background:var(--pink);color:#fff}
   .ev .pill.soon{background:#EFE3D2;color:var(--ink-2)}
-  .rail-hint{color:var(--muted)}
   .site-foot{border-top:1px solid rgba(58,10,28,.12)}
   .foot-links button{color:var(--ink-2)}
   .foot-links button:hover{color:var(--pink)}
@@ -493,7 +495,7 @@
   .evc.soon{box-shadow:0 8px 20px rgba(58,10,28,.08)}
   .evc.soon .evc-cap{background:linear-gradient(to bottom,rgba(58,10,28,0),rgba(58,10,28,.6) 70%)}
   /* ===== Join the circle ===== */
-  .circle-sec{max-width:720px;margin:auto;padding:56px 20px 0}
+  .circle-sec{max-width:720px;margin:auto;padding:32px 20px 0}
   .circle{background:var(--ink);color:#fff;border-radius:26px;padding:34px 22px 26px;text-align:center;position:relative;overflow:hidden;box-shadow:0 18px 40px rgba(58,10,28,.18)}
   .circle::before{content:"";position:absolute;inset:-40% -30% auto auto;width:260px;height:260px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,23,93,.35),transparent);pointer-events:none}
   .circle-lb{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#F4D58D;font-weight:600;position:relative}
@@ -573,8 +575,8 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
   </section>
   <div class="rail-wrap">
     <div class="rail" id="rail"></div>
+    <button class="rail-btn" id="railBtn" type="button" aria-label="See more events" hidden><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
-  <p class="rail-hint">Swipe to see more →</p>
 
   <section class="circle-sec">
     <div class="circle">
@@ -884,8 +886,23 @@ function renderHome(){
     return live ? '<a class="evc ' + TONES[i % 5] + '" href="#' + esc(e.slug) + '">' + inner + "</a>"
                 : '<div class="evc soon ' + TONES[i % 5] + '">' + inner + "</div>";
   }).join("");
-  document.querySelector(".rail-hint").style.display = list.length > 1 ? "" : "none";
+  railSync();
 }
+function railSync(){
+  const r = $("rail"), b = $("railBtn");
+  const more = r.scrollWidth - r.clientWidth > 8;
+  b.hidden = !more;
+  const atEnd = r.scrollLeft + r.clientWidth >= r.scrollWidth - 8;
+  b.classList.toggle("back", atEnd);
+  b.setAttribute("aria-label", atEnd ? "Back to the first event" : "See more events");
+}
+$("rail").addEventListener("scroll", railSync, {passive:true});
+window.addEventListener("resize", railSync);
+$("railBtn").onclick = () => {
+  const r = $("rail"), card = r.querySelector(".evc");
+  const atEnd = r.scrollLeft + r.clientWidth >= r.scrollWidth - 8;
+  r.scrollTo({left: atEnd ? 0 : r.scrollLeft + (card ? card.offsetWidth + 14 : 280), behavior:"smooth"});
+};
 
 /* ---------- Event page ---------- */
 const ICON = {
