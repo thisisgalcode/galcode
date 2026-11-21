@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FBF7F4">
-<title>Contact us · galcode</title>
-<meta name="description" content="Contact us for galcode, a girls-only events community in Chennai.">
+<title>Pricing · galcode</title>
+<meta name="description" content="Pricing for galcode, a girls-only events community in Chennai.">
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -39,26 +39,43 @@
 </style>
 </head>
 <body>
-<header class="top"><a class="logo" href="/">gal<em>code</em></a><a class="home" href="/">Back to events →</a></header>
+<header class="top"><a class="logo" href="/home">gal<em>code</em></a><a class="home" href="/home">Back to events →</a></header>
 <main>
 <p class="eyebrow">galcode</p>
-<h1>Contact us</h1>
+<h1>Pricing</h1>
 <p class="upd">Last updated 21 November 2026</p>
 
-<p>We'd love to hear from you — whether it's a question about an event, a booking or anything else.</p>
-<div class="card">
-<div class="row"><span>Business</span><b>galcode (proprietor: Raksha)</b></div>
-<div class="row"><span>Email</span><b><a href="mailto:thisisgalcode@gmail.com">thisisgalcode@gmail.com</a></b></div>
-<div class="row"><span>Phone / WhatsApp</span><b><a href="tel:+918015064473">+91 80150 64473</a></b></div>
-<div class="row"><span>Address</span><b>Madipakkam, Chennai – 600091, Tamil Nadu, India</b></div>
-<div class="row"><span>Hours</span><b>Mon–Sat, 10 am – 7 pm</b></div>
-</div>
-<p class="muted" style="margin-top:14px">We usually reply within one working day. You can also message us on Instagram <a href="https://instagram.com/thisisgalcode">@thisisgalcode</a>.</p>
+<p>Every galcode event has its own ticket price, shown on the event page and at checkout before you pay. Prices are in Indian Rupees (₹) and the amount shown at checkout is the total you pay — there are no hidden charges.</p>
+<h2>Current events</h2>
+<div class="card" id="priceList"><p class="muted">Loading current events…</p></div>
+<h2>How payment works</h2>
+<ul>
+<li>You pay online through our payment partner, Cashfree Payments, using UPI, debit or credit card, or net banking.</li>
+<li>One ticket admits one person to one event.</li>
+<li>What's included in the price (materials, food, entry) is listed on each event page.</li>
+<li>Prices can change for future events, but never after you've paid for yours.</li>
+</ul>
 
 </main>
 <footer>
-<nav><a href="/about">About</a> · <a href="/pricing">Pricing</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refunds</a> · <a href="/shipping">Delivery</a> · <a href="/contact" aria-current="page">Contact</a></nav>
+<nav><a href="/home/about">About</a> · <a href="/home/pricing" aria-current="page">Pricing</a> · <a href="/home/terms">Terms</a> · <a href="/home/privacy">Privacy</a> · <a href="/home/refunds">Refunds</a> · <a href="/home/shipping">Delivery</a> · <a href="/home/contact">Contact</a></nav>
 <p>© 2026 galcode · Proprietor: Raksha · Madipakkam, Chennai – 600091, Tamil Nadu, India</p>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async () => {
+  const el = document.getElementById("priceList");
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  try {
+    const db = window.supabase.createClient("https://hbhhtmxabsjxwiirancm.supabase.co", "sb_publishable_3pvwaKstZSHy0fN8P6nR6A_7bP6mEY8");
+    const { data, error } = await db.from("events").select("title,title_em,price,date_label,event_date,status").in("status", ["live","soon"]).order("sort").order("event_date");
+    if (error) throw error;
+    el.innerHTML = (data && data.length) ? data.map(e => '<div class="row"><span>' + esc([e.title, e.title_em].filter(Boolean).join(" ")) + (e.date_label ? " · " + esc(e.date_label) : "") + '</span><b>' + esc(e.price || "To be announced") + "</b></div>").join("")
+      : '<p class="muted">No events are open right now. New events are announced on Instagram @thisisgalcode.</p>';
+  } catch (e) {
+    el.innerHTML = '<p class="muted">Prices are shown on each event page on our <a href="/home">home page</a>.</p>';
+  }
+})();
+</script>
 </body>
 </html>

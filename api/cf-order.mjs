@@ -51,7 +51,7 @@ export async function POST(request) {
       order_currency: "INR",
       customer_details: { customer_id: "c" + phone, customer_name: name, customer_phone: phone, customer_email: email },
       order_meta: {
-        return_url: SITE + "/checkout?order_id={order_id}",
+        return_url: SITE + "/home/checkout?order_id={order_id}",
         notify_url: SITE + "/api/cf-webhook",
       },
       order_note: title.slice(0, 200),

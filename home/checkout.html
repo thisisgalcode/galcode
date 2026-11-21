@@ -75,7 +75,7 @@
 </style>
 </head>
 <body>
-<header class="top"><a class="logo" href="/">gal<em>code</em></a><a class="back" id="backLink" href="/">← Events</a></header>
+<header class="top"><a class="logo" href="/home">gal<em>code</em></a><a class="back" id="backLink" href="/home">← Events</a></header>
 <main>
   <div class="prog" id="prog"><i></i><i></i><i></i></div>
   <p class="stepl" id="stepl"></p>
@@ -92,7 +92,7 @@
       <label class="f"><span>Email</span><input id="fEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="none" placeholder="you@email.com"></label>
       <label class="f"><span>Age</span><input id="fAge" inputmode="numeric" maxlength="3" placeholder="Your age"></label>
     </div>
-    <label class="chk"><input type="checkbox" id="fAgree"><span>I'm a woman, and I agree to the <a href="/terms" target="_blank">terms</a> and <a href="/refunds" target="_blank">refund policy</a>.</span></label>
+    <label class="chk"><input type="checkbox" id="fAgree"><span>I'm a woman, and I agree to the <a href="/home/terms" target="_blank">terms</a> and <a href="/home/refunds" target="_blank">refund policy</a>.</span></label>
     <p class="err" id="err1" hidden></p>
     <button class="btn" id="go1">Continue</button>
   </section>
@@ -112,7 +112,7 @@
   <!-- Step 3: ticket / result -->
   <section id="s3" hidden></section>
 
-  <p class="note">Questions? <a href="/contact">Contact us</a> · <a href="/refunds">Refunds</a> · <a href="/terms">Terms</a></p>
+  <p class="note">Questions? <a href="/home/contact">Contact us</a> · <a href="/home/refunds">Refunds</a> · <a href="/home/terms">Terms</a></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -142,7 +142,7 @@ function step(n){
 function fail(msg, html){
   $("boot").hidden = true; $("prog").hidden = true; $("stepl").hidden = true;
   $("s3").hidden = false;
-  $("s3").innerHTML = '<h1>' + msg + '</h1><p class="center" style="text-align:left">' + html + '</p><a class="btn" href="/" style="text-align:center;line-height:54px;text-decoration:none">See all events</a>';
+  $("s3").innerHTML = '<h1>' + msg + '</h1><p class="center" style="text-align:left">' + html + '</p><a class="btn" href="/home" style="text-align:center;line-height:54px;text-decoration:none">See all events</a>';
 }
 
 /* ---------- Step 1 ---------- */
@@ -151,7 +151,7 @@ async function startCheckout(){
   const { data, error } = await db.from("events").select("*").eq("slug", SLUG).eq("status", "live").maybeSingle();
   if (error || !data) return fail("This event isn't open", "Booking for this event isn't open right now. Check our home page for what's coming up.");
   EV = data;
-  $("backLink").href = "/#" + encodeURIComponent(EV.slug);
+  $("backLink").href = "/home#" + encodeURIComponent(EV.slug);
   try { ME = JSON.parse(sessionStorage.getItem(KEY) || "{}"); } catch { ME = {}; }
   $("fName").value = ME.name || ""; $("fPhone").value = ME.phone || ""; $("fEmail").value = ME.email || ""; $("fAge").value = ME.age || "";
   $("ev1").innerHTML = '<span class="ph" style="' + (EV.photo_url ? "background-image:url('" + cssUrl(EV.photo_url) + "')" : "") + '"></span><span><b>' + esc(title(EV)) + "</b><small>" + esc(when(EV)) + "</small>" + (EV.venue ? "<small>" + esc(EV.venue) + "</small>" : "") + '</span><span class="amt">' + esc(EV.price || "") + "</span>";
@@ -229,15 +229,15 @@ async function showResult(){
       "<div><dt>Venue</dt><dd>" + esc(t.event.venue || "See event page") + "</dd></div></dl>" +
       '<div class="cut"></div><div class="code"><small>Ticket number</small><b>' + esc(t.ticket) + "</b></div></div>" +
       '<p class="note" style="margin-top:14px">Take a screenshot of this ticket. Show it, or the mobile number you booked with, at the venue. We\'ll also confirm on WhatsApp or email.</p>' +
-      '<a class="btn" href="/' + (t.event.slug ? "#" + encodeURIComponent(t.event.slug) : "") + '" style="text-align:center;line-height:54px;text-decoration:none">Back to the event</a>';
+      '<a class="btn" href="/home' + (t.event.slug ? "#" + encodeURIComponent(t.event.slug) : "") + '" style="text-align:center;line-height:54px;text-decoration:none">Back to the event</a>';
     return;
   }
   const slug = t && t.event && t.event.slug;
-  const retry = slug ? '<a class="btn" href="/checkout?event=' + encodeURIComponent(slug) + '" style="text-align:center;line-height:54px;text-decoration:none">Try again</a>' : "";
+  const retry = slug ? '<a class="btn" href="/home/checkout?event=' + encodeURIComponent(slug) + '" style="text-align:center;line-height:54px;text-decoration:none">Try again</a>' : "";
   if (t && t.status === "failed"){
     $("s3").innerHTML = "<h1>Payment didn't go <em>through</em></h1><p class=\"center\" style=\"text-align:left\">No money was taken. If any amount was deducted, it'll be refunded automatically by your bank within 5–7 working days.</p>" + retry;
   } else {
-    $("s3").innerHTML = "<h1>Still <em>checking…</em></h1><p class=\"center\" style=\"text-align:left\">We couldn't confirm your payment yet. If money was deducted, don't pay again — your ticket will be confirmed shortly. Refresh this page in a minute, or <a href=\"/contact\">contact us</a> with your mobile number.</p>" +
+    $("s3").innerHTML = "<h1>Still <em>checking…</em></h1><p class=\"center\" style=\"text-align:left\">We couldn't confirm your payment yet. If money was deducted, don't pay again — your ticket will be confirmed shortly. Refresh this page in a minute, or <a href=\"/home/contact\">contact us</a> with your mobile number.</p>" +
       '<button class="btn" onclick="location.reload()">Refresh</button>' + (retry ? retry.replace('class="btn"', 'class="btn ghost"') : "");
   }
 }
