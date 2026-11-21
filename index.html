@@ -511,9 +511,9 @@
   @keyframes introIn{from{opacity:0;letter-spacing:.22em;transform:translateY(8px)}to{opacity:1;letter-spacing:0;transform:none}}
   @keyframes introSub{to{opacity:.9}}
   /* ===== Pink dot bloom (event tap) ===== */
-  #bloom{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:#FF1F72;z-index:150;pointer-events:none;transform:scale(0);transition:transform .62s cubic-bezier(.65,0,.25,1),opacity .5s ease}
+  #bloom{position:fixed;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:#FF1F72;z-index:150;pointer-events:none;transform:scale(0);transition:transform .6s cubic-bezier(.65,0,.25,1),opacity 1.1s cubic-bezier(.4,0,.2,1)}
   #bloom.fade{opacity:0}
-  body.bloomed #v-event > *{animation:bloomUp .6s cubic-bezier(.2,.8,.2,1) both}
+  body.bloomed #v-event > *{animation:bloomUp .95s cubic-bezier(.2,.8,.2,1) .15s both}
   @keyframes bloomUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#intro,#bloom{display:none}}
 </style>
@@ -931,6 +931,7 @@ function route(){
   $("v-event").classList.toggle("on", !!ev);
   document.body.classList.toggle("ev-view", !!ev);
   if (!ev) document.title = (CONTENT.hero_title || "galcode") + " — " + (CONTENT.hero_subtitle || "");
+  window.__evScrolled = false; window.__routeAt = Date.now();
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);
@@ -1057,9 +1058,9 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") document.que
 if ("IntersectionObserver" in window){
   let ctaVisible = false;
   const pastAgenda = () => { const ag = $("pAgenda"); return ag && ag.offsetParent ? ag.getBoundingClientRect().bottom < 80 : window.scrollY > 380; };
-  const upd = () => $("bar").classList.toggle("show", !ctaVisible && pastAgenda());
+  const upd = () => $("bar").classList.toggle("show", !ctaVisible && !!window.__evScrolled && pastAgenda());
   new IntersectionObserver(([e]) => { ctaVisible = e.isIntersecting; upd(); }).observe($("confirmBtn"));
-  window.addEventListener("scroll", upd, {passive:true});
+  window.addEventListener("scroll", () => { if (Date.now() - (window.__routeAt || 0) > 600) window.__evScrolled = true; upd(); }, {passive:true});
 }
 
 /* ---------- Tap a photo to see it big ---------- */
@@ -1112,8 +1113,8 @@ document.addEventListener("click", e => {
       location.hash = href;
       document.body.classList.add("bloomed");
       requestAnimationFrame(() => d.classList.add("fade"));
-      setTimeout(() => { d.remove(); document.body.classList.remove("bloomed"); }, 800);
-    }, 640);
+      setTimeout(() => { d.remove(); document.body.classList.remove("bloomed"); }, 1300);
+    }, 600);
   }
   const wb = e.target.closest("[data-wl]");
   if (wb){ const ev = EVENTS.find(x => String(x.id) === wb.dataset.wl); if (ev) openWaitlist(ev); return; }
