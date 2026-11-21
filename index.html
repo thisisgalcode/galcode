@@ -108,7 +108,7 @@
   .sec{max-width:720px;margin:auto;padding:32px 24px}
   .sec-label{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);font-weight:600}
   .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
-  .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,8vw,42px);line-height:1.08;letter-spacing:-.02em;margin-top:20px}
+  .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,8vw,42px);line-height:1.08;letter-spacing:-.02em;margin-top:20px;text-wrap:balance}
   .sec h2 em{font-style:italic;color:var(--pink)}
   .sec p.body{color:var(--ink-2);font-size:16px;line-height:1.7;margin-top:16px}
   .photo{margin-top:20px;border-radius:20px;background:repeating-linear-gradient(135deg,#F4ECEA 0 12px,#F8F2F0 12px 24px);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;overflow:hidden}
@@ -495,6 +495,11 @@
   .evc.soon{box-shadow:0 8px 20px rgba(58,10,28,.08)}
   .evc.soon .evc-cap{background:linear-gradient(to bottom,rgba(58,10,28,0),rgba(58,10,28,.6) 70%)}
   /* ===== Join the circle ===== */
+  .how{list-style:none;margin:20px auto 0;max-width:560px;display:flex;flex-direction:column;gap:12px;text-align:left}
+  .how li{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 18px}
+  .how .num{flex:none;width:44px;font-family:var(--serif);font-size:42px;line-height:1;color:var(--pink)}
+  .how b{display:block;font-weight:500;font-size:16px;line-height:1.35;color:var(--ink)}
+  .how small{display:block;margin-top:3px;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
   .circle-sec{max-width:720px;margin:auto;padding:32px 20px 0}
   .circle{background:var(--ink);color:#fff;border-radius:26px;padding:34px 22px 26px;text-align:center;position:relative;overflow:hidden;box-shadow:0 18px 40px rgba(58,10,28,.18)}
   .circle::before{content:"";position:absolute;inset:-40% -30% auto auto;width:260px;height:260px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,23,93,.35),transparent);pointer-events:none}
@@ -577,6 +582,12 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
     <div class="rail" id="rail"></div>
     <button class="rail-btn" id="railBtn" type="button" aria-label="See more events" hidden><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
+
+  <section class="sec" id="how">
+    <div class="sec-label" id="hLabel">How it works</div>
+    <h2 id="hHead">Three steps, <em>no pressure</em></h2>
+    <ol class="how" id="hSteps"></ol>
+  </section>
 
   <section class="circle-sec">
     <div class="circle">
@@ -825,6 +836,10 @@ let CONTENT = {
   about_photo:"", founder_quote:"I wanted a space where women could show up exactly as they are, ambitious, curious, a little unsure, and find people who get it. That's what galcode is.",
   founder_name:"Raksha", founder_role:"Founder, galcode", founder_photo:"", founder_instagram:"ft.rakshaa",
   dates_heading:"Dates worth", dates_heading_em:"joining", instagram:"thisisgalcode",
+  how_label:"How it works", how_title:"Three steps,", how_title_em:"no pressure",
+  how1_title:"Pick an event you like", how1_note:"Browse what's coming up and open the one that feels like you.",
+  how2_title:"Book your spot in a minute", how2_note:"A short form, then you're taken to pay. No account needed.",
+  how3_title:"Show up, even alone", how3_note:"Most girls come on their own. You'll leave with new friends.",
   circle_label:"Never miss an evening", circle_title:"Join the", circle_title_em:"circle", circle_desc:"Be the first to hear about new events on WhatsApp, before they sell out.", circle_link:"", circle_note:"Free to join. Event drops, early access and the girlies.",
   policy_about:"galcode is a girls-only community in Chennai. We host small, thoughtful events where women can meet, learn and build things together.\n\nEvery event is designed to feel safe, warm and easy to walk into, even if you're coming alone.",
   policy_contact:"The fastest way to reach us is a DM on Instagram: @thisisgalcode",
@@ -865,6 +880,11 @@ function renderHome(){
   const fig = (c.founder_instagram || "").replace(/^@/, "").trim();
   $("fdIg").hidden = !fig; $("fdIg").textContent = "@" + fig; $("fdIg").href = "https://instagram.com/" + encodeURIComponent(fig);
   $("dHead").innerHTML = titleHTML(c.dates_heading, c.dates_heading_em);
+  $("hLabel").textContent = c.how_label || "";
+  $("hHead").innerHTML = titleHTML(c.how_title, c.how_title_em);
+  const steps = [1, 2, 3].map(n => [c["how" + n + "_title"], c["how" + n + "_note"]]).filter(x => (x[0] || "").trim());
+  $("hSteps").innerHTML = steps.map((x, i) => '<li><span class="num">' + String(i + 1).padStart(2, "0") + "</span><div><b>" + esc(x[0]) + "</b>" + ((x[1] || "").trim() ? "<small>" + esc(x[1]) + "</small>" : "") + "</div></li>").join("");
+  $("how").hidden = !steps.length;
   $("cLabel").textContent = c.circle_label || "";
   $("cHead").innerHTML = titleHTML(c.circle_title, c.circle_title_em);
   $("cDesc").textContent = c.circle_desc || "";
