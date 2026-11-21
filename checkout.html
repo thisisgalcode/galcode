@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF7F4">
+<meta name="robots" content="noindex">
+<title>Checkout · galcode</title>
+<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--pink:#E8175D;--pink-soft:#FCE8EF;--bg:#FBF7F4;--card:#fff;--ink:#1F1418;--ink-2:#5E4F55;--muted:#A3969B;--line:#EDE4E2;--red:#C62828;--green:#1F8A3B;--serif:'Instrument Serif',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none}
+  a{color:var(--pink)}
+  [hidden]{display:none!important}
+  .top{max-width:520px;margin:0 auto;padding:20px 22px 0;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:var(--serif);font-size:26px;color:var(--ink);text-decoration:none}
+  .logo em{color:var(--pink)}
+  .top a.back{font-size:14px;color:var(--ink-2);text-decoration:none}
+  main{max-width:520px;margin:0 auto;padding:18px 22px calc(40px + env(safe-area-inset-bottom))}
+  .prog{display:flex;gap:6px;margin:6px 0 10px}
+  .prog i{flex:1;height:4px;border-radius:99px;background:var(--line)}
+  .prog i.on{background:var(--pink)}
+  .stepl{font-size:12.5px;color:var(--muted);letter-spacing:.02em}
+  h1{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.05;margin:4px 0 16px}
+  h1 em{color:var(--pink)}
+  .ev{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+  .ev .ph{width:64px;height:64px;border-radius:12px;background:var(--pink-soft) center/cover no-repeat;flex:none}
+  .ev b{display:block;font-weight:600;font-size:16px}
+  .ev small{display:block;color:var(--ink-2);font-size:13.5px;margin-top:2px}
+  .ev .amt{margin-left:auto;font-weight:600;font-size:17px;white-space:nowrap}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:14px;overflow:hidden}
+  .f{display:block;padding:12px 16px;border-top:1px solid var(--line)}
+  .f:first-child{border-top:0}
+  .f span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:2px}
+  .f input{width:100%;border:0;outline:0;background:transparent;font-size:16.5px;padding:2px 0}
+  .chk{display:flex;gap:10px;align-items:flex-start;margin:16px 2px 0;font-size:14px;color:var(--ink-2);line-height:1.5}
+  .chk input{width:20px;height:20px;accent-color:var(--pink);flex:none;margin-top:1px}
+  .err{color:var(--red);font-size:14px;margin:12px 2px 0;line-height:1.45}
+  .btn{display:block;width:100%;min-height:54px;border-radius:14px;background:var(--ink);color:#fff;font-weight:500;font-size:16px;margin-top:18px;transition:background .2s}
+  .btn:hover{background:var(--pink)}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .btn.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line);margin-top:10px}
+  .sum .row{display:flex;justify-content:space-between;gap:12px;padding:11px 16px;border-top:1px solid var(--line);font-size:15px}
+  .sum .row:first-child{border-top:0}
+  .sum .row span{color:var(--ink-2)} .sum .row b{font-weight:500;text-align:right}
+  .sum .row.tot b{font-weight:600;font-size:17px}
+  .next{margin-top:14px;border:1.5px dashed var(--pink);background:var(--pink-soft);border-radius:14px;padding:12px 14px;color:#9C1146;font-size:13.5px}
+  .next b{display:block;font-size:15px;color:var(--ink);margin-top:2px}
+  .pays{text-align:center;color:var(--muted);font-size:12.5px;margin-top:10px}
+  .note{color:var(--muted);font-size:12.5px;margin-top:14px;line-height:1.55;text-align:center}
+  .note a{color:var(--ink-2)}
+  /* Ticket */
+  .ticket{position:relative;background:var(--card);border-radius:20px;border:1px solid var(--line);overflow:hidden;margin-top:6px}
+  .ticket .hd{background:var(--pink);color:#fff;padding:16px 18px}
+  .ticket .hd p{font-size:11px;letter-spacing:.22em;text-transform:uppercase;opacity:.9;font-weight:600}
+  .ticket .hd h2{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1;margin-top:4px}
+  .ticket .cut{position:relative;border-top:2px dashed var(--line);margin:0 14px}
+  .ticket .cut::before,.ticket .cut::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+  .ticket .cut::before{left:-25px} .ticket .cut::after{right:-25px}
+  .ticket dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:16px 18px}
+  .ticket dt{font-size:11.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+  .ticket dd{font-size:15px;font-weight:500;margin-top:2px;word-break:break-word}
+  .ticket .code{padding:14px 18px 18px;text-align:center}
+  .ticket .code small{font-size:11.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+  .ticket .code b{display:block;font-family:var(--mono);font-size:26px;letter-spacing:.08em;margin-top:2px}
+  .ok{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:600;font-size:14px;margin-bottom:8px}
+  .spin{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--pink);animation:sp .8s linear infinite;margin:36px auto 14px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .center{text-align:center;color:var(--ink-2);font-size:15px;line-height:1.55}
+  .test{background:#FFF6CC;color:#8A6D00;font-size:12.5px;font-weight:600;border-radius:10px;padding:8px 12px;margin-bottom:12px;text-align:center}
+</style>
+</head>
+<body>
+<header class="top"><a class="logo" href="/">gal<em>code</em></a><a class="back" id="backLink" href="/">← Events</a></header>
+<main>
+  <div class="prog" id="prog"><i></i><i></i><i></i></div>
+  <p class="stepl" id="stepl"></p>
+
+  <div id="boot"><div class="spin"></div></div>
+
+  <!-- Step 1: details -->
+  <section id="s1" hidden>
+    <h1>Your <em>details</em></h1>
+    <div class="ev" id="ev1"></div>
+    <div class="card">
+      <label class="f"><span>Full name</span><input id="fName" autocomplete="name" placeholder="Your name"></label>
+      <label class="f"><span>Mobile number</span><input id="fPhone" inputmode="numeric" autocomplete="tel-national" maxlength="14" placeholder="10-digit mobile"></label>
+      <label class="f"><span>Email</span><input id="fEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="none" placeholder="you@email.com"></label>
+      <label class="f"><span>Age</span><input id="fAge" inputmode="numeric" maxlength="3" placeholder="Your age"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="fAgree"><span>I'm a woman, and I agree to the <a href="/terms" target="_blank">terms</a> and <a href="/refunds" target="_blank">refund policy</a>.</span></label>
+    <p class="err" id="err1" hidden></p>
+    <button class="btn" id="go1">Continue</button>
+  </section>
+
+  <!-- Step 2: pay -->
+  <section id="s2" hidden>
+    <p class="test" id="testBanner" hidden>Test mode · no real money is charged</p>
+    <h1 id="payTitle">Pay</h1>
+    <div class="card sum" id="sum"></div>
+    <div class="next"><span>Next: your ticket</span><b>You'll get a ticket number as soon as you pay.</b></div>
+    <p class="err" id="err2" hidden></p>
+    <button class="btn" id="go2">Continue to pay</button>
+    <button class="btn ghost" id="edit2">Edit my details</button>
+    <p class="pays">UPI · Cards · Net banking — secured by Cashfree Payments</p>
+  </section>
+
+  <!-- Step 3: ticket / result -->
+  <section id="s3" hidden></section>
+
+  <p class="note">Questions? <a href="/contact">Contact us</a> · <a href="/refunds">Refunds</a> · <a href="/terms">Terms</a></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cssUrl = u => esc(String(u ?? "").replace(/['"()\\\s]/g, c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")));
+const db = window.supabase.createClient("https://hbhhtmxabsjxwiirancm.supabase.co", "sb_publishable_3pvwaKstZSHy0fN8P6nR6A_7bP6mEY8");
+const params = new URLSearchParams(location.search);
+const SLUG = params.get("event") || "";
+const ORDER = params.get("order_id") || "";
+const KEY = "gc_checkout_" + SLUG;
+let EV = null, ME = {};
+
+const title = e => [e.title, e.title_em].filter(Boolean).join(" ");
+const titleHtml = e => esc(e.title || "") + (e.title_em ? " <em>" + esc(e.title_em) + "</em>" : "");
+const when = e => [e.date_label || (e.event_date ? new Date(e.event_date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"}) : ""), e.time_label].filter(Boolean).join(" · ");
+const rupees = n => "₹" + Number(n).toLocaleString("en-IN", {maximumFractionDigits: 2});
+
+function step(n){
+  document.querySelectorAll("#prog i").forEach((el, i) => el.classList.toggle("on", i < n));
+  $("stepl").textContent = "Step " + n + " of 3 · " + ["Your details", "Pay", "Your ticket"][n - 1];
+  ["s1", "s2", "s3"].forEach((id, i) => $(id).hidden = i !== n - 1);
+  $("boot").hidden = true;
+  window.scrollTo(0, 0);
+}
+function fail(msg, html){
+  $("boot").hidden = true; $("prog").hidden = true; $("stepl").hidden = true;
+  $("s3").hidden = false;
+  $("s3").innerHTML = '<h1>' + msg + '</h1><p class="center" style="text-align:left">' + html + '</p><a class="btn" href="/" style="text-align:center;line-height:54px;text-decoration:none">See all events</a>';
+}
+
+/* ---------- Step 1 ---------- */
+async function startCheckout(){
+  if (!SLUG) return fail("Pick an event", "Choose an event on our home page to book your spot.");
+  const { data, error } = await db.from("events").select("*").eq("slug", SLUG).eq("status", "live").maybeSingle();
+  if (error || !data) return fail("This event isn't open", "Booking for this event isn't open right now. Check our home page for what's coming up.");
+  EV = data;
+  $("backLink").href = "/#" + encodeURIComponent(EV.slug);
+  try { ME = JSON.parse(sessionStorage.getItem(KEY) || "{}"); } catch { ME = {}; }
+  $("fName").value = ME.name || ""; $("fPhone").value = ME.phone || ""; $("fEmail").value = ME.email || ""; $("fAge").value = ME.age || "";
+  $("ev1").innerHTML = '<span class="ph" style="' + (EV.photo_url ? "background-image:url('" + cssUrl(EV.photo_url) + "')" : "") + '"></span><span><b>' + esc(title(EV)) + "</b><small>" + esc(when(EV)) + "</small>" + (EV.venue ? "<small>" + esc(EV.venue) + "</small>" : "") + '</span><span class="amt">' + esc(EV.price || "") + "</span>";
+  step(1);
+}
+function err(id, msg){ $(id).textContent = msg || ""; $(id).hidden = !msg; }
+document.querySelectorAll("#s1 input").forEach(i => i.addEventListener("input", () => err("err1", "")));
+$("go1").onclick = () => {
+  const name = $("fName").value.trim();
+  const phone = $("fPhone").value.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
+  const email = $("fEmail").value.trim();
+  const age = parseInt($("fAge").value, 10);
+  if (name.length < 2) return err("err1", "Enter your full name.");
+  if (!/^[6-9]\d{9}$/.test(phone)) return err("err1", "Enter a 10-digit mobile number.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("err1", "Enter a valid email, like you@gmail.com.");
+  if (!(age >= 13 && age <= 100)) return err("err1", "Enter your age.");
+  if (!$("fAgree").checked) return err("err1", "Tick the box to confirm and agree to the terms.");
+  ME = {name, phone, email, age};
+  try { sessionStorage.setItem(KEY, JSON.stringify(ME)); } catch {}
+  $("payTitle").innerHTML = esc(EV.price || "") + " for " + titleHtml(EV);
+  $("sum").innerHTML = [["Event", title(EV)], ["When", when(EV)], ["Venue", EV.venue], ["Name", ME.name], ["Mobile", ME.phone], ["Email", ME.email]]
+    .filter(r => r[1]).map(r => '<div class="row"><span>' + r[0] + "</span><b>" + esc(r[1]) + "</b></div>").join("") +
+    '<div class="row tot"><span>Total</span><b>' + esc(EV.price || "") + "</b></div>";
+  err("err2", "");
+  step(2);
+};
+
+/* ---------- Step 2 ---------- */
+$("edit2").onclick = () => step(1);
+function loadCashfree(){
+  return new Promise((res, rej) => {
+    if (window.Cashfree) return res();
+    const s = document.createElement("script"); s.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    s.onload = res; s.onerror = () => rej(new Error("Couldn't load the payment window. Check your internet and try again."));
+    document.head.appendChild(s);
+  });
+}
+$("go2").onclick = async () => {
+  const b = $("go2"); b.disabled = true; b.textContent = "Opening payment…"; err("err2", "");
+  try {
+    const r = await fetch("/api/cf-order", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({slug: EV.slug, ...ME})});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(r.status === 503 ? "Online payments are coming soon. Please check back in a little while." : (j.error || "Couldn't start the payment. Try again."));
+    $("testBanner").hidden = j.mode !== "sandbox";
+    await loadCashfree();
+    const cashfree = window.Cashfree({mode: j.mode === "production" ? "production" : "sandbox"});
+    await cashfree.checkout({paymentSessionId: j.payment_session_id, redirectTarget: "_self"});
+  } catch (e) {
+    err("err2", e.message || "Couldn't start the payment. Try again.");
+    b.disabled = false; b.textContent = "Continue to pay";
+  }
+};
+
+/* ---------- Step 3 ---------- */
+async function showResult(){
+  step(3);
+  $("s3").innerHTML = '<div class="spin"></div><p class="center">Confirming your payment…</p>';
+  let t = null;
+  for (let i = 0; i < 8; i++){
+    try {
+      const r = await fetch("/api/cf-status?order_id=" + encodeURIComponent(ORDER));
+      t = await r.json();
+      if (!r.ok) break;
+      if (t.status === "paid" || t.status === "failed") break;
+    } catch {}
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  if (t && t.status === "paid"){
+    try { sessionStorage.removeItem("gc_checkout_" + t.event.slug); } catch {}
+    $("s3").innerHTML =
+      '<p class="ok">✓ Payment successful</p><h1>You\'re <em>in!</em></h1>' +
+      '<div class="ticket"><div class="hd"><p>galcode ticket</p><h2>' + esc(t.event.title) + '</h2></div>' +
+      "<dl><div><dt>Name</dt><dd>" + esc(t.name) + "</dd></div><div><dt>Paid</dt><dd>" + rupees(t.amount) + "</dd></div>" +
+      "<div><dt>When</dt><dd>" + esc([t.event.date, t.event.time].filter(Boolean).join(" · ") || "See event page") + "</dd></div>" +
+      "<div><dt>Venue</dt><dd>" + esc(t.event.venue || "See event page") + "</dd></div></dl>" +
+      '<div class="cut"></div><div class="code"><small>Ticket number</small><b>' + esc(t.ticket) + "</b></div></div>" +
+      '<p class="note" style="margin-top:14px">Take a screenshot of this ticket. Show it, or the mobile number you booked with, at the venue. We\'ll also confirm on WhatsApp or email.</p>' +
+      '<a class="btn" href="/' + (t.event.slug ? "#" + encodeURIComponent(t.event.slug) : "") + '" style="text-align:center;line-height:54px;text-decoration:none">Back to the event</a>';
+    return;
+  }
+  const slug = t && t.event && t.event.slug;
+  const retry = slug ? '<a class="btn" href="/checkout?event=' + encodeURIComponent(slug) + '" style="text-align:center;line-height:54px;text-decoration:none">Try again</a>' : "";
+  if (t && t.status === "failed"){
+    $("s3").innerHTML = "<h1>Payment didn't go <em>through</em></h1><p class=\"center\" style=\"text-align:left\">No money was taken. If any amount was deducted, it'll be refunded automatically by your bank within 5–7 working days.</p>" + retry;
+  } else {
+    $("s3").innerHTML = "<h1>Still <em>checking…</em></h1><p class=\"center\" style=\"text-align:left\">We couldn't confirm your payment yet. If money was deducted, don't pay again — your ticket will be confirmed shortly. Refresh this page in a minute, or <a href=\"/contact\">contact us</a> with your mobile number.</p>" +
+      '<button class="btn" onclick="location.reload()">Refresh</button>' + (retry ? retry.replace('class="btn"', 'class="btn ghost"') : "");
+  }
+}
+
+if (ORDER) showResult(); else startCheckout();
+</script>
+</body>
+</html>
