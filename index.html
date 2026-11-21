@@ -510,15 +510,7 @@
   body.introing{overflow:hidden}
   @keyframes introIn{from{opacity:0;letter-spacing:.22em;transform:translateY(8px)}to{opacity:1;letter-spacing:0;transform:none}}
   @keyframes introSub{to{opacity:.9}}
-  /* ===== Event sheet rises ===== */
-  body.sheeting{overflow:hidden}
-  body.sheeting #v-home{display:block!important}
-  body.sheeting #v-event{display:block;position:fixed;inset:0;overflow-y:auto;overscroll-behavior:contain;z-index:120;background:var(--bg);animation:sheetUp .8s cubic-bezier(.32,.72,0,1) both}
-  #sheetDim{position:fixed;inset:0;z-index:110;background:#3A0A1C;opacity:0;pointer-events:none;transition:opacity .7s ease}
-  #sheetDim.on{opacity:.32}
-  body.sheeting #v-home{transform:scale(.97);transform-origin:50% 30%;transition:transform .8s cubic-bezier(.32,.72,0,1)}
-  @keyframes sheetUp{from{transform:translateY(100%);border-radius:28px 28px 0 0}to{transform:none;border-radius:0}}
-  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#intro,#sheetDim{display:none}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#intro{display:none}}
 </style>
 </head>
 <body>
@@ -934,7 +926,7 @@ function route(){
   $("v-event").classList.toggle("on", !!ev);
   document.body.classList.toggle("ev-view", !!ev);
   if (!ev) document.title = (CONTENT.hero_title || "galcode") + " — " + (CONTENT.hero_subtitle || "");
-  window.scrollTo(0, document.body.classList.contains("sheeting") ? (window.__sheetY || 0) : 0);
+  window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);
 
@@ -1104,18 +1096,6 @@ $("wlGo").onclick = async () => {
   $("wlForm").hidden = true;
 };
 document.addEventListener("click", e => {
-  const sc = e.target.closest("a.evc");
-  if (sc && !e.defaultPrevented && !e.metaKey && !e.ctrlKey && !e.shiftKey && !matchMedia("(prefers-reduced-motion: reduce)").matches && !document.body.classList.contains("sheeting")){
-    e.preventDefault();
-    window.__sheetY = window.scrollY;
-    const dim = document.createElement("div"); dim.id = "sheetDim"; document.body.appendChild(dim);
-    document.body.classList.add("sheeting");
-    location.hash = sc.getAttribute("href");
-    requestAnimationFrame(() => requestAnimationFrame(() => dim.classList.add("on")));
-    setTimeout(() => {
-      document.body.classList.remove("sheeting"); dim.remove(); window.scrollTo(0, 0);
-    }, 850);
-  }
   const wb = e.target.closest("[data-wl]");
   if (wb){ const ev = EVENTS.find(x => String(x.id) === wb.dataset.wl); if (ev) openWaitlist(ev); return; }
   const card = e.target.closest("a.evc");
