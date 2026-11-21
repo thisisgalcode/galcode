@@ -124,6 +124,7 @@ const db = window.supabase.createClient("https://hbhhtmxabsjxwiirancm.supabase.c
 const params = new URLSearchParams(location.search);
 const SLUG = params.get("event") || "";
 const ORDER = params.get("order_id") || "";
+const DEMO = params.has("sample");
 const KEY = "gc_checkout_" + SLUG;
 let EV = null, ME = {};
 
@@ -210,6 +211,7 @@ async function showResult(){
   step(3);
   $("s3").innerHTML = '<div class="spin"></div><p class="center">Confirming your payment…</p>';
   let t = null;
+  if (DEMO) return renderTicket(await sampleTicket(), true);
   for (let i = 0; i < 8; i++){
     try {
       const r = await fetch("/api/cf-status?order_id=" + encodeURIComponent(ORDER));
@@ -219,19 +221,7 @@ async function showResult(){
     } catch {}
     await new Promise(r => setTimeout(r, 2000));
   }
-  if (t && t.status === "paid"){
-    try { sessionStorage.removeItem("gc_checkout_" + t.event.slug); } catch {}
-    $("s3").innerHTML =
-      '<p class="ok">✓ Payment successful</p><h1>You\'re <em>in!</em></h1>' +
-      '<div class="ticket"><div class="hd"><p>galcode ticket</p><h2>' + esc(t.event.title) + '</h2></div>' +
-      "<dl><div><dt>Name</dt><dd>" + esc(t.name) + "</dd></div><div><dt>Paid</dt><dd>" + rupees(t.amount) + "</dd></div>" +
-      "<div><dt>When</dt><dd>" + esc([t.event.date, t.event.time].filter(Boolean).join(" · ") || "See event page") + "</dd></div>" +
-      "<div><dt>Venue</dt><dd>" + esc(t.event.venue || "See event page") + "</dd></div></dl>" +
-      '<div class="cut"></div><div class="code"><small>Ticket number</small><b>' + esc(t.ticket) + "</b></div></div>" +
-      '<p class="note" style="margin-top:14px">Take a screenshot of this ticket. Show it, or the mobile number you booked with, at the venue. We\'ll also confirm on WhatsApp or email.</p>' +
-      '<a class="btn" href="/home' + (t.event.slug ? "#" + encodeURIComponent(t.event.slug) : "") + '" style="text-align:center;line-height:54px;text-decoration:none">Back to the event</a>';
-    return;
-  }
+  if (t && t.status === "paid") return renderTicket(t, false);
   const slug = t && t.event && t.event.slug;
   const retry = slug ? '<a class="btn" href="/home/checkout?event=' + encodeURIComponent(slug) + '" style="text-align:center;line-height:54px;text-decoration:none">Try again</a>' : "";
   if (t && t.status === "failed"){
@@ -242,7 +232,29 @@ async function showResult(){
   }
 }
 
-if (ORDER) showResult(); else startCheckout();
+function renderTicket(t, sample){
+    if (!sample) try { sessionStorage.removeItem("gc_checkout_" + t.event.slug); } catch {}
+    $("s3").innerHTML =
+      (sample ? '<p class="test">Sample ticket · no payment was made · this is what you see after paying</p>' : "") +
+      '<p class="ok">✓ Payment successful</p><h1>You\'re <em>in!</em></h1>' +
+      '<div class="ticket"><div class="hd"><p>galcode ticket</p><h2>' + esc(t.event.title) + '</h2></div>' +
+      "<dl><div><dt>Name</dt><dd>" + esc(t.name) + "</dd></div><div><dt>Paid</dt><dd>" + rupees(t.amount) + "</dd></div>" +
+      "<div><dt>When</dt><dd>" + esc([t.event.date, t.event.time].filter(Boolean).join(" · ") || "See event page") + "</dd></div>" +
+      "<div><dt>Venue</dt><dd>" + esc(t.event.venue || "See event page") + "</dd></div></dl>" +
+      '<div class="cut"></div><div class="code"><small>Ticket number</small><b>' + esc(t.ticket) + "</b></div></div>" +
+      '<p class="note" style="margin-top:14px">Take a screenshot of this ticket. Show it, or the mobile number you booked with, at the venue. We\'ll also confirm on WhatsApp or email.</p>' +
+      '<a class="btn" href="/home' + (t.event.slug ? "#" + encodeURIComponent(t.event.slug) : "") + '" style="text-align:center;line-height:54px;text-decoration:none">Back to the event</a>';
+}
+async function sampleTicket(){
+  let e = null;
+  try { const r = await db.from("events").select("*").eq("status", "live").order("sort").order("event_date").limit(1); e = r.data && r.data[0]; } catch {}
+  const amt = e && Number(String(e.price || "").replace(/,/g, "").match(/\d+(\.\d+)?/)?.[0]);
+  return {status: "paid", ticket: "GC-SAMPLE", name: "Priya S", amount: amt || 999,
+    event: e ? {title: title(e), date: e.date_label || e.event_date || "", time: e.time_label || "", venue: e.venue || "", slug: e.slug}
+             : {title: "Pottery night", date: "Sat, 30 Nov", time: "5 – 7 pm", venue: "Chennai", slug: ""}};
+}
+
+if (ORDER || DEMO) showResult(); else startCheckout();
 </script>
 </body>
 </html>
