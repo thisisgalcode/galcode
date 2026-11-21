@@ -308,6 +308,30 @@
   .tk.past{opacity:.7}
   .mb-empty{margin-top:14px;color:var(--ink-2);font-size:15px;line-height:1.6}
   .mb-out{font:inherit;font-size:14px;color:var(--ink-2);background:none;border:0;text-decoration:underline;margin-top:20px;cursor:pointer;padding:0}
+  body.si-view .site-foot{display:none}
+  .view-si{min-height:100vh;background:var(--bg);padding:20px 22px calc(40px + env(safe-area-inset-bottom))}
+  .si-wrap{max-width:420px;margin:0 auto}
+  .si-back{font:inherit;font-size:26px;line-height:1;color:var(--ink);background:none;border:0;padding:6px 8px 6px 0;cursor:pointer}
+  .si-h{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.08;letter-spacing:-.01em;margin-top:22px;color:var(--ink)}
+  .si-h em{color:var(--pink)}
+  .si-tabs{display:flex;background:#EADFD0;border-radius:99px;padding:3px;margin:22px 0 22px}
+  .si-tabs button{flex:1;font:inherit;font-size:14.5px;color:var(--ink-2);background:none;border:0;border-radius:99px;padding:11px 0;cursor:pointer}
+  .si-tabs button.on{background:var(--card);color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(58,10,28,.14)}
+  .si-f label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:14px 0 6px}
+  .si-in{width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;outline:none}
+  .si-in:focus{border-color:var(--pink)}
+  .si-ph{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 16px}
+  .si-ph:focus-within{border-color:var(--pink)}
+  .si-ph b{font-weight:500;color:var(--ink-2)}
+  .si-ph .si-in{border:0;padding:15px 0;background:none}
+  .si-go{width:100%;min-height:56px;margin-top:22px;font:inherit;font-size:16px;font-weight:500;letter-spacing:.02em;color:#fff;background:#C9C0B4;border:0;border-radius:99px;cursor:not-allowed;transition:background .2s,transform .12s}
+  .si-go.ready{background:var(--pink);cursor:pointer}
+  .si-go.ready:active{transform:scale(.98)}
+  .si-note{margin-top:14px;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+  .si-err{margin-top:12px;font-size:14px;color:#B3123F;min-height:18px}
+  .si-code{letter-spacing:.5em;text-align:center;font-size:28px;padding:14px 8px 14px calc(8px + .5em)}
+  .si-link{font:inherit;font-size:14px;color:var(--pink);background:none;border:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;margin-top:16px}
+  .si-link[disabled]{color:var(--ink-2);text-decoration:none;cursor:default}
   .evc-wl{display:inline-block;margin-top:10px;font:inherit;font-size:13px;font-weight:500;background:var(--card);color:var(--ink);border:0;border-radius:99px;padding:8px 16px;cursor:pointer}
   .evc-wl:active{transform:scale(.97)}
   .wl-f{display:flex;flex-direction:column;gap:12px;margin-top:16px}
@@ -601,7 +625,7 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
       <a href="#dates" data-m="scroll">Events</a>
       <button type="button" id="mBookings" hidden>My bookings</button>
       <a href="#about" data-m="scroll">About</a>
-      <button type="button" id="mSign" class="mut" hidden>Sign in with Google</button>
+      <button type="button" id="mSign" class="mut" hidden>Sign in</button>
     </nav>
   </header>
   <section class="home-hero">
@@ -733,6 +757,36 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
 <div class="bar" id="bar">
   <div><b id="barT">Women Entrepreneurs Meet</b><span id="barS">Sun, 29 Nov · 5–7 PM</span></div>
   <button class="btn" id="barBtn">Confirm my spot</button>
+</div>
+<div class="view view-si" id="v-signin">
+  <div class="si-wrap">
+    <button class="si-back" id="siBack" type="button" aria-label="Back">←</button>
+    <div id="siStep1">
+      <h1 class="si-h" id="siH">Create your <em>account</em></h1>
+      <div class="si-tabs" role="tablist"><button type="button" id="siTabUp" class="on">Sign up</button><button type="button" id="siTabIn">Sign in</button></div>
+      <form class="si-f" id="siForm" novalidate>
+        <div id="siUpOnly">
+          <label for="siName">Name</label><input class="si-in" id="siName" autocomplete="name" placeholder="Your name" enterkeyhint="next">
+          <label for="siPhone">Phone</label><div class="si-ph"><b>+91</b><input class="si-in" id="siPhone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="98765 43210" enterkeyhint="next"></div>
+        </div>
+        <label for="siEmail">Email</label><input class="si-in" id="siEmail" type="email" autocomplete="email" placeholder="you@email.com" enterkeyhint="go">
+        <div class="si-err" id="siErr" role="alert"></div>
+        <button class="si-go" id="siGo" type="submit" disabled>Continue</button>
+        <p class="si-note" id="siNote">Next, we'll email you a 6-digit code.</p>
+      </form>
+    </div>
+    <div id="siStep2" hidden>
+      <h1 class="si-h">Enter your <em>code</em></h1>
+      <p class="si-note" id="siSent" style="margin-top:12px"></p>
+      <form class="si-f" id="siCodeForm" novalidate>
+        <input class="si-in si-code" id="siCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······" aria-label="6-digit code">
+        <div class="si-err" id="siErr2" role="alert"></div>
+        <button class="si-go" id="siGo2" type="submit" disabled>Confirm</button>
+      </form>
+      <button class="si-link" id="siResend" type="button">Resend code</button>
+      <button class="si-link" id="siChange" type="button" style="margin-left:18px">Use a different email</button>
+    </div>
+  </div>
 </div>
 <div class="overlay" id="mbOv">
   <div class="sheet" role="dialog">
@@ -876,7 +930,7 @@ const VISITOR = (() => {
   const mk = () => (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
   try { let v = localStorage.getItem("gc_visitor"); if (!v){ v = mk(); localStorage.setItem("gc_visitor", v); } return v; } catch { return mk(); }
 })();
-const IS_ADMIN_BROWSER = (() => { try { return Object.keys(localStorage).some(k => { if (!(k.startsWith("sb-") && k.endsWith("-auth-token"))) return false; try { return ((JSON.parse(localStorage.getItem(k)) || {}).user || {}).app_metadata?.provider !== "google"; } catch { return true; } }); } catch { return false; } })();
+const IS_ADMIN_BROWSER = (() => { try { return Object.keys(localStorage).some(k => { if (!(k.startsWith("sb-") && k.endsWith("-auth-token"))) return false; try { const u = (JSON.parse(localStorage.getItem(k)) || {}).user || {}; return !(u.app_metadata?.provider === "google" || (u.user_metadata || {}).gc === "visitor"); } catch { return true; } }); } catch { return false; } })();
 function track(kind, eventId){
   if (!db || IS_ADMIN_BROWSER || eventId === null) return Promise.resolve();
   return db.rpc("log_event", { p_visitor: VISITOR, p_kind: kind, p_event: eventId || null }).then(() => {}, () => {});
@@ -1090,10 +1144,15 @@ function route(){
     const viewKey = ev ? "e:" + ev.id : "home";
     if (viewKey !== lastView){ lastView = viewKey; ev ? track("event_view", ev.id) : track("home_view"); }
   }
-  $("v-home").classList.toggle("on", !ev);
+  const si = slug === "signin" && gOn() && !ME;
+  if (slug === "signin" && !si && DATA_READY && location.hash === "#signin"){ history.replaceState(null, "", location.pathname); }
+  $("v-signin").classList.toggle("on", si);
+  if (si){ siSetMode(siMode); siStep(1); }
+  $("v-home").classList.toggle("on", !ev && !si);
   $("v-event").classList.toggle("on", !!ev);
   document.body.classList.toggle("ev-view", !!ev);
-  if (!ev) document.title = (CONTENT.hero_title || "galcode") + " — " + (CONTENT.hero_subtitle || "");
+  document.body.classList.toggle("si-view", si);
+  if (si) document.title = "Sign in · galcode"; else if (!ev) document.title = (CONTENT.hero_title || "galcode") + " — " + (CONTENT.hero_subtitle || "");
   window.__evScrolled = false; window.__routeAt = Date.now();
   window.scrollTo(0, 0);
 }
@@ -1145,6 +1204,8 @@ function openForm(){
     const nm = (ME.user_metadata && (ME.user_metadata.full_name || ME.user_metadata.name)) || "";
     if (!$("fName").value && nm) $("fName").value = nm;
     if (!$("fEmail").value && ME.email) $("fEmail").value = ME.email;
+    const ph = String((ME.user_metadata && ME.user_metadata.phone) || "").replace(/\D/g, "").slice(-10);
+    if (!$("fPhone").value && ph.length === 10) $("fPhone").value = ph;
   }
   show(0);
   $("formOv").classList.add("show");
@@ -1249,10 +1310,10 @@ document.querySelectorAll("[data-info]").forEach(b => b.onclick = () => {
 });
 /* ---------- Google sign-in (optional) and My bookings ---------- */
 let ME = null;
-const gOn = () => !!db && String(CONTENT.google_login || "").trim().toLowerCase() === "on";
+const gOn = () => !!db && String(CONTENT.email_login || "").trim().toLowerCase() === "on";
 function setMe(sess){
   const u = sess && sess.user;
-  ME = u && u.app_metadata && u.app_metadata.provider === "google" ? u : null;
+  ME = u && (u.app_metadata && u.app_metadata.provider === "google" || (u.user_metadata && u.user_metadata.gc === "visitor")) ? u : null;
   renderBar();
 }
 function renderBar(){
@@ -1261,14 +1322,10 @@ function renderBar(){
   $("tbAv").hidden = !signed;
   $("mBookings").hidden = !signed;
   $("mSign").hidden = !on;
-  $("mSign").textContent = signed ? "Sign out" : "Sign in with Google";
+  $("mSign").textContent = signed ? "Sign out" : "Sign in";
   if (signed){ const nm = (ME.user_metadata && (ME.user_metadata.full_name || ME.user_metadata.name)) || ME.email || "G"; $("tbAv").textContent = nm.trim()[0].toUpperCase(); }
 }
-async function googleSignIn(){
-  if (!db) return;
-  const { error } = await db.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
-  if (error) alert("Google sign-in isn't available right now. Try again later.");
-}
+function googleSignIn(){ openSignin(); }
 function closeMenu(){ $("menu").classList.remove("show"); $("menuBtn").setAttribute("aria-expanded", "false"); }
 $("menuBtn").onclick = e => { e.stopPropagation(); const o = !$("menu").classList.contains("show"); $("menu").classList.toggle("show", o); $("menuBtn").setAttribute("aria-expanded", String(o)); };
 document.addEventListener("click", e => { if (!e.target.closest("#menu")) closeMenu(); });
@@ -1277,7 +1334,7 @@ $("menu").addEventListener("click", e => {
   const a = e.target.closest('a[data-m="scroll"]');
   if (a){ e.preventDefault(); closeMenu(); const t = document.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({behavior:"smooth", block:"start"}); }
 });
-$("tbSignIn").onclick = googleSignIn;
+$("tbSignIn").onclick = () => openSignin();
 $("tbAv").onclick = () => openBookings();
 $("mBookings").onclick = () => { closeMenu(); openBookings(); };
 $("mSign").onclick = async () => { closeMenu(); if (ME){ await db.auth.signOut(); setMe(null); $("mbOv").classList.remove("show"); } else googleSignIn(); };
@@ -1294,12 +1351,87 @@ async function openBookings(){
     const live = EVENTS.some(e => e.slug === r.slug && e.status === "live");
     const inner = '<div class="tk-ph"' + (safeUrl(r.photo_url) ? ' style="background-image:url(\'' + esc(safeUrl(r.photo_url)).replace(/'/g, "%27") + '\')"' : "") + '></div><div class="tk-in"><div><b>' + titleHTML(r.title, r.title_em) + "</b><small>" + esc([r.date_label || (d ? d.toLocaleDateString("en-IN", {weekday:"short", day:"numeric", month:"short"}) : ""), r.time_label, r.venue].filter(Boolean).join(" · ")) + "</small></div>" + (d ? '<div class="tk-d">' + d.getDate() + "<span>" + d.toLocaleDateString("en-IN", {month:"short"}) + "</span></div>" : "") + "</div>";
     return live ? '<a class="tk' + (past ? " past" : "") + '" href="#' + esc(r.slug) + '" data-tk>' + inner + "</a>" : '<div class="tk' + (past ? " past" : "") + '">' + inner + "</div>";
-  }).join("") : '<p class="mb-empty">No tickets here yet. Bookings made with <b>' + esc(ME.email || "your Google email") + "</b> show up here once you've booked an event.</p>") +
+  }).join("") : '<p class="mb-empty">No tickets here yet. Bookings made with <b>' + esc(ME.email || "your email") + "</b> show up here once you've booked an event.</p>") +
     '<button class="mb-out" id="mbOut" type="button">Sign out</button>';
   $("mbOut").onclick = async () => { await db.auth.signOut(); setMe(null); $("mbOv").classList.remove("show"); };
   $("mbBody").querySelectorAll("[data-tk]").forEach(a => a.addEventListener("click", () => $("mbOv").classList.remove("show")));
 }
 if (db){ db.auth.getSession().then(r => setMe(r.data && r.data.session)); db.auth.onAuthStateChange((_e, sess) => setMe(sess)); }
+
+/* ---------- Email-code sign in / sign up page ---------- */
+let siMode = "up", siEmail = "", siTimer = null;
+function openSignin(after){
+  const h = location.hash.slice(1);
+  if (h !== "signin"){ try { sessionStorage.setItem("gc_return", h); } catch {} }
+  try { if (after) sessionStorage.setItem("gc_after", after); } catch {}
+  location.hash = "signin";
+}
+function siValid(){
+  const em = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("siEmail").value.trim());
+  if (siMode === "in") return em;
+  return em && $("siName").value.trim().length >= 2 && /^[6-9]\d{9}$/.test($("siPhone").value);
+}
+function siSync(){ const ok = siValid(); $("siGo").disabled = !ok; $("siGo").classList.toggle("ready", ok); }
+function siSetMode(m){
+  siMode = m;
+  $("siTabUp").classList.toggle("on", m === "up"); $("siTabIn").classList.toggle("on", m === "in");
+  $("siUpOnly").hidden = m === "in";
+  $("siH").innerHTML = m === "up" ? "Create your <em>account</em>" : "Sign in to <em>galcode</em>";
+  $("siNote").textContent = m === "up" ? "Next, we'll email you a 6-digit code." : "Use the email you signed up with. Next, we'll email you a 6-digit code.";
+  $("siErr").textContent = ""; siSync();
+}
+function siStep(n){ $("siStep1").hidden = n !== 1; $("siStep2").hidden = n !== 2; window.scrollTo(0, 0); if (n === 2) setTimeout(() => $("siCode").focus(), 50); }
+function siCooldown(){
+  clearInterval(siTimer); let t = 30; const b = $("siResend"); b.disabled = true; b.textContent = "Resend code in " + t + "s";
+  siTimer = setInterval(() => { t--; if (t <= 0){ clearInterval(siTimer); b.disabled = false; b.textContent = "Resend code"; } else b.textContent = "Resend code in " + t + "s"; }, 1000);
+}
+async function siSend(){
+  const email = $("siEmail").value.trim().toLowerCase();
+  const opts = siMode === "up"
+    ? { shouldCreateUser: true, data: { gc: "visitor", full_name: $("siName").value.trim(), phone: "+91" + $("siPhone").value } }
+    : { shouldCreateUser: false };
+  const { error } = await db.auth.signInWithOtp({ email, options: opts });
+  if (error){
+    const m = String(error.message || "");
+    return /signups? not allowed|not found|user/i.test(m) && siMode === "in" ? "We couldn't find an account with that email. Try Sign up." : /rate|seconds|too many/i.test(m) ? "Too many tries. Please wait a minute and try again." : "We couldn't send the code. Please try again.";
+  }
+  siEmail = email; return "";
+}
+function siDone(){
+  let back = "", after = "";
+  try { back = sessionStorage.getItem("gc_return") || ""; after = sessionStorage.getItem("gc_after") || ""; sessionStorage.removeItem("gc_return"); sessionStorage.removeItem("gc_after"); } catch {}
+  if (back === "signin") back = "";
+  history.replaceState(null, "", location.pathname + (back ? "#" + back : ""));
+  route();
+  if (after === "tickets") openBookings();
+}
+if (db){
+  $("siBack").onclick = () => { let back = ""; try { back = sessionStorage.getItem("gc_return") || ""; sessionStorage.removeItem("gc_return"); sessionStorage.removeItem("gc_after"); } catch {} history.replaceState(null, "", location.pathname + (back && back !== "signin" ? "#" + back : "")); route(); };
+  $("siTabUp").onclick = () => siSetMode("up"); $("siTabIn").onclick = () => siSetMode("in");
+  $("siPhone").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10));
+  ["siName","siPhone","siEmail"].forEach(id => $(id).addEventListener("input", siSync));
+  $("siForm").onsubmit = async e => {
+    e.preventDefault(); if (!siValid()) return;
+    $("siGo").disabled = true; $("siGo").textContent = "Sending…"; $("siErr").textContent = "";
+    const err = await siSend();
+    $("siGo").textContent = "Continue"; siSync();
+    if (err){ $("siErr").textContent = err; return; }
+    $("siSent").textContent = "We sent a 6-digit code to " + siEmail + ". It can take a minute. Check spam too.";
+    $("siCode").value = ""; $("siGo2").disabled = true; $("siGo2").classList.remove("ready"); $("siErr2").textContent = "";
+    siStep(2); siCooldown();
+  };
+  $("siCode").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6); const ok = e.target.value.length === 6; $("siGo2").disabled = !ok; $("siGo2").classList.toggle("ready", ok); if (ok) $("siCodeForm").requestSubmit(); });
+  $("siCodeForm").onsubmit = async e => {
+    e.preventDefault(); const tok = $("siCode").value; if (tok.length !== 6) return;
+    $("siGo2").disabled = true; $("siGo2").textContent = "Checking…"; $("siErr2").textContent = "";
+    const { data, error } = await db.auth.verifyOtp({ email: siEmail, token: tok, type: "email" });
+    $("siGo2").textContent = "Confirm";
+    if (error || !data || !data.session){ $("siErr2").textContent = "That code didn't work. Check it and try again, or resend a new one."; $("siGo2").disabled = false; return; }
+    setMe(data.session); siDone();
+  };
+  $("siResend").onclick = async () => { if ($("siResend").disabled) return; $("siErr2").textContent = ""; const err = await siSend(); if (err){ $("siErr2").textContent = err; return; } siCooldown(); $("siSent").textContent = "New code sent to " + siEmail + "."; };
+  $("siChange").onclick = () => siStep(1);
+}
 
 let wlEvent = null;
 function openWaitlist(ev){
