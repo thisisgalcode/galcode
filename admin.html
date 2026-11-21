@@ -682,7 +682,7 @@ function renderEventForm(){
     '<p class="gl">Web address</p><div class="grp">' + f("Link name", "slug", "women-entrepreneurs-meet") + "</div>" +
     '<p class="gf">galcode.vercel.app/#' + esc(d.slug || slugify(d.title || "event")) + "</p>" +
 
-    (d.id ? '<div style="height:26px"></div><button class="btn red" id="evDelete">Delete event</button>' : "") +
+    (d.id ? '<div style="height:26px"></div><button class="btn ghost" id="evDuplicate">Duplicate event</button><p class="gf">Makes a draft copy with the same photos, agenda, FAQs and details. You set the new date and link.</p><div style="height:10px"></div><button class="btn red" id="evDelete">Delete event</button>' : "") +
     '<div style="height:30px"></div>';
 }
 function listRow(kind, i, inner){
@@ -729,6 +729,13 @@ $("evForm").addEventListener("click", async e => {
       try { draft.diary.push({url: await uploadPhoto(blob), caption:""}); added++; } catch {}
     }
     renderEventForm(); if (added) toast(added + " photo" + (added > 1 ? "s" : "") + " added. Tap Save to publish.");
+    return;
+  }
+  if (t.id === "evDuplicate"){
+    draft = Object.assign(JSON.parse(JSON.stringify(draft)), {id:null, slug:"", status:"draft", event_date:null, date_label:"", booking_url:"", sort:EVENTS.length + 1});
+    $("evSheetTitle").textContent = "New event (copy)";
+    renderEventForm(); $("evSheet").scrollTop = 0;
+    toast("Copied as a draft. Change the name and date, then tap Save.");
     return;
   }
   if (t.id === "evDelete"){
