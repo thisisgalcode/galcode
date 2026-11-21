@@ -322,6 +322,8 @@
   .mb-sad{font-size:54px;line-height:1}
   .mb-none p{margin-top:12px;font-family:var(--serif);font-size:26px;color:var(--ink)}
   .mb-none small{display:block;margin:6px auto 20px;max-width:260px;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+  .mb-two{display:flex;gap:10px;justify-content:center}
+  .mb-ghost{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)}
   .mb-none .btn{width:auto;min-height:50px;padding:0 28px;border-radius:99px;font-size:15px}
   .mb-out{font:inherit;font-size:14px;color:var(--ink-2);background:none;border:0;text-decoration:underline;margin-top:20px;cursor:pointer;padding:0}
   .view-si{min-height:100vh;background:var(--bg);padding:20px 22px calc(40px + env(safe-area-inset-bottom))}
@@ -1377,7 +1379,7 @@ function renderBar(){
   const on = gOn(), signed = on && !!ME;
   $("tbSignIn").hidden = !on || signed;
   $("tbAv").hidden = !signed;
-  $("mBookings").hidden = !signed;
+  $("mBookings").hidden = !on;
   $("mSign").hidden = !on;
   $("mSign").textContent = signed ? "Sign out" : "Sign in";
   $("mAccount").hidden = !signed; $("mHead").hidden = !signed; $("mLogo").hidden = signed;
@@ -1400,6 +1402,13 @@ $("mBookings").onclick = () => { closeMenu(); openBookings(); };
 $("mSign").onclick = () => { closeMenu(); if (ME) signOutNow(); else openSignin(); };
 async function openBookings(){
   $("mbTitle").textContent = "My tickets";
+  if (!ME){
+    $("mbBody").innerHTML = '<div class="mb-none"><div class="mb-sad">🎟️</div><p>Sign in to see your tickets</p><small>Create an account or sign in with your email to find your bookings.</small><div class="mb-two"><button class="btn" id="mbUp" type="button">Sign up</button><button class="btn mb-ghost" id="mbIn" type="button">Sign in</button></div></div>';
+    $("mbOv").classList.add("show");
+    $("mbUp").onclick = () => { $("mbOv").classList.remove("show"); openSignin("tickets", "up"); };
+    $("mbIn").onclick = () => { $("mbOv").classList.remove("show"); openSignin("tickets", "in"); };
+    return;
+  }
   $("mbBody").innerHTML = '<p class="mb-empty">Loading…</p>';
   $("mbOv").classList.add("show");
   const { data, error } = await db.rpc("my_bookings");
@@ -1419,7 +1428,8 @@ if (db){ db.auth.getSession().then(r => setMe(r.data && r.data.session)); db.aut
 
 /* ---------- Email-code sign in / sign up page ---------- */
 let siMode = "up", siEmail = "", siTimer = null;
-function openSignin(after){
+function openSignin(after, mode){
+  if (mode) siMode = mode;
   const h = location.hash.slice(1);
   if (h !== "signin"){ try { sessionStorage.setItem("gc_return", h); } catch {} }
   try { if (after) sessionStorage.setItem("gc_after", after); } catch {}
