@@ -50,7 +50,14 @@
   .hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
   .burst{position:relative;width:min(440px,100%);margin:34px auto 0;aspect-ratio:1/1.05}
   .burst > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-  .burst .me{position:absolute;left:8%;right:8%;bottom:0;width:84%;height:90%;object-fit:contain;object-position:bottom;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent);animation:rise .7s .25s cubic-bezier(.2,.8,.2,1) both}
+  .me-track{position:absolute;left:0;right:0;bottom:0;height:92%;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;animation:rise .7s .25s cubic-bezier(.2,.8,.2,1) both}
+  .me-track::-webkit-scrollbar{display:none}
+  .me-slide{flex:0 0 100%;scroll-snap-align:center;display:flex;justify-content:center;align-items:flex-end}
+  .me-slide picture{display:contents}
+  .burst .me{width:86%;height:100%;object-fit:contain;object-position:bottom;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)}
+  .me-dots{display:flex;justify-content:center;gap:6px;margin-top:14px}
+  .me-dots i{width:6px;height:6px;border-radius:99px;background:#4A3F43;transition:width .3s,background .3s}
+  .me-dots i.on{width:18px;background:var(--yellow)}
   @keyframes rise{from{transform:translateY(24px);opacity:0}}
   .burst .me-ph{position:absolute;left:22%;right:22%;bottom:0;height:62%;display:grid;place-items:end center}
   .scrib path{stroke:var(--yellow);stroke-width:4;stroke-linecap:round;fill:none;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .7s .5s ease-out forwards}
@@ -129,11 +136,12 @@
         <path d="M186 36 L160 56"/><path d="M196 62 L166 70"/><path d="M176 16 L156 46"/>
       </g>
     </svg>
-    <picture>
-      <source srcset="/story/raksha.webp" type="image/webp">
-      <img class="me" src="/story/raksha.png" alt="Raksha, founder of galcode" width="760" height="822">
-    </picture>
+    <div class="me-track" id="meTrack" aria-label="Photos of Raksha">
+      <div class="me-slide"><picture><source srcset="/story/raksha-2.webp" type="image/webp"><img class="me" src="/story/raksha-2.png" alt="Raksha, founder of galcode" width="760" height="650"></picture></div>
+      <div class="me-slide"><picture><source srcset="/story/raksha.webp" type="image/webp"><img class="me" src="/story/raksha.png" alt="Raksha smiling" width="760" height="822" loading="lazy"></picture></div>
+    </div>
   </div>
+  <div class="me-dots" id="meDots" aria-hidden="true"></div>
 </section>
 
 <article class="story" id="story">
@@ -188,6 +196,23 @@
 </section>
 
 <script>
+// Hero photos: slide on their own every few seconds; swipe works too
+(function(){
+  const t = document.getElementById("meTrack"), dots = document.getElementById("meDots");
+  const n = t.children.length; if (n < 2) return;
+  dots.innerHTML = "<i></i>".repeat(n);
+  const cur = () => Math.round(t.scrollLeft / t.clientWidth);
+  const paint = () => [...dots.children].forEach((d,i) => d.classList.toggle("on", i === cur()));
+  t.addEventListener("scroll", () => requestAnimationFrame(paint), {passive:true}); paint();
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let hold = 0;
+  ["pointerdown","touchstart","wheel"].forEach(ev => t.addEventListener(ev, () => { hold = Date.now() + 6000; }, {passive:true}));
+  setInterval(() => {
+    if (Date.now() < hold || document.hidden) return;
+    t.scrollTo({left: ((cur() + 1) % n) * t.clientWidth, behavior: "smooth"});
+  }, 3200);
+})();
+
 // Fade sections in as you scroll
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {threshold:.12});
 document.querySelectorAll(".rv").forEach(el => io.observe(el));
