@@ -122,6 +122,15 @@
   .photo.wide{aspect-ratio:4/3}
   .photo.tall{aspect-ratio:4/5}
   .photo img{width:100%;height:100%;object-fit:cover;display:block}
+  /* photo loading shimmer */
+  .ld{overflow:hidden}
+  .ld::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;background:linear-gradient(100deg,rgba(255,255,255,0) 25%,rgba(255,255,255,.6) 50%,rgba(255,255,255,0) 75%);background-size:220% 100%;animation:gc-shim 1.25s linear infinite}
+  .ld > span{visibility:hidden}
+  .photo.ld,.ev-photo.ld{background:#F1E6E2}
+  img.gc-fade{opacity:0;transition:opacity .45s ease}
+  img.gc-fade.ok{opacity:1}
+  @keyframes gc-shim{from{background-position:120% 0}to{background-position:-120% 0}}
+  @media (prefers-reduced-motion: reduce){ .ld::after{animation:none;background:rgba(255,255,255,.35)} img.gc-fade{transition:none} }
 
   .note-card{margin-top:24px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
   .note-card .photo{margin-top:0}
@@ -695,7 +704,7 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
 
   <section class="sec" id="about">
     <div class="sec-label">About galcode</div>
-    <div class="photo wide" id="aboutPhoto">Photo</div>
+    <div class="photo wide ld" id="aboutPhoto" style="position:relative"></div>
     <p class="body" id="aBody">galcode started with a simple idea: women grow faster when they have each other. We host small, thoughtful events across Chennai, from founder meetups to slow Sunday evenings, where you can walk in alone and leave with friends.</p>
   </section>
 
@@ -1014,6 +1023,27 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
   </div>
 </div>
 
+<script>
+/* Photo loading: shimmer on the frame until the picture arrives, then fade it in */
+(function(){
+  const skip = img => img.closest("#intro,.menu,.crop-stage");
+  const clear = img => { const p = img.parentElement; if (p) p.classList.remove("ld"); };
+  const mark = img => {
+    if (img.dataset.gcld || skip(img)) return; img.dataset.gcld = "1";
+    if (img.complete && img.naturalWidth){ return; }
+    const p = img.parentElement; if (!p) return;
+    if (getComputedStyle(p).position === "static") p.style.position = "relative";
+    p.classList.add("ld"); img.classList.add("gc-fade");
+  };
+  document.addEventListener("load", e => { const i = e.target; if (i.tagName === "IMG"){ i.classList.add("ok"); clear(i); } }, true);
+  document.addEventListener("error", e => { const i = e.target; if (i.tagName === "IMG"){ clear(i); i.style.visibility = "hidden"; } }, true);
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+    if (n.nodeType !== 1) return;
+    if (n.tagName === "IMG") mark(n); else n.querySelectorAll("img").forEach(mark);
+  }))).observe(document.body, {childList:true, subtree:true});
+  document.querySelectorAll("img").forEach(mark);
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ===== galcode website: content comes from the admin panel (Supabase) ===== */
@@ -1114,7 +1144,9 @@ let curEvent = null;
 /* ---------- Home ---------- */
 function setPhoto(el, url, label){
   if (!el) return;
-  el.innerHTML = url ? '<img src="' + esc(url) + '" alt="">' : "<span>" + esc(label || "Photo") + "</span>";
+  if (url){ el.classList.remove("ld"); el.innerHTML = '<img src="' + esc(url) + '" alt="">'; return; }
+  if (!DATA_READY){ if (getComputedStyle(el).position === "static") el.style.position = "relative"; el.classList.add("ld"); el.innerHTML = ""; return; }
+  el.classList.remove("ld"); el.innerHTML = "<span>" + esc(label || "Photo") + "</span>";
 }
 function renderHome(){
   const c = CONTENT;
