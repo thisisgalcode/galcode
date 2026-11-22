@@ -55,6 +55,7 @@
   .me-slide{flex:0 0 100%;scroll-snap-align:center;display:flex;justify-content:center;align-items:flex-end}
   .me-slide picture{display:contents}
   .burst .me{width:86%;height:100%;object-fit:contain;object-position:bottom;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)}
+  .burst .me-wide{width:100%;object-fit:cover;object-position:50% 100%}
   .me-dots{display:flex;justify-content:center;gap:6px;margin-top:14px}
   .me-dots i{width:6px;height:6px;border-radius:99px;background:#4A3F43;transition:width .3s,background .3s}
   .me-dots i.on{width:18px;background:var(--yellow)}
@@ -137,7 +138,7 @@
       </g>
     </svg>
     <div class="me-track" id="meTrack" aria-label="Photos of Raksha">
-      <div class="me-slide"><picture><source srcset="/story/raksha-2.webp" type="image/webp"><img class="me" src="/story/raksha-2.png" alt="Raksha, founder of galcode" width="760" height="650"></picture></div>
+      <div class="me-slide"><picture><source srcset="/story/raksha-2.webp" type="image/webp"><img class="me me-wide" src="/story/raksha-2.png" alt="Raksha, founder of galcode" width="760" height="650"></picture></div>
       <div class="me-slide"><picture><source srcset="/story/raksha.webp" type="image/webp"><img class="me" src="/story/raksha.png" alt="Raksha smiling" width="760" height="822" loading="lazy"></picture></div>
     </div>
   </div>
