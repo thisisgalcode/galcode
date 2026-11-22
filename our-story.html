@@ -50,7 +50,8 @@
   .hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
   .burst{position:relative;width:min(440px,100%);margin:34px auto 0;aspect-ratio:1/1.05}
   .burst > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-  .burst .me{position:absolute;left:12%;right:12%;bottom:0;height:88%;object-fit:contain;object-position:bottom}
+  .burst .me{position:absolute;left:8%;right:8%;bottom:0;width:84%;height:90%;object-fit:contain;object-position:bottom;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent);animation:rise .7s .25s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes rise{from{transform:translateY(24px);opacity:0}}
   .burst .me-ph{position:absolute;left:22%;right:22%;bottom:0;height:62%;display:grid;place-items:end center}
   .scrib path{stroke:var(--yellow);stroke-width:4;stroke-linecap:round;fill:none;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .7s .5s ease-out forwards}
   .scrib path:nth-child(2){animation-delay:.6s}.scrib path:nth-child(3){animation-delay:.7s}
@@ -128,11 +129,10 @@
         <path d="M186 36 L160 56"/><path d="M196 62 L166 70"/><path d="M176 16 L156 46"/>
       </g>
     </svg>
-    <!-- Replace with Raksha's cut-out photo: save as /story/raksha.png (transparent background) and swap this div for:
-         <img class="me" src="/story/raksha.png" alt="Raksha, founder of galcode"> -->
-    <div class="me-ph" aria-hidden="true">
-      <svg viewBox="0 0 120 130" style="width:100%;height:100%"><circle cx="60" cy="42" r="28" fill="#3A2B30"/><path d="M8 130 Q12 76 60 72 Q108 76 112 130 Z" fill="#F4ECE1"/><text x="60" y="112" text-anchor="middle" font-size="7" fill="#8E8186" font-family="Inter" letter-spacing="1.2">YOUR PHOTO</text></svg>
-    </div>
+    <picture>
+      <source srcset="/story/raksha.webp" type="image/webp">
+      <img class="me" src="/story/raksha.png" alt="Raksha, founder of galcode" width="760" height="822">
+    </picture>
   </div>
 </section>
 
