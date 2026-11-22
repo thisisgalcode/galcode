@@ -42,7 +42,7 @@ async function markSent(r) {
 // POST /api/reminders  {"test": "someone@gmail.com"}  with  Authorization: Bearer <CRON_SECRET>
 // Sends one sample reminder (next upcoming event, or a sample event) to that address. Nothing is marked as sent.
 export async function POST(request) {
-  const secret = process.env.CRON_SECRET;
+  const secret = String(process.env.CRON_SECRET || "").trim();
   const given = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
   if (!secret || given !== secret) return json({ error: "Not allowed" }, 401);
   if (!mailConfigured()) return json({ error: "GMAIL_USER / GMAIL_APP_PASSWORD are missing" }, 503);
@@ -67,7 +67,7 @@ export async function POST(request) {
 
 export async function GET(request) {
   const url = new URL(request.url);
-  const secret = process.env.CRON_SECRET;
+  const secret = String(process.env.CRON_SECRET || "").trim();
   const given = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "") || url.searchParams.get("key") || "";
   if (!secret || given !== secret) return json({ error: "Not allowed" }, 401);
   if (!process.env.SUPABASE_SERVICE_KEY) return json({ error: "SUPABASE_SERVICE_KEY is missing" }, 503);

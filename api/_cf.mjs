@@ -41,7 +41,7 @@ export async function cf(path, init = {}) {
 
 // Supabase REST with the service key (server only, never sent to the browser)
 export async function sb(path, init = {}) {
-  const key = process.env.SUPABASE_SERVICE_KEY;
+  const key = String(process.env.SUPABASE_SERVICE_KEY || "").replace(/\s+/g, "");
   const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
     ...init,
     headers: {

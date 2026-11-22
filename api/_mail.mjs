@@ -13,12 +13,12 @@ export async function sendMail({ to, subject, html, text }) {
     const nodemailer = (await import("nodemailer")).default;
     transport = nodemailer.createTransport({
       service: "gmail",
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+      auth: { user: String(process.env.GMAIL_USER || "").trim(), pass: String(process.env.GMAIL_APP_PASSWORD || "").replace(/\s+/g, "") },
     });
   }
   return transport.sendMail({
-    from: '"galcode" <' + process.env.GMAIL_USER + ">",
-    replyTo: process.env.GMAIL_USER,
+    from: '"galcode" <' + String(process.env.GMAIL_USER || "").trim() + ">",
+    replyTo: String(process.env.GMAIL_USER || "").trim(),
     to, subject, html, text,
   });
 }
