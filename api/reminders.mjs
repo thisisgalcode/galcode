@@ -39,6 +39,32 @@ async function markSent(r) {
   if (bid) await sb("bookings?id=eq." + encodeURIComponent(bid), { method: "PATCH", body: at });
 }
 
+// POST /api/reminders  {"test": "someone@gmail.com"}  with  Authorization: Bearer <CRON_SECRET>
+// Sends one sample reminder (next upcoming event, or a sample event) to that address. Nothing is marked as sent.
+export async function POST(request) {
+  const secret = process.env.CRON_SECRET;
+  const given = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  if (!secret || given !== secret) return json({ error: "Not allowed" }, 401);
+  if (!mailConfigured()) return json({ error: "GMAIL_USER / GMAIL_APP_PASSWORD are missing" }, 503);
+  let body = {};
+  try { body = await request.json(); } catch {}
+  const to = String(body.test || "").trim();
+  if (!validEmail(to)) return json({ error: "Give a valid email in \"test\"" }, 400);
+  let e = null;
+  if (process.env.SUPABASE_SERVICE_KEY) {
+    const ev = await sb("events?select=*&status=neq.draft&event_date=gte." + istDate(new Date()) + "&order=event_date&limit=1");
+    e = ev.ok && Array.isArray(ev.body) ? ev.body[0] : null;
+  }
+  e = e || { title: "Sunset Picnic", title_em: "Club", date_label: "Saturday, 29 November", time_label: "4:30 – 7:00 PM", venue: "Besant Nagar beach", maps_url: "https://maps.google.com/?q=Besant+Nagar+beach" };
+  const m = reminderEmail({ name: body.name || "Raksha", event: e, ticket: body.ticket ? "GC-7KQ2MX" : null });
+  try {
+    await sendMail({ to, ...m, subject: "[test] " + m.subject });
+    return json({ ok: true, to, event: e.slug || "sample" });
+  } catch (err) {
+    return json({ ok: false, error: String(err && err.message || err).slice(0, 300) }, 502);
+  }
+}
+
 export async function GET(request) {
   const url = new URL(request.url);
   const secret = process.env.CRON_SECRET;
