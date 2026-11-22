@@ -17,6 +17,11 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://galcode.vercel.app/og.png?v=2">
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="galcode">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -309,6 +314,11 @@
   .menu a:active,.menu button:active{background:var(--bg)}
   .menu [hidden]{display:none}
   .menu .mut{color:var(--ink-2)}
+  .menu .m-install{display:flex;align-items:center;gap:12px}
+  .menu .m-install[hidden]{display:none}
+  .m-install svg{width:19px;height:19px;flex:none;stroke:var(--pink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .ios-steps{margin-top:14px;padding-left:20px;color:var(--ink-2);font-size:15px;line-height:1.9}
+  .ios-steps svg{width:17px;height:17px;vertical-align:-3px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .tk{display:block;text-decoration:none;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:14px}
   .tk-ph{height:104px;background:#EAD7BC center/cover no-repeat}
   .tk-in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px 14px;border-top:1.5px dashed var(--line);position:relative}
@@ -667,6 +677,7 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
       <a href="#about" data-m="scroll">About</a>
       <a href="#qna" data-m="scroll">Questions</a>
       <a href="#work" data-m="scroll">Work with us</a>
+      <button type="button" id="mInstall" class="m-install" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14"/></svg>Install app</button>
       <div class="m-sep"></div>
       <button type="button" id="mSign" class="mut" hidden>Sign in</button>
     </nav>
@@ -856,6 +867,16 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
     <div class="crop-stage" id="cropStage"><canvas id="cropCv" width="280" height="280"></canvas></div>
     <div class="crop-zoom"><span>−</span><input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom"><span>+</span></div>
     <div class="crop-row"><button class="btn mb-ghost" id="cropCancel" type="button">Cancel</button><button class="btn" id="cropOk" type="button">Use photo</button></div>
+  </div>
+</div>
+<div class="overlay" id="iosOv">
+  <div class="sheet" role="dialog" aria-labelledby="iosTitle">
+    <button class="x" data-close="iosOv" aria-label="Close">×</button>
+    <h3 id="iosTitle">Add galcode to your home screen</h3>
+    <ol class="ios-steps">
+      <li>Tap <svg viewBox="0 0 24 24" aria-label="Share"><path d="M12 15V4M8 7.5 12 4l4 3.5M7 11H5.5v9h13v-9H17"/></svg> Share at the bottom of Safari</li>
+      <li>Scroll and tap <b style="font-weight:500;color:var(--ink)">Add to Home Screen</b></li>
+    </ol>
   </div>
 </div>
 <div class="overlay" id="mbOv">
@@ -1774,6 +1795,25 @@ renderHome(); route();
       setTimeout(() => { el.remove(); document.body.classList.remove("introing"); }, 1050);
     }
   }, 100);
+})();
+</script>
+<script>
+/* Install app (PWA) */
+(function(){
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  const btn = document.getElementById("mInstall");
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  let prompt = null;
+  if (standalone) return;
+  if (ios) btn.hidden = false;
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); prompt = e; btn.hidden = false; });
+  addEventListener("appinstalled", () => { btn.hidden = true; prompt = null; });
+  btn.onclick = async () => {
+    if (typeof closeMenu === "function") closeMenu();
+    if (prompt){ prompt.prompt(); const r = await prompt.userChoice; if (r.outcome === "accepted") btn.hidden = true; prompt = null; return; }
+    document.getElementById("iosOv").classList.add("show");
+  };
 })();
 </script>
 </body>
