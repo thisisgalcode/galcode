@@ -435,6 +435,15 @@
   .qf-sum small{color:#FFD0E0;font-size:13px}
   .qf-sum b{font-weight:500;text-align:right}
   .qf-sum .tot b{font-family:var(--serif);font-weight:400;font-size:22px;color:var(--yellow)}
+  .pay-tk{background:rgba(255,255,255,.14);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+  .pay-t{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.05}
+  .pay-t em{font-style:italic;color:var(--pink)}
+  .pay-when{font-size:14.5px;font-weight:500}
+  .pay-where{font-size:13.5px;opacity:.8}
+  .pay-where:empty,.pay-when:empty{display:none}
+  .pay-tot{display:flex;justify-content:space-between;align-items:center;border-top:1.5px dashed rgba(255,255,255,.3);margin-top:10px;padding-top:10px}
+  .pay-tot small{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--yellow)}
+  .pay-tot b{font-family:var(--serif);font-weight:400;font-size:30px;color:var(--yellow)}
   .qf-agree{display:flex;gap:12px;align-items:flex-start;margin:20px 0 22px;font-size:14px;line-height:1.5;color:#FFE4EE;cursor:pointer}
   .qf-agree input{flex:none;width:22px;height:22px;margin-top:0;accent-color:var(--yellow)}
   .qf-agree button{color:#fff;text-decoration:underline;text-underline-offset:2px;font-size:inherit;padding:0;font-weight:500}
@@ -567,6 +576,13 @@
   .qf-sum small{color:var(--muted)}
   .qf-sum b{color:var(--ink)}
   .qf-sum .tot b{color:var(--pink)}
+  .pay-tk{background:var(--card);border:1px solid var(--line)}
+  .pay-t{color:var(--ink)}
+  .pay-when{color:var(--ink)}
+  .pay-where{color:var(--muted);opacity:1}
+  .pay-tot{border-top-color:var(--line)}
+  .pay-tot small{color:var(--gold)}
+  .pay-tot b{color:var(--pink)}
   .qf-agree{color:var(--ink-2)}
   .qf-agree input{accent-color:var(--pink)}
   .qf-agree button{color:var(--ink)}
@@ -988,10 +1004,11 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
     </section>
     <section class="qs" data-s="pay">
       <h3>Almost <em>there,</em> <span id="payHi"></span></h3>
-      <div class="qf-sum">
-        <div><small>Event</small><b id="payEv">Women Entrepreneurs Meet</b></div>
-        <div><small>Ticket</small><b>1 × Entry</b></div>
-        <div class="tot"><small>Total</small><b id="sumPrice">To be announced</b></div>
+      <div class="pay-tk">
+        <b class="pay-t" id="payEv"></b>
+        <span class="pay-when" id="payWhen"></span>
+        <span class="pay-where" id="payWhere"></span>
+        <div class="pay-tot"><small>Total</small><b id="sumPrice">To be announced</b></div>
       </div>
       <p class="qf-hint" id="payNote"></p>
       <p class="qf-err"></p>
@@ -1266,7 +1283,9 @@ function renderEvent(ev){
 
   $("qfEvSum").innerHTML = [["Event", plainTitle(ev)], ["Date", sd], ["Time", ev.time_label], ["Venue", ev.venue], ["Price", ev.price || "To be announced"]]
     .filter(r => r[1]).map(r => "<div><small>" + r[0] + "</small><b" + (r[0] === "Price" ? ' id="evPrice"' : "") + ">" + esc(r[1]) + "</b></div>").join("");
-  $("payEv").textContent = plainTitle(ev);
+  $("payEv").innerHTML = titleHTML(ev.title, ev.title_em);
+  $("payWhen").textContent = [sd, ev.time_label].filter(Boolean).join(" · ");
+  $("payWhere").textContent = ev.venue || "";
   $("rEv").textContent = plainTitle(ev);
   $("rDate").textContent = sd || "—";
   $("rTime").textContent = ev.time_label || "—";
