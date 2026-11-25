@@ -92,6 +92,16 @@
   .m.me{background:var(--ink);color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
   .chips button{background:var(--card);border:1px solid var(--line);color:var(--ink-2);padding:9px 14px;border-radius:99px;font-size:13.5px;min-height:40px}
+  .chat-top b em{font-style:italic;color:var(--pink)}
+  .mrow{display:flex;align-items:flex-end;gap:8px;max-width:90%;align-self:flex-start}
+  .mrow .m{max-width:none}
+  .av{width:30px;height:30px;border-radius:9px;flex:none;display:block}
+  .sugg{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .sugg-lab{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:4px 2px 2px}
+  .sugg button.q{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);padding:12px 14px;border-radius:12px;font-size:14.5px;min-height:46px}
+  .sugg button.q::after{content:"→";color:var(--pink);flex:none}
+  .sugg button.q:hover{border-color:var(--pink)}
+  .sugg button.all{align-self:center;background:none;border:0;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;font-size:13.5px;padding:8px;min-height:40px}
   .dm-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card);font-size:14px;color:var(--ink-2)}
   .dm-bar a{background:var(--pink);color:#fff;text-decoration:none;font-weight:500;padding:12px 16px;border-radius:99px;font-size:14px;white-space:nowrap}
   .typing{display:flex;gap:4px;padding:14px 16px}
@@ -1027,7 +1037,7 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
 <div class="overlay" id="chatOv">
   <div class="chat" role="dialog" aria-label="Ask a question">
     <button class="x" data-close="chatOv" aria-label="Close">×</button>
-    <div class="chat-top"><b>Quick answers</b><small id="chatSub">Women Entrepreneurs Meet</small></div>
+    <div class="chat-top"><b>Got a <em>question?</em></b><small id="chatSub">Ask us anything</small></div>
     <div class="msgs" id="msgs"></div>
     <div class="dm-bar">
       <span>Still have a doubt?</span>
@@ -1279,7 +1289,6 @@ function renderEvent(ev){
   const sd = shortDate(ev);
   $("barT").textContent = plainTitle(ev);
   $("barS").textContent = [sd, ev.time_label].filter(Boolean).join(" · ");
-  $("chatSub").textContent = plainTitle(ev);
   $("msgs").innerHTML = ""; asked.clear();
 
   $("qfEvSum").innerHTML = [["Event", plainTitle(ev)], ["Date", sd], ["Time", ev.time_label], ["Venue", ev.venue], ["Price", ev.price || "To be announced"]]
@@ -1777,30 +1786,46 @@ function eventFaqs(){
     list.push({q:"How do I book?", a:'Tap "Confirm my spot" on this page and follow the three quick steps.'});
   return list;
 }
+function botRow(m){
+  const r = document.createElement("div"); r.className = "mrow";
+  const av = document.createElement("img"); av.className = "av"; av.src = "/favicon.png"; av.alt = "galcode";
+  r.appendChild(av); r.appendChild(m);
+  return r;
+}
 function bubble(html, who){
   const m = document.createElement("div");
   m.className = "m " + who;
   if (who === "me") m.textContent = html; else m.innerHTML = html;
-  $("msgs").appendChild(m); $("msgs").scrollTop = $("msgs").scrollHeight;
+  $("msgs").appendChild(who === "bot" ? botRow(m) : m); $("msgs").scrollTop = $("msgs").scrollHeight;
   return m;
 }
 function chips(){
   const left = eventFaqs().filter(f => !asked.has(f.q));
   if (!left.length) return;
-  const c = document.createElement("div"); c.className = "chips";
-  left.forEach(f => {
-    const b = document.createElement("button"); b.type = "button"; b.textContent = f.q;
+  const c = document.createElement("div"); c.className = "sugg";
+  const lab = document.createElement("div"); lab.className = "sugg-lab";
+  lab.textContent = asked.size ? "Girls also ask" : "Popular questions";
+  c.appendChild(lab);
+  const add = f => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "q"; b.textContent = f.q;
     b.onclick = () => { c.remove(); answer(f); };
-    c.appendChild(b);
-  });
+    c.insertBefore(b, more);
+  };
+  const more = document.createElement("button"); more.type = "button"; more.className = "all";
+  more.textContent = "See all " + left.length + " questions";
+  more.onclick = () => { left.slice(3).forEach(add); more.remove(); };
+  c.appendChild(more);
+  left.slice(0, 3).forEach(add);
+  if (left.length <= 3) more.remove();
   $("msgs").appendChild(c); $("msgs").scrollTop = $("msgs").scrollHeight;
 }
 function answer(f){
   asked.add(f.q);
   bubble(f.q, "me");
   const t = document.createElement("div"); t.className = "m bot typing"; t.innerHTML = "<i></i><i></i><i></i>";
-  $("msgs").appendChild(t); $("msgs").scrollTop = $("msgs").scrollHeight;
-  setTimeout(() => { t.remove(); bubble(f.a, "bot"); setTimeout(chips, 250); }, 650);
+  const tr = botRow(t);
+  $("msgs").appendChild(tr); $("msgs").scrollTop = $("msgs").scrollHeight;
+  setTimeout(() => { tr.remove(); bubble(f.a, "bot"); setTimeout(chips, 250); }, 650);
 }
 $("doubtBtn").onclick = () => {
   $("chatOv").classList.add("show");
