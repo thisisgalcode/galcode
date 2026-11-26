@@ -3,8 +3,10 @@
 // What it does:
 //   - Someone comments on a reel/post of @ft.rakshaa or @thisisgalcode
 //   - The bot looks up that reel's rule in Supabase (set in admin.html -> Auto DM)
-//   - If the rule is ON and the comment matches the trigger, it replies under the
-//     comment and sends ONE private DM (Instagram allows one per comment, within 7 days)
+//   - If the rule is ON and the comment matches the trigger, it sends ONE private DM
+//     (Instagram allows one per comment, within 7 days) and replies under the comment.
+//     If Instagram won't deliver the DM (e.g. their DMs are limited to people they
+//     follow), the reply asks them to follow and comment again instead.
 //   - Reels with no rule, or switched off, get nothing.
 //
 // It also serves GET /media?account=<IG_ID>&after=<cursor> so the admin panel can
@@ -152,9 +154,8 @@ async function handleEvent(body, env) {
       if (!rule || !rule.enabled) continue;          // not set up / switched off -> no auto DM
       if (!matches(rule, c.text)) continue;          // keyword trigger didn't match
 
-      if (rule.reply) {
-        await call(`${API}/${commentId}/replies`, account.token, { message: rule.reply });
-      }
+      // Send the DM first, so the comment reply can say whether it actually went through
+      let dmSent = false;
       if (rule.dm) {
         const hasButton = rule.button_text && rule.button_link;
         let out = "";
@@ -172,18 +173,47 @@ async function handleEvent(body, env) {
               },
             },
           });
+          dmSent = sent(out);
         }
         // No button, or Instagram rejected the button -> plain text (with the link if there is one)
-        if (!hasButton || out.includes('"error"')) {
+        if (!dmSent) {
           const text = hasButton ? `${rule.dm}\n\n${rule.button_text}: ${rule.button_link}` : rule.dm;
-          await call(`${API}/${entry.id}/messages`, account.token, {
+          out = await call(`${API}/${entry.id}/messages`, account.token, {
             recipient: { comment_id: commentId },
             message: { text },
           });
+          dmSent = sent(out);
         }
+      }
+
+      // DM delivered -> the reel's normal reply. DM blocked (e.g. their messages are
+      // limited to people they follow) -> ask them to follow and comment again.
+      if (rule.dm && !dmSent) {
+        const handle = await username(API, entry.id, account.token);
+        await call(`${API}/${commentId}/replies`, account.token, {
+          message: `We couldn't DM you because of your message settings. Follow ${handle ? "@" + handle : "us"} and comment again, and we'll send you the details!`,
+        });
+      } else if (rule.reply) {
+        await call(`${API}/${commentId}/replies`, account.token, { message: rule.reply });
       }
     }
   }
+}
+
+// Instagram answers a delivered message with a message_id; anything else means it didn't go through
+function sent(out) {
+  try { const j = JSON.parse(out || "{}"); return !j.error && !!j.message_id; } catch { return false; }
+}
+
+const handles = {};
+async function username(API, id, token) {
+  if (handles[id]) return handles[id];
+  try {
+    const res = await fetch(`${API}/${id}?fields=username`, { headers: { Authorization: `Bearer ${token}` } });
+    const j = await res.json();
+    if (j.username) handles[id] = j.username;
+  } catch {}
+  return handles[id] || "";
 }
 
 async function call(endpoint, token, payload) {
