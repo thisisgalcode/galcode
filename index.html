@@ -187,7 +187,7 @@
   .sheet .content p+p,.sheet .content ul{margin-top:12px}
   .sheet .content ul{padding-left:18px}
   @media(max-width:520px){
-    #infoOv,#wlOv,#mbOv{padding:0;align-items:flex-end}
+    #infoOv,#wlOv,#mbOv,#askOv{padding:0;align-items:flex-end}
     .sheet{max-width:none;border-radius:22px 22px 0 0;transform:translateY(100%)}
   }
 
@@ -306,7 +306,7 @@
   .diary-dots i{width:6px;height:6px;border-radius:99px;background:rgba(255,255,255,.45);transition:width .3s,background .3s}
   .diary-dots i.on{width:18px;background:#fff}
 
-  #infoOv,#wlOv,#mbOv{z-index:30}
+  #infoOv,#wlOv,#mbOv,#askOv{z-index:30}
   .topbar{position:relative;z-index:20;max-width:720px;margin:auto;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:calc(12px + env(safe-area-inset-top)) 16px 0}
   .tb-menu{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;padding:0;color:var(--ink)}
   .tb-menu svg{width:24px;height:24px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round}
@@ -406,6 +406,11 @@
   .wl-ph{display:flex;align-items:center;gap:8px}.wl-ph span{color:var(--ink-2);font-size:16px}
   .wl-go{font:inherit;font-size:16px;font-weight:500;background:var(--pink);color:#fff;border:0;border-radius:99px;padding:14px;cursor:pointer}
   .wl-err{color:#C0392B;font-size:13px;min-height:16px}
+  .wl-f textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:13px 14px;outline:none;width:100%;min-height:104px;resize:vertical}
+  .wl-f textarea:focus{border-color:var(--pink)}
+  #askTitle em{font-style:italic;color:var(--pink)}
+  .sugg button.q.ask{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:500}
+  .sugg button.q.ask::after{content:"+";color:#fff;font-size:18px;line-height:1}
   /* ===== Booking form: one question at a time ===== */
   .qf{width:100%;max-width:480px;min-height:min(640px,92vh);max-height:92vh;overflow-y:auto;background:var(--pink);color:#fff;border-radius:24px;padding:18px 22px calc(28px + env(safe-area-inset-bottom));position:relative;display:flex;flex-direction:column;transform:translateY(20px);transition:transform .3s}
   .overlay.show .qf{transform:none}
@@ -939,6 +944,24 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
   </div>
 </div>
 
+<div class="overlay" id="askOv">
+  <div class="sheet" role="dialog" aria-labelledby="askTitle">
+    <button class="x" data-close="askOv" aria-label="Close">×</button>
+    <h3 id="askTitle">Ask us <em>anything</em></h3>
+    <div class="content">
+      <p id="askLead">Leave your doubt here and we'll reach out to you on WhatsApp or email.</p>
+      <div class="wl-f" id="askForm">
+        <input id="askName" placeholder="Your name" autocomplete="name" maxlength="80" enterkeyhint="next">
+        <div class="wl-ph"><span>+91</span><input id="askPhone" placeholder="WhatsApp number" inputmode="numeric" autocomplete="tel-national" maxlength="10" enterkeyhint="next"></div>
+        <input id="askEmail" type="email" placeholder="Your email" autocomplete="email" maxlength="120" enterkeyhint="next">
+        <textarea id="askQ" placeholder="What's your doubt?" maxlength="1000"></textarea>
+        <div class="wl-err" id="askErr"></div>
+        <button class="wl-go" id="askGo">Send my doubt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="receiptOv">
   <div class="receipt-wrap">
     <button class="x" data-close="receiptOv" aria-label="Close">×</button>
@@ -1034,8 +1057,8 @@ else { document.body.classList.add("introing"); try{ sessionStorage.setItem("gc_
     <div class="chat-top"><b>Got a <em>question?</em></b><small id="chatSub">Ask us anything</small></div>
     <div class="msgs" id="msgs"></div>
     <div class="dm-bar">
-      <span>Still have a doubt?</span>
-      <a href="https://instagram.com/thisisgalcode" target="_blank" rel="noopener" id="dmLink">DM us on Instagram</a>
+      <span>Prefer Instagram?</span>
+      <a href="https://instagram.com/thisisgalcode" target="_blank" rel="noopener" id="dmLink">DM us</a>
     </div>
   </div>
 </div>
@@ -1792,7 +1815,7 @@ function eventFaqs(){
     list.push({q:"Where exactly is it?", a: esc(curEvent.venue) + (safeUrl(curEvent.maps_url) ? ' <a href="' + esc(safeUrl(curEvent.maps_url)) + '" target="_blank" rel="noopener">Open in Maps</a>' : "")});
   if (!list.some(f => /book/i.test(f.q)))
     list.push({q:"How do I book?", a:'Tap "Confirm my spot" on this page and follow the three quick steps.'});
-  return list;
+  return list.slice(0, 7);
 }
 function botRow(m){
   const r = document.createElement("div"); r.className = "mrow";
@@ -1809,22 +1832,18 @@ function bubble(html, who){
 }
 function chips(){
   const left = eventFaqs().filter(f => !asked.has(f.q));
-  if (!left.length) return;
   const c = document.createElement("div"); c.className = "sugg";
   const lab = document.createElement("div"); lab.className = "sugg-lab";
-  lab.textContent = asked.size ? "Girls also ask" : "Popular questions";
+  lab.textContent = !left.length ? "Anything else?" : asked.size ? "Girls also ask" : "Popular questions";
   c.appendChild(lab);
-  const add = f => {
+  left.forEach(f => {
     const b = document.createElement("button"); b.type = "button"; b.className = "q"; b.textContent = f.q;
     b.onclick = () => { c.remove(); answer(f); };
-    c.insertBefore(b, more);
-  };
-  const more = document.createElement("button"); more.type = "button"; more.className = "all";
-  more.textContent = "See all " + left.length + " questions";
-  more.onclick = () => { left.slice(3).forEach(add); more.remove(); };
-  c.appendChild(more);
-  left.slice(0, 3).forEach(add);
-  if (left.length <= 3) more.remove();
+    c.appendChild(b);
+  });
+  const d = document.createElement("button"); d.type = "button"; d.className = "q ask"; d.textContent = "I have another doubt";
+  d.onclick = openAsk;
+  c.appendChild(d);
   $("msgs").appendChild(c); $("msgs").scrollTop = $("msgs").scrollHeight;
 }
 function answer(f){
@@ -1839,6 +1858,32 @@ $("doubtBtn").onclick = () => {
   $("chatOv").classList.add("show");
   if (curEvent) track("doubt_open", curEvent.id);
   if (!$("msgs").children.length){ bubble("Hi! Tap a question below and I'll answer right away.", "bot"); chips(); }
+};
+
+/* ---------- "I have another doubt" form ---------- */
+function openAsk(){
+  $("askTitle").innerHTML = "Ask us <em>anything</em>";
+  $("askLead").textContent = "Leave your doubt here and we'll reach out to you on WhatsApp or email.";
+  $("askForm").hidden = false; $("askErr").textContent = ""; $("askGo").textContent = "Send my doubt"; $("askQ").value = "";
+  $("askOv").classList.add("show");
+  if (curEvent) track("doubt_form", curEvent.id);
+  setTimeout(() => $(($("askName").value ? "askQ" : "askName")).focus(), 320);
+}
+["askName","askPhone","askEmail","askQ"].forEach(i => $(i).oninput = () => $("askErr").textContent = "");
+$("askGo").onclick = async () => {
+  const name = $("askName").value.trim(), ph = $("askPhone").value.replace(/\D/g, ""), email = $("askEmail").value.trim(), q = $("askQ").value.trim();
+  if (name.length < 2) return $("askErr").textContent = "Enter your name.";
+  if (!/^[6-9]\d{9}$/.test(ph)) return $("askErr").textContent = "Enter a valid 10-digit WhatsApp number.";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return $("askErr").textContent = "Enter a valid email.";
+  if (q.length < 3) return $("askErr").textContent = "Type your doubt.";
+  $("askGo").textContent = "Sending…";
+  const { error } = db ? await db.rpc("ask_doubt", {p_event: curEvent ? String(curEvent.id) : null, p_name: name, p_phone: "+91" + ph, p_email: email, p_question: q}) : {error: true};
+  if (error){ $("askGo").textContent = "Send my doubt"; return $("askErr").textContent = "Couldn't send just now. Try again."; }
+  if (curEvent) track("doubt_sent", curEvent.id);
+  $("askTitle").textContent = "Got it, " + name.split(" ")[0];
+  $("askLead").textContent = "We'll reach out to you on WhatsApp or email soon.";
+  $("askForm").hidden = true;
+  bubble("Got your doubt! We'll reach out to you on WhatsApp or email soon.", "bot");
 };
 
 /* ---------- Start ---------- */

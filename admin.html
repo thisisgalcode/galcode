@@ -45,6 +45,26 @@
   .b-live{background:#E3F9E8;color:#1F8A3B}.b-soon{background:#FFF6CC;color:#8A6D00}.b-draft{background:#EDEDF0;color:#6C6C70}.b-past{background:#EDEDF0;color:#6C6C70}
   .empty{text-align:center;color:var(--muted);padding:28px 16px;font-size:15px}
 
+  /* Doubts */
+  .dq{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .dq-h{display:flex;align-items:baseline;gap:10px}
+  .dq-h b{flex:1;min-width:0;font-weight:500;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dq-h span{color:var(--muted);font-size:13.5px;white-space:nowrap}
+  .dq-ev{color:var(--muted);font-size:13.5px;margin-top:2px}
+  .dq-q{margin-top:10px;background:var(--pink-soft);color:#7A1240;border-radius:10px;padding:10px 12px;font-size:15px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+  .dq-c{margin-top:8px;font-size:13.5px;color:var(--ink2);word-break:break-all}
+  .dq textarea{display:block;width:100%;margin-top:10px;border:1px solid var(--sep);border-radius:10px;padding:10px 12px;font:inherit;font-size:15px;min-height:76px;resize:vertical;outline:none;background:#FAFAFC}
+  .dq textarea:focus{border-color:var(--pink)}
+  .dq-b{display:flex;gap:8px;margin-top:10px}
+  .dq-b a{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none}
+  .dq-wa{background:#25D366;color:#fff}
+  .dq-em{background:var(--bg);color:var(--pink)}
+  .dq-x{display:flex;gap:18px;margin-top:10px;font-size:14px}
+  .dq-x button{color:var(--muted)}
+  .dq-done{font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;background:#E3F9E8;color:#1F8A3B}
+  .tabs button{position:relative}
+  .tdot{position:absolute;top:0;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:11px;font-weight:600;font-style:normal;line-height:17px;text-align:center}
+
   /* Tab bar */
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;background:rgba(249,249,249,.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid #C6C6C8;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
   .tabs button{flex:1;max-width:140px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--muted);padding:4px 0}
@@ -253,6 +273,14 @@
     </div>
   </section>
 
+  <!-- Doubts -->
+  <section class="wrap tab-view" data-tab="doubts" hidden>
+    <h1 class="big">Doubts</h1>
+    <div class="seg" id="dqStatus" style="margin-bottom:14px"><button data-st="new" class="on">New</button><button data-st="replied">Replied</button><button data-st="all">All</button></div>
+    <div id="dqList"></div>
+    <p class="gf">Questions people send from the website chat. Type your answer, then tap WhatsApp or Email. It opens with your answer already written, so you just press send.</p>
+  </section>
+
   <!-- Events -->
   <section class="wrap tab-view" data-tab="events" hidden>
     <h1 class="big">Events</h1>
@@ -312,6 +340,7 @@
   <nav class="tabs">
     <button data-go="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
     <button data-go="bookings"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></svg>Bookings</button>
+    <button data-go="doubts"><svg viewBox="0 0 24 24"><path d="M21 12a8.5 8.5 0 0 1-12.3 7.6L3.5 21l1.4-5A8.5 8.5 0 1 1 21 12z"/><path d="M9.8 9.6a2.3 2.3 0 1 1 3.2 2.1c-.6.3-1 .8-1 1.4"/><path d="M12 15.9v.1"/></svg>Doubts<i class="tdot" id="dqDot" hidden></i></button>
     <button data-go="events"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Events</button>
     <button data-go="insights"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Insights</button>
     <button data-go="autodm"><svg viewBox="0 0 24 24"><path d="M21 4L10 14"/><path d="M21 4l-7 17-4-7-7-4z"/></svg>Auto DM</button>
@@ -421,6 +450,8 @@ async function loadAll(){
   CIRCLE = cr.data || [];
   const wl = await db.from("waitlist").select("*").order("created_at", {ascending:false});
   WAITLIST = wl.data || [];
+  const dq = await db.from("doubts").select("*").order("created_at", {ascending:false});
+  DOUBTS = dq.error ? [] : (dq.data || []);
   const [e, b, c, t] = await Promise.all([
     db.from("events").select("*").order("sort").order("event_date"),
     db.from("bookings").select("*").order("created_at", {ascending:false}),
@@ -431,7 +462,7 @@ async function loadAll(){
   CONTENT = {}; (c.data || []).forEach(r => CONTENT[r.key] = r.value);
   const me = TEAM.find(x => x.email.toLowerCase() === ME.email.toLowerCase());
   $("hiName").textContent = (me && me.name) || toUser(ME.email);
-  renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam(); renderCircle(); renderWaitlist();
+  renderHome(); renderBookings(); renderEvents(); renderSite(); renderTeam(); renderCircle(); renderWaitlist(); renderDoubts();
 }
 const done = b => (b.status || "complete") === "complete";
 const STEP_TXT = {name:"Stopped after name", phone:"Stopped after number", age:"Stopped after age", email:"Didn't tap Pay"};
@@ -493,6 +524,78 @@ $("bkExport").onclick = () => {
   a.download = "galcode-bookings" + (bkFilter !== "all" ? "-" + (EVENTS.find(e => e.id === bkFilter)?.slug || "") : "") + ".csv";
   a.click();
 };
+
+/* Doubts */
+let DOUBTS = [], dqStatus = "new";
+const dqEvent = id => { if (!id) return ""; const e = EVENTS.find(x => String(x.id) === String(id)); return e ? plainTitle(e) : ""; };
+function dqText(d, answer){
+  const ev = dqEvent(d.event_id);
+  return "Hi " + d.name.split(" ")[0] + ", this is galcode!\n\nYou asked" + (ev ? " about " + ev : "") + ": \"" + d.question + "\"\n\n" + (answer || "");
+}
+function dqLinks(card, d){
+  const a = card.querySelector("textarea").value.trim();
+  card.querySelector(".dq-wa").href = "https://wa.me/" + d.phone.replace(/\D/g, "") + "?text=" + encodeURIComponent(dqText(d, a));
+  const ev = dqEvent(d.event_id);
+  card.querySelector(".dq-em").href = "mailto:" + d.email.replace(/[^\w.+@-]/g, "") + "?subject=" + encodeURIComponent("Re: your question" + (ev ? " about " + ev : "") + " | galcode") + "&body=" + encodeURIComponent(dqText(d, a) + "\n\nLove,\ngalcode");
+}
+function renderDoubts(){
+  const fresh = DOUBTS.filter(d => d.status !== "replied").length;
+  $("dqDot").hidden = !fresh; $("dqDot").textContent = fresh > 9 ? "9+" : fresh;
+  const list = DOUBTS.filter(d => dqStatus === "all" || (dqStatus === "replied" ? d.status === "replied" : d.status !== "replied"));
+  if (!list.length){
+    $("dqList").innerHTML = '<div class="grp"><div class="empty">' + (dqStatus === "new" ? "No new doubts. You're all caught up." : "Nothing here yet.") + "</div></div>";
+    return;
+  }
+  $("dqList").innerHTML = list.map(d => {
+    const ev = dqEvent(d.event_id);
+    return '<div class="dq" data-dq="' + esc(d.id) + '">' +
+      '<div class="dq-h"><b>' + esc(d.name) + "</b>" + (d.status === "replied" ? '<em class="dq-done" style="font-style:normal">Replied</em>' : "") + "<span>" + fmtTime(d.created_at) + "</span></div>" +
+      (ev ? '<div class="dq-ev">' + esc(ev) + "</div>" : "") +
+      '<div class="dq-q">' + esc(d.question) + "</div>" +
+      '<div class="dq-c">' + esc(d.phone) + " · " + esc(d.email) + "</div>" +
+      '<textarea placeholder="Type your answer here">' + esc(d.answer || "") + "</textarea>" +
+      '<div class="dq-b"><a class="dq-wa" target="_blank" rel="noopener">Reply on WhatsApp</a><a class="dq-em">Reply by email</a></div>' +
+      '<div class="dq-x">' + (d.status === "replied" ? '<button data-dqnew>Move back to new</button>' : '<button data-dqdone>Mark as replied</button>') + '<button data-dqrm class="danger">Delete</button></div>' +
+      "</div>";
+  }).join("");
+  $("dqList").querySelectorAll(".dq").forEach(c => dqLinks(c, DOUBTS.find(x => x.id === c.dataset.dq)));
+}
+async function dqSave(d, patch){
+  const { error } = await db.from("doubts").update(patch).eq("id", d.id);
+  if (error){ toast("Couldn't save"); return false; }
+  Object.assign(d, patch); return true;
+}
+$("dqStatus").onclick = e => {
+  const b = e.target.closest("button[data-st]"); if (!b) return;
+  dqStatus = b.dataset.st;
+  $("dqStatus").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  renderDoubts();
+};
+$("dqList").addEventListener("input", e => {
+  const c = e.target.closest(".dq"); if (c && e.target.tagName === "TEXTAREA") dqLinks(c, DOUBTS.find(x => x.id === c.dataset.dq));
+});
+$("dqList").addEventListener("click", async e => {
+  const c = e.target.closest(".dq"); if (!c) return;
+  const d = DOUBTS.find(x => x.id === c.dataset.dq);
+  const answer = c.querySelector("textarea").value.trim();
+  if (e.target.closest(".dq-wa,.dq-em")){
+    // the link opens straight away; save the answer and mark it replied in the background
+    dqSave(d, {answer, status: "replied", replied_at: new Date().toISOString()}).then(ok => { if (ok) setTimeout(renderDoubts, 600); });
+    return;
+  }
+  if (e.target.closest("[data-dqdone]")){ if (await dqSave(d, {answer, status: "replied", replied_at: new Date().toISOString()})){ renderDoubts(); toast("Marked as replied"); } return; }
+  if (e.target.closest("[data-dqnew]")){ if (await dqSave(d, {status: "new"})){ renderDoubts(); toast("Moved to new"); } return; }
+  if (e.target.closest("[data-dqrm]")){
+    if (!confirmBox("Delete " + d.name + "'s doubt?")) return;
+    const { error } = await db.from("doubts").delete().eq("id", d.id);
+    if (error) return toast("Couldn't delete");
+    DOUBTS = DOUBTS.filter(x => x.id !== d.id); renderDoubts(); toast("Deleted");
+  }
+});
+document.querySelector('.tabs [data-go="doubts"]').addEventListener("click", async () => {
+  const dq = await db.from("doubts").select("*").order("created_at", {ascending:false});
+  if (!dq.error){ DOUBTS = dq.data || []; renderDoubts(); }
+});
 
 /* Waitlist */
 let WAITLIST = [];
