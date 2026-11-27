@@ -150,7 +150,8 @@ async function handleEvent(body, env) {
       // Skip our own replies (no loops) and replies-to-replies
       if (!commentId || !mediaId || fromId === entry.id || c.parent_id) continue;
 
-      const rule = await getRule(entry.id, mediaId);
+      // Reels with their own rule use it (on or off). New posts with no rule fall back to the default.
+      const rule = (await getRule(entry.id, mediaId)) || (await defaultRule(API, account.token, mediaId));
       if (!rule || !rule.enabled) continue;          // not set up / switched off -> no auto DM
       if (!matches(rule, c.text)) continue;          // keyword trigger didn't match
 
@@ -236,4 +237,28 @@ async function validSignature(raw, header, secret) {
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(raw));
   const hex = [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
   return hex === header.slice(7);
+}
+
+// ---- Default for new posts ----
+// Any post published after DEFAULT_SINCE that has no rule of its own in the admin panel
+// gets this rule automatically. Setting a post up (or switching it off) in the admin
+// panel always wins. Change DEFAULT_RULE / DEFAULT_SINCE when the next event comes up.
+const DEFAULT_SINCE = "2026-11-27T00:00:00Z";
+const DEFAULT_RULE = {
+  enabled: true,
+  trigger: "keywords",
+  keywords: ["run"],
+  reply: "Check your DMs for the details!",
+  dm: "Hi girlie! Thanks for showing interest in our Sunset Girlies Run. We are galcode, a girls-only community based in Chennai built for girls by a girl's girl. To get more event details and reserve your spot, press the button below!",
+  button_text: "Sunset Girlies Run",
+  button_link: "https://galcode.vercel.app/#sunset-run-club",
+};
+
+async function defaultRule(API, token, mediaId) {
+  try {
+    const res = await fetch(`${API}/${mediaId}?fields=timestamp`, { headers: { Authorization: `Bearer ${token}` } });
+    const j = await res.json();
+    if (j.timestamp && Date.parse(j.timestamp) >= Date.parse(DEFAULT_SINCE)) return DEFAULT_RULE;
+  } catch {}
+  return null;
 }
